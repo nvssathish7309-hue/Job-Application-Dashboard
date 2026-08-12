@@ -168,6 +168,7 @@ export function CandidateProvider({ children }) {
       interviewCount: interview,
       selectedCount: selected,
       rejectedCount: rejected,
+      appliedCount: newCount,
       newCount: newCount
     };
   }, [candidates]);

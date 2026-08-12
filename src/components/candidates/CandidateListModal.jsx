@@ -25,7 +25,8 @@ export default function CandidateListModal({ isOpen, onClose, title, statusFilte
     const matchStatus = 
       !statusFilter || 
       statusFilter === 'All' || 
-      s.includes(statusFilter.toLowerCase());
+      s.includes(statusFilter.toLowerCase()) ||
+      (statusFilter.toLowerCase() === 'applied' && (s.includes('applied') || s.includes('new')));
 
     const q = searchTerm.toLowerCase();
     const matchSearch = 

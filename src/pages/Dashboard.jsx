@@ -19,13 +19,15 @@ const PIPELINE_SEGMENTS = [
   { key: 'interview',   label: 'Interview',   color: '#f59e0b', bg: 'bg-amber-500',   text: 'text-amber-700',  light: '#fffbeb', border: '#fde68a' },
   { key: 'selected',    label: 'Selected',    color: '#10b981', bg: 'bg-emerald-500', text: 'text-emerald-700',light: '#ecfdf5', border: '#a7f3d0' },
   { key: 'rejected',    label: 'Rejected',    color: '#ef4444', bg: 'bg-rose-500',    text: 'text-rose-700',   light: '#fff1f2', border: '#fecdd3' },
+  { key: 'applied',     label: 'Applied',     color: '#8b5cf6', bg: 'bg-purple-500',  text: 'text-purple-700', light: '#f3e8ff', border: '#e9d5ff' },
 ];
 
 function getMetricValue(metrics, key) {
   return key === 'shortlisted' ? metrics.shortlistedCount
        : key === 'interview'   ? metrics.interviewCount
        : key === 'selected'    ? metrics.selectedCount
-       :                         metrics.rejectedCount;
+       : key === 'rejected'    ? metrics.rejectedCount
+       :                         (metrics.appliedCount ?? metrics.newCount);
 }
 
 // ── CHART: Horizontal stacked bar ─────────────────────────────────────────────
@@ -43,7 +45,7 @@ function HorizontalBarChart({ metrics }) {
           ) : null;
         })}
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
         <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-300 flex items-center justify-between">
           <span className="text-slate-500 font-medium">All</span>
           <span className="font-bold text-slate-500">{metrics.totalCandidates}</span>
@@ -287,7 +289,8 @@ export default function Dashboard() {
         c.skills.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
       
       const matchStatus = statusFilter === 'All' || 
-        c.status.toLowerCase().includes(statusFilter.toLowerCase());
+        c.status.toLowerCase().includes(statusFilter.toLowerCase()) ||
+        (statusFilter.toLowerCase() === 'applied' && (c.status.toLowerCase().includes('applied') || c.status.toLowerCase().includes('new')));
 
       const matchRole = roleFilter === 'All' || 
         c.role.toLowerCase() === roleFilter.toLowerCase();
