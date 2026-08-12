@@ -53,13 +53,10 @@ export default function Login() {
       
       {/* Brand Title Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-white border border-slate-200 shadow-md mb-4">
-          <MindMatrixLogo className="w-10 h-10" />
+        <div className="flex justify-center mb-2">
+          <MindMatrixLogo layout="vertical" showTagline={false} />
         </div>
-        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-          MindMatrix Recruitment
-        </h2>
-        <p className="mt-2 text-sm text-slate-500 font-medium">
+        <p className="text-xs text-slate-500 font-medium">
           Sign in to your full-stack job application suite
         </p>
       </div>

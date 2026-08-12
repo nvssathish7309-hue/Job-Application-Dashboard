@@ -23,16 +23,8 @@ export default function Navbar() {
       
       {/* Left: Brand Logo & Title */}
       <div className="flex items-center gap-3">
-        <Link to="/dashboard" className="flex items-center gap-2.5 group">
-          <MindMatrixLogo className="w-8 h-8 group-hover:scale-105 transition-transform" />
-          <div className="hidden sm:block">
-            <h1 className="text-base font-extrabold text-slate-900 tracking-tight leading-none">
-              MindMatrix
-            </h1>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              Recruitment Suite
-            </span>
-          </div>
+        <Link to="/dashboard" className="group hover:opacity-95 transition-opacity">
+          <MindMatrixLogo layout="horizontal" showTagline={true} />
         </Link>
       </div>
 

@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * Concentric Arcs Icon component — Blue palette brand version.
+ * Concentric Arcs Icon component — Clean centered emblem.
  */
 export function MindMatrixIcon({ className = "w-8 h-8", ...props }) {
   return (
@@ -14,32 +14,32 @@ export function MindMatrixIcon({ className = "w-8 h-8", ...props }) {
     >
       {/* Outer Arch - Deep Blue */}
       <path
-        d="M 8 64 A 52 52 0 0 1 112 64"
+        d="M 12 60 A 48 48 0 0 1 108 60"
         stroke="#1d4ed8"
-        strokeWidth="11"
-        strokeLinecap="butt"
+        strokeWidth="10"
+        strokeLinecap="round"
       />
       {/* Middle Arch - Light Blue */}
       <path
-        d="M 23 64 A 37 37 0 0 1 97 64"
+        d="M 26 60 A 34 34 0 0 1 94 60"
         stroke="#60a5fa"
-        strokeWidth="4.5"
-        strokeLinecap="butt"
+        strokeWidth="5"
+        strokeLinecap="round"
       />
       {/* Inner Arch - Deep Blue */}
       <path
-        d="M 36 64 A 24 24 0 0 1 84 64"
+        d="M 38 60 A 22 22 0 0 1 82 60"
         stroke="#1d4ed8"
-        strokeWidth="9.5"
-        strokeLinecap="butt"
+        strokeWidth="8.5"
+        strokeLinecap="round"
       />
     </svg>
   );
 }
 
 /**
- * Full MindMatrix Logo component featuring the arc emblem and stylized typography.
- * Supports 'horizontal' (navbar friendly), 'vertical' (stacked), and 'iconOnly'.
+ * Full MindMatrix Logo component featuring the arc emblem and clean typography.
+ * Supports 'horizontal', 'vertical', and 'iconOnly'.
  */
 export default function MindMatrixLogo({
   layout = 'horizontal',
@@ -47,40 +47,46 @@ export default function MindMatrixLogo({
   className = ''
 }) {
   if (layout === 'iconOnly') {
-    return <MindMatrixIcon className={className || "w-9 h-9"} />;
+    return (
+      <div className={`flex items-center justify-center p-2 rounded-2xl bg-blue-50/90 border border-blue-100/80 ${className}`}>
+        <MindMatrixIcon className="w-8 h-5" />
+      </div>
+    );
   }
 
   if (layout === 'vertical') {
     return (
-      <div className={`flex flex-col items-center text-center ${className}`}>
-        <MindMatrixIcon className="w-24 h-14 mb-1" />
+      <div className={`flex flex-col items-center justify-center text-center ${className}`}>
+        <div className="w-14 h-14 rounded-2xl bg-blue-50/90 border border-blue-100 flex items-center justify-center mb-2 shadow-2xs">
+          <MindMatrixIcon className="w-9 h-6" />
+        </div>
         <div className="flex items-baseline text-2xl font-bold tracking-tight">
           <span style={{ color: '#1d4ed8' }} className="font-extrabold">Mind</span>
-          <span style={{ color: '#60a5fa' }} className="font-bold">Matrix</span>
+          <span style={{ color: '#3b82f6' }} className="font-bold">Matrix</span>
         </div>
         {showTagline && (
-          <span className="text-xs text-slate-500 font-medium tracking-wide mt-0.5">
-            RECRUITMENT PLATFORM
+          <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mt-1">
+            Recruitment Suite
           </span>
         )}
       </div>
     );
   }
 
-  // Default: Horizontal Layout (Navbars)
+  // Default: Horizontal Layout
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      <div className="btn-moving-light relative flex items-center justify-center p-1.5 rounded-xl bg-blue-50 border border-blue-100 shadow-sm">
-        <MindMatrixIcon className="w-9 h-6" />
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <div className="flex items-center justify-center p-1.5 rounded-xl bg-blue-50/90 border border-blue-100 shadow-2xs">
+        <MindMatrixIcon className="w-8 h-5" />
       </div>
       <div className="flex flex-col leading-none">
-        <div className="flex items-baseline text-xl font-bold tracking-tight">
+        <div className="flex items-baseline text-lg font-bold tracking-tight">
           <span style={{ color: '#1d4ed8' }} className="font-extrabold">Mind</span>
           <span style={{ color: '#3b82f6' }} className="font-bold">Matrix</span>
         </div>
         {showTagline && (
-          <span className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase mt-1">
-            Enterprise Recruitment
+          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+            Recruitment
           </span>
         )}
       </div>
