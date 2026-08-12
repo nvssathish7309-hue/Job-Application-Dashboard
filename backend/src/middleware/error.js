@@ -1,0 +1,14 @@
+const errorHandler = (err, req, res, next) => {
+  console.error('API Error Stack:', err);
+
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  const message = err.message || 'Internal Server Error';
+
+  res.status(statusCode).json({
+    success: false,
+    message,
+    errors: err.errors || []
+  });
+};
+
+module.exports = { errorHandler };

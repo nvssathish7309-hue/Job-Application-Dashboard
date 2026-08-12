@@ -1,0 +1,306 @@
+const Candidate = require('../models/Candidate');
+const Application = require('../models/Application');
+const Notification = require('../models/Notification');
+const { generateCustomId } = require('../utils/idGenerator');
+const { createAuditLog } = require('../services/auditService');
+
+const getCandidates = async (req, res, next) => {
+  try {
+    const { search, role, status, experience, sortBy = 'createdAt', order = 'desc', page = 1, limit = 50 } = req.query;
+
+    const query = {};
+
+    if (search) {
+      query.$or = [
+        { fullName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { role: { $regex: search, $options: 'i' } },
+        { skills: { $in: [new RegExp(search, 'i')] } }
+      ];
+    }
+
+    if (role && role !== 'All') {
+      query.role = { $regex: new RegExp(`^${role}$`, 'i') };
+    }
+
+    if (status && status !== 'All') {
+      query.status = { $regex: new RegExp(`^${status}$`, 'i') };
+    }
+
+    if (experience && experience !== 'All') {
+      if (experience === '0-2') query.experience = { $regex: /0|1|2|Fresher/i };
+      else if (experience === '3-5') query.experience = { $regex: /3|4|5/i };
+      else if (experience === '5+') query.experience = { $regex: /6|7|8|9|10|\+/i };
+    }
+
+    const sortOrder = order === 'asc' ? 1 : -1;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const candidates = await Candidate.find(query)
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Candidate.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      data: candidates,
+      pagination: {
+        total,
+        page: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getCandidateById = async (req, res, next) => {
+  try {
+    const candidate = await Candidate.findById(req.params.id);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found.' });
+    }
+    res.status(200).json({ success: true, data: candidate });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createCandidate = async (req, res, next) => {
+  try {
+    const { fullName, email, phone, role, skills, education, experience, projects } = req.body;
+
+    if (!fullName || !email || !phone || !role) {
+      return res.status(400).json({ success: false, message: 'Full name, email, phone, and role are required.' });
+    }
+
+    const candidateId = await generateCustomId(Candidate, 'CAN');
+
+    const parsedSkills = Array.isArray(skills) 
+      ? skills 
+      : typeof skills === 'string' ? skills.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+    const parsedProjects = Array.isArray(projects) 
+      ? projects 
+      : typeof projects === 'string' ? projects.split(',').map(p => p.trim()).filter(Boolean) : [];
+
+    let resumeData = {};
+    if (req.file) {
+      resumeData = {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        path: `/uploads/${req.file.filename}`,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        uploadedAt: new Date()
+      };
+    }
+
+    const candidate = await Candidate.create({
+      candidateId,
+      fullName,
+      email,
+      phone,
+      role,
+      skills: parsedSkills,
+      education: education || 'Bachelor Degree',
+      experience: experience || 'Fresher',
+      projects: parsedProjects,
+      resume: resumeData,
+      status: 'Applied',
+      createdBy: req.user ? req.user._id : null
+    });
+
+    // Automatically create Application entry
+    const applicationId = await generateCustomId(Application, 'APP');
+    await Application.create({
+      applicationId,
+      candidateId: candidate._id,
+      status: 'New',
+      stage: 'New',
+      source: 'Direct',
+      appliedAt: new Date(),
+      stageHistory: [{
+        stage: 'New',
+        changedBy: req.user ? req.user._id : null,
+        remarks: 'Candidate application created'
+      }]
+    });
+
+    await createAuditLog({
+      req,
+      action: 'CREATE_CANDIDATE',
+      entity: 'Candidate',
+      entityId: candidate.candidateId,
+      newValue: candidate.fullName,
+      description: `Created candidate profile ${candidate.candidateId} (${candidate.fullName})`
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Candidate created successfully',
+      data: candidate
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateCandidate = async (req, res, next) => {
+  try {
+    const candidate = await Candidate.findById(req.params.id);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found.' });
+    }
+
+    const oldStatus = candidate.status;
+    Object.assign(candidate, req.body);
+    if (req.user) candidate.updatedBy = req.user._id;
+
+    if (req.file) {
+      candidate.resume = {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        path: `/uploads/${req.file.filename}`,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        uploadedAt: new Date()
+      };
+    }
+
+    await candidate.save();
+
+    await createAuditLog({
+      req,
+      action: 'UPDATE_CANDIDATE',
+      entity: 'Candidate',
+      entityId: candidate.candidateId,
+      oldValue: oldStatus,
+      newValue: candidate.status,
+      description: `Updated candidate ${candidate.candidateId}`
+    });
+
+    res.status(200).json({ success: true, message: 'Candidate updated successfully', data: candidate });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteCandidate = async (req, res, next) => {
+  try {
+    const candidate = await Candidate.findByIdAndDelete(req.params.id);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found.' });
+    }
+
+    await createAuditLog({
+      req,
+      action: 'DELETE_CANDIDATE',
+      entity: 'Candidate',
+      entityId: candidate.candidateId,
+      description: `Deleted candidate ${candidate.candidateId} (${candidate.fullName})`
+    });
+
+    res.status(200).json({ success: true, message: 'Candidate deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const shortlistCandidate = async (req, res, next) => {
+  try {
+    const candidate = await Candidate.findById(req.params.id);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found.' });
+    }
+
+    const oldStatus = candidate.status;
+    candidate.status = 'Shortlisted';
+    await candidate.save();
+
+    await Application.updateMany(
+      { candidateId: candidate._id },
+      { 
+        $set: { status: 'Shortlisted', stage: 'Shortlisted' },
+        $push: { 
+          stageHistory: { 
+            stage: 'Shortlisted', 
+            changedBy: req.user ? req.user._id : null,
+            remarks: req.body.remarks || 'Shortlisted by HR'
+          } 
+        }
+      }
+    );
+
+    await createAuditLog({
+      req,
+      action: 'SHORTLIST_CANDIDATE',
+      entity: 'Candidate',
+      entityId: candidate.candidateId,
+      oldValue: oldStatus,
+      newValue: 'Shortlisted',
+      description: `Shortlisted candidate ${candidate.candidateId} (${candidate.fullName})`
+    });
+
+    res.status(200).json({ success: true, message: 'Candidate shortlisted successfully', data: candidate });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const rejectCandidate = async (req, res, next) => {
+  try {
+    const candidate = await Candidate.findById(req.params.id);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found.' });
+    }
+
+    const oldStatus = candidate.status;
+    candidate.status = 'Rejected';
+    if (req.body.reason) {
+      candidate.notes.push(`Rejection reason: ${req.body.reason}`);
+    }
+    await candidate.save();
+
+    await Application.updateMany(
+      { candidateId: candidate._id },
+      { 
+        $set: { status: 'Rejected', stage: 'Rejected' },
+        $push: { 
+          stageHistory: { 
+            stage: 'Rejected', 
+            changedBy: req.user ? req.user._id : null,
+            remarks: req.body.reason || 'Rejected during review'
+          } 
+        }
+      }
+    );
+
+    await createAuditLog({
+      req,
+      action: 'REJECT_CANDIDATE',
+      entity: 'Candidate',
+      entityId: candidate.candidateId,
+      oldValue: oldStatus,
+      newValue: 'Rejected',
+      description: `Rejected candidate ${candidate.candidateId} (${candidate.fullName})`
+    });
+
+    res.status(200).json({ success: true, message: 'Candidate rejected', data: candidate });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  getCandidates,
+  getCandidateById,
+  createCandidate,
+  updateCandidate,
+  deleteCandidate,
+  shortlistCandidate,
+  rejectCandidate
+};

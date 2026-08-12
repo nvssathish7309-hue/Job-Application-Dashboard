@@ -1,17 +1,107 @@
-# React + Vite
+# Full-Stack Job Application Management System (MERN)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A production-quality full-stack internal recruitment platform built with **React, Node.js, Express, MongoDB, Mongoose, JWT Authentication, and Multer file uploads**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Key Features & Capability Overview
 
-## React Compiler
+- **Authentication & Security**:
+  - JWT (JSON Web Token) authentication with bearer authorization header interceptors.
+  - Role-Based Access Control (RBAC) with 4 permission levels (`SUPER_ADMIN`, `HR_MANAGER`, `RECRUITER`, `INTERVIEWER`).
+  - Bcrypt password hashing, Helmet headers, and Rate limiting.
+- **Candidate Management**:
+  - Candidate listing with search, status filter, role filter, experience filter, sorting, and pagination.
+  - Auto-generated candidate IDs (`CAN-0001`, `CAN-0002`).
+  - Resume upload support (`PDF`, `DOC`, `DOCX`) with static document serving.
+  - Shortlist & Reject actions with reason logging and stage history recording.
+- **Recruitment Pipeline**:
+  - Interactive Kanban board (`New`, `Screening`, `Shortlisted`, `Interview`, `Selected`, `Rejected`).
+  - Stage update tracking with audit log history generation.
+- **Interview Scheduling & Evaluation**:
+  - Interview booking with interviewer assignment and meeting links.
+  - 1 to 5 star rating evaluations and hiring recommendations (`Strong Hire`, `Hire`, `Hold`, `Reject`).
+  - Dedicated Interviewer Dashboard.
+- **Dashboard & Analytics**:
+  - Summary metric cards (`Total Candidates`, `Shortlisted`, `Interview Scheduled`, `Selected`).
+  - Recharts analytics visualization and CSV exports.
+- **Audit Logs & Notifications**:
+  - Immutable activity history logging.
+  - Real-time unread notification count badge and dropdown.
+- **Public Careers Portal**:
+  - External careers page (`/careers`) allowing candidates to view openings and apply directly.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## 🔑 Demo Login Credentials
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
-"# Job-Application-Dashboard" 
+You can log in manually or click the **One-Click Demo Account Badges** on the login page:
+
+| Role | Email | Password | Allowed Access |
+| :--- | :--- | :--- | :--- |
+| **Super Admin** | `admin@company.com` | `Password123!` | Full System, User Management, Audit Logs, Settings |
+| **HR Manager** | `hr@company.com` | `Password123!` | Dashboard, Candidates, Jobs, Pipeline, Reports |
+| **Recruiter** | `recruiter@company.com` | `Password123!` | Dashboard, Candidates, Jobs, Schedule Interviews |
+| **Interviewer** | `interviewer@company.com` | `Password123!` | Assigned Interviews, Candidate Evaluation & Feedback |
+
+---
+
+## 🛠️ Project Structure
+
+```text
+job-application-dashboard/
+├── package.json               Root workspace scripts
+├── README.md                  Documentation
+├── backend/                   Node.js + Express + MongoDB Server
+│   ├── src/
+│   │   ├── config/            db.js (MongoDB config)
+│   │   ├── controllers/       auth, candidate, job, application, interview, user, report
+│   │   ├── middleware/        auth (JWT), rbac (Roles), upload (Multer), error
+│   │   ├── models/            User, Candidate, Job, Application, Interview, Feedback, AuditLog, Notification
+│   │   ├── routes/            REST API Endpoints
+│   │   ├── services/          auditService, emailService
+│   │   └── server.js          Express Application
+│   ├── uploads/               Resume file storage
+│   └── package.json
+└── frontend/                  React + Vite + Tailwind CSS Application
+    ├── src/
+    │   ├── components/        Navbar, Sidebar, ProtectedRoute, NotificationsDropdown
+    │   ├── context/           AuthContext, CandidateContext, NotificationContext
+    │   ├── pages/             Login, Dashboard, Candidates, CandidateDetails, AddCandidate, Jobs, RecruitmentPipeline, Interviews, Users, Reports, PublicCareers
+    │   └── services/          Axios API services (api, authService, candidateService, etc.)
+    └── package.json
+```
+
+---
+
+## 🚦 Quick Start Setup Instructions
+
+### 1. Install Dependencies
+```bash
+# Install backend dependencies
+cd backend
+npm install
+
+# Install frontend dependencies
+cd ../frontend
+npm install
+```
+
+### 2. Seed Database with Demo Data
+```bash
+cd backend
+npm run seed
+```
+
+### 3. Run Application
+```bash
+# Terminal 1: Run Backend API (Port 5000)
+cd backend
+npm run dev
+
+# Terminal 2: Run Frontend App (Port 5173)
+cd frontend
+npm run dev
+```
+
+Open `http://localhost:5173` in your browser.
