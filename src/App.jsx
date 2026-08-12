@@ -7,6 +7,7 @@ import Candidates from './pages/Candidates';
 import CandidateDetails from './pages/CandidateDetails';
 import AddCandidate from './pages/AddCandidate';
 import Settings from './pages/Settings';
+import Trash from './pages/Trash';
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/candidates/add" element={<AddCandidate />} />
             <Route path="/candidates/:id" element={<CandidateDetails />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/trash" element={<Trash />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </DashboardLayout>

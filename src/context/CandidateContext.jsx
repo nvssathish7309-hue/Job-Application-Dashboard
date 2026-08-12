@@ -6,6 +6,7 @@ const CandidateContext = createContext(null);
 const LOCAL_STORAGE_KEY = 'mindmatrix_candidates_v4';
 const HR_PROFILE_STORAGE_KEY = 'mindmatrix_hr_profile_v1';
 const LOCAL_STORAGE_NOTIFS_KEY = 'mindmatrix_notifications_v2';
+const LOCAL_STORAGE_TRASH_KEY = 'mindmatrix_trashed_candidates_v2';
 
 const DEFAULT_HR_PROFILE = {
   name: 'Ankita Kumar',
@@ -51,6 +52,18 @@ export function CandidateProvider({ children }) {
     return INITIAL_CANDIDATES;
   });
 
+  const [trashedCandidates, setTrashedCandidates] = useState(() => {
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_TRASH_KEY);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.error("Failed to load trash from localStorage", e);
+    }
+    return [];
+  });
+
   const [hrProfile, setHrProfile] = useState(() => {
     try {
       const stored = localStorage.getItem(HR_PROFILE_STORAGE_KEY);
@@ -86,6 +99,15 @@ export function CandidateProvider({ children }) {
       console.error("Failed to save candidates to localStorage", e);
     }
   }, [candidates]);
+
+  // Sync trashedCandidates to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_TRASH_KEY, JSON.stringify(trashedCandidates));
+    } catch (e) {
+      console.error("Failed to save trashed candidates to localStorage", e);
+    }
+  }, [trashedCandidates]);
 
   // Sync hrProfile to localStorage
   useEffect(() => {
@@ -300,11 +322,44 @@ export function CandidateProvider({ children }) {
   };
 
   const deleteCandidate = (candidateId) => {
-    setCandidates(prev => prev.filter(c => c.id !== candidateId));
+    const candidate = candidates.find(c => c.id === candidateId);
+    if (candidate) {
+      const trashedItem = {
+        ...candidate,
+        trashedAt: new Date().toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      };
+      setCandidates(prev => prev.filter(c => c.id !== candidateId));
+      setTrashedCandidates(prev => [trashedItem, ...prev]);
+    }
+  };
+
+  const restoreCandidate = (candidateId) => {
+    const candidate = trashedCandidates.find(c => c.id === candidateId);
+    if (candidate) {
+      const { trashedAt, ...restored } = candidate;
+      setTrashedCandidates(prev => prev.filter(c => c.id !== candidateId));
+      setCandidates(prev => [restored, ...prev]);
+    }
+  };
+
+  const permanentlyDeleteCandidate = (candidateId) => {
+    setTrashedCandidates(prev => prev.filter(c => c.id !== candidateId));
     setNotifications(prev => prev.filter(n => n.candidateId !== candidateId));
   };
 
-  // Automatically remove notifications referencing deleted candidates
+  const emptyTrash = () => {
+    const trashedIds = new Set(trashedCandidates.map(c => c.id));
+    setTrashedCandidates([]);
+    setNotifications(prev => prev.filter(n => !n.candidateId || !trashedIds.has(n.candidateId)));
+  };
+
+  // Automatically remove notifications referencing deleted or trashed candidates
   useEffect(() => {
     if (!candidates) return;
     const existingIds = new Set(candidates.map(c => c.id));
@@ -323,8 +378,10 @@ export function CandidateProvider({ children }) {
 
   const resetToDefaultData = () => {
     setCandidates(INITIAL_CANDIDATES);
+    setTrashedCandidates([]);
     setNotifications(DEFAULT_NOTIFICATIONS);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
+    localStorage.removeItem(LOCAL_STORAGE_TRASH_KEY);
     localStorage.removeItem(LOCAL_STORAGE_NOTIFS_KEY);
   };
 
@@ -332,6 +389,7 @@ export function CandidateProvider({ children }) {
     <CandidateContext.Provider
       value={{
         candidates,
+        trashedCandidates,
         metrics,
         hrProfile,
         updateHrProfile,
@@ -348,6 +406,9 @@ export function CandidateProvider({ children }) {
         setIsError,
         addCandidate,
         deleteCandidate,
+        restoreCandidate,
+        permanentlyDeleteCandidate,
+        emptyTrash,
         updateCandidateStatus,
         scheduleInterview,
         shortlistCandidate,

@@ -7,12 +7,13 @@ import {
   ChevronLeft,
   ChevronRight,
   UserPlus,
+  Trash2
 } from 'lucide-react';
 import { useCandidates } from '../../context/CandidateContext';
 import { MindMatrixIcon } from '../MindMatrixLogo';
 
 export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
-  const { metrics } = useCandidates();
+  const { metrics, trashedCandidates } = useCandidates();
 
   const navItems = [
     { name: 'Dashboard',     path: '/dashboard',       icon: LayoutDashboard, badge: null },
@@ -22,6 +23,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
 
   const secondaryItems = [
     { name: 'Settings', path: '/settings', icon: Settings, badge: null },
+    { name: 'Trash', path: '/trash', icon: Trash2, badge: trashedCandidates?.length > 0 ? trashedCandidates.length : null },
   ];
 
   const sidebarContent = (
@@ -126,14 +128,27 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all group ${
                       isActive
-                        ? 'bg-blue-600 text-white font-semibold'
+                        ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-200'
                         : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                     }`
                   }
                 >
-                  <Icon className="w-5 h-5 shrink-0" />
-                  {(!collapsed || mobileOpen) && (
-                    <span className="flex-1 truncate">{item.name}</span>
+                  {({ isActive }) => (
+                    <>
+                      <Icon className="w-5 h-5 shrink-0" />
+                      {(!collapsed || mobileOpen) && (
+                        <span className="flex-1 truncate">{item.name}</span>
+                      )}
+                      {(!collapsed || mobileOpen) && item.badge !== null && (
+                        <span className={`px-2 py-0.5 text-xs font-bold rounded-full transition-colors ${
+                          isActive
+                            ? 'bg-white/20 text-white'
+                            : 'bg-rose-100 text-rose-700'
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </>
                   )}
                 </NavLink>
               );
