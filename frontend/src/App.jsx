@@ -59,19 +59,60 @@ export default function App() {
                 }
               >
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/candidates" element={<Candidates />} />
-                <Route path="/candidates/:id" element={<CandidateDetails />} />
-                <Route path="/candidates/add" element={<AddCandidate />} />
+                
+                {/* Candidate Management - Internal Roles Only */}
+                <Route
+                  path="/candidates"
+                  element={
+                    <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER']}>
+                      <Candidates />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/candidates/:id"
+                  element={
+                    <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER']}>
+                      <CandidateDetails />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/candidates/add"
+                  element={
+                    <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']}>
+                      <AddCandidate />
+                    </ProtectedRoute>
+                  }
+                />
 
+                {/* Job Postings */}
                 <Route path="/jobs" element={<Jobs />} />
-                <Route path="/jobs/create" element={<CreateJob />} />
+                <Route
+                  path="/jobs/create"
+                  element={
+                    <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']}>
+                      <CreateJob />
+                    </ProtectedRoute>
+                  }
+                />
 
+                {/* Applications & Pipeline */}
                 <Route path="/applications" element={<RecruitmentPipeline />} />
-                <Route path="/applications/pipeline" element={<RecruitmentPipeline />} />
+                <Route
+                  path="/applications/pipeline"
+                  element={
+                    <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']}>
+                      <RecruitmentPipeline />
+                    </ProtectedRoute>
+                  }
+                />
 
+                {/* Interviews & Feedback */}
                 <Route path="/interviews" element={<Interviews />} />
                 <Route path="/interviews/:id/feedback" element={<InterviewFeedback />} />
 
+                {/* Super Admin User Management */}
                 <Route
                   path="/users"
                   element={
@@ -81,6 +122,7 @@ export default function App() {
                   }
                 />
 
+                {/* Audit Logs */}
                 <Route
                   path="/audit-logs"
                   element={
@@ -90,10 +132,11 @@ export default function App() {
                   }
                 />
 
+                {/* Reports & Analytics */}
                 <Route
                   path="/reports"
                   element={
-                    <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_MANAGER']}>
+                    <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']}>
                       <Reports />
                     </ProtectedRoute>
                   }
