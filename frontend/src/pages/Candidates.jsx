@@ -257,16 +257,20 @@ export default function Candidates() {
                     </td>
                   </tr>
                 ) : (
-                  paginated.map(c => (
-                    <tr key={c.id} className="hover:bg-slate-50/80 transition-colors group">
+                  paginated.map(c => {
+                    const candidateName = c.fullName || c.name || 'Candidate';
+                    const candidateId = c._id || c.id;
+                    const initials = candidateName.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                    return (
+                    <tr key={candidateId} className="hover:bg-slate-50/80 transition-colors group">
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 font-bold flex items-center justify-center shrink-0 text-[11px]">
-                            {c.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            {initials}
                           </div>
                           <div className="min-w-0">
-                            <Link to={`/candidates/${c.id}`} className="font-semibold text-slate-900 hover:text-blue-600 transition-colors truncate block">
-                              {c.name}
+                            <Link to={`/candidates/${candidateId}`} className="font-semibold text-slate-900 hover:text-blue-600 transition-colors truncate block">
+                              {candidateName}
                             </Link>
                             <p className="text-[11px] text-slate-400 truncate">{c.email}</p>
                           </div>
@@ -305,20 +309,21 @@ export default function Candidates() {
                           </button>
                           <button
                             onClick={() => {
-                              if (window.confirm(`Move ${c.name} to trash?`)) {
-                                deleteCandidate(c.id);
+                              if (window.confirm(`Move ${candidateName} to trash?`)) {
+                                deleteCandidate(candidateId);
                               }
                             }}
                             className="p-1.5 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition-all cursor-pointer shadow-2xs"
-                            title={`Delete ${c.name}`}
+                            title={`Delete ${candidateName}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </td>
                     </tr>
-                  ))
-                )}
+                  );
+                })
+              )}
               </tbody>
             </table>
           </div>
@@ -384,16 +389,20 @@ export default function Candidates() {
             <EmptyState onClearFilters={hasActiveFilters ? clearFilters : undefined} showAddButton={!hasActiveFilters} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {paginated.map(c => (
-                <div key={c.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs hover:border-blue-300 hover:shadow-sm transition-all group">
+              {paginated.map(c => {
+                const candidateName = c.fullName || c.name || 'Candidate';
+                const candidateId = c._id || c.id;
+                const initials = candidateName.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                return (
+                <div key={candidateId} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs hover:border-blue-300 hover:shadow-sm transition-all group">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 font-bold flex items-center justify-center shrink-0 text-sm">
-                      {c.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      {initials}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-bold text-slate-900 text-sm truncate group-hover:text-blue-600 transition-colors">
-                        {c.name}
-                      </p>
+                      <Link to={`/candidates/${candidateId}`} className="font-bold text-slate-900 text-sm truncate block group-hover:text-blue-600 transition-colors">
+                        {candidateName}
+                      </Link>
                       <p className="text-xs text-slate-500 truncate">{c.role}</p>
                     </div>
                     <Badge status={c.status} />
@@ -414,7 +423,7 @@ export default function Candidates() {
 
                   <div className="flex items-center gap-1.5">
                     <Link
-                      to={`/candidates/${c.id}`}
+                      to={`/candidates/${candidateId}`}
                       className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-slate-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-slate-200 hover:border-blue-600 font-semibold text-xs transition-all"
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -423,24 +432,25 @@ export default function Candidates() {
                     <button
                       onClick={() => setEditingCandidate(c)}
                       className="p-2 rounded-xl text-amber-600 bg-amber-50 hover:bg-amber-600 hover:text-white border border-amber-200 transition-all cursor-pointer shrink-0"
-                      title={`Edit ${c.name}`}
+                      title={`Edit ${candidateName}`}
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => {
-                        if (window.confirm(`Move ${c.name} to trash?`)) {
-                          deleteCandidate(c.id);
+                        if (window.confirm(`Move ${candidateName} to trash?`)) {
+                          deleteCandidate(candidateId);
                         }
                       }}
                       className="p-2 rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition-all cursor-pointer shrink-0"
-                      title={`Delete ${c.name}`}
+                      title={`Delete ${candidateName}`}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
 

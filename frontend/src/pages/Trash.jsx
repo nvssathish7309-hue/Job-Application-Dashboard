@@ -128,15 +128,19 @@ export default function Trash() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filtered.map((c) => (
-                  <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
+                {filtered.map((c) => {
+                  const candidateName = c.fullName || c.name || 'Candidate';
+                  const candidateId = c._id || c.id;
+                  const initials = candidateName.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                  return (
+                  <tr key={candidateId} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-600 font-bold flex items-center justify-center shrink-0 text-xs border border-slate-200">
-                          {c.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          {initials}
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-900">{c.name}</p>
+                          <p className="font-semibold text-slate-900">{candidateName}</p>
                           <p className="text-[11px] text-slate-400">{c.email}</p>
                         </div>
                       </div>

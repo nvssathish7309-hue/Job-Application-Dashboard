@@ -117,13 +117,13 @@ export default function CandidateDetails() {
 
           {/* Avatar */}
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 font-extrabold text-xl flex items-center justify-center shrink-0">
-            {candidate.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+            {(candidate.fullName || candidate.name || 'Candidate').split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase()}
           </div>
 
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-3 mb-1">
-              <h1 className="text-xl font-extrabold text-slate-900">{candidate.name}</h1>
+              <h1 className="text-xl font-extrabold text-slate-900">{candidate.fullName || candidate.name || 'Candidate'}</h1>
               <Badge status={candidate.status} />
             </div>
             <p className="text-sm font-semibold text-slate-600 mb-3">{candidate.role} · {candidate.experience}</p>
