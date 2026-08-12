@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * Concentric Arcs Icon component — Clean centered emblem.
+ * Concentric Arcs Icon component — Perfectly centered emblem.
  */
 export function MindMatrixIcon({ className = "w-8 h-8", ...props }) {
   return (
@@ -38,7 +38,7 @@ export function MindMatrixIcon({ className = "w-8 h-8", ...props }) {
 }
 
 /**
- * Full MindMatrix Logo component featuring the arc emblem and clean typography.
+ * Full MindMatrix Logo component featuring centered emblem and glowing border animation.
  * Supports 'horizontal', 'vertical', and 'iconOnly'.
  */
 export default function MindMatrixLogo({
@@ -48,7 +48,7 @@ export default function MindMatrixLogo({
 }) {
   if (layout === 'iconOnly') {
     return (
-      <div className={`flex items-center justify-center p-2 rounded-2xl bg-blue-50/90 border border-blue-100/80 ${className}`}>
+      <div className={`btn-moving-light flex items-center justify-center p-2 rounded-2xl bg-blue-50/90 border border-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.3)] ${className}`}>
         <MindMatrixIcon className="w-8 h-5" />
       </div>
     );
@@ -57,8 +57,8 @@ export default function MindMatrixLogo({
   if (layout === 'vertical') {
     return (
       <div className={`flex flex-col items-center justify-center text-center ${className}`}>
-        <div className="w-14 h-14 rounded-2xl bg-blue-50/90 border border-blue-100 flex items-center justify-center mb-2 shadow-2xs">
-          <MindMatrixIcon className="w-9 h-6" />
+        <div className="btn-moving-light w-16 h-16 rounded-2xl bg-blue-50/90 border border-blue-200 flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(59,130,246,0.35)] relative z-10">
+          <MindMatrixIcon className="w-10 h-6" />
         </div>
         <div className="flex items-baseline text-2xl font-bold tracking-tight">
           <span style={{ color: '#1d4ed8' }} className="font-extrabold">Mind</span>
@@ -76,7 +76,7 @@ export default function MindMatrixLogo({
   // Default: Horizontal Layout
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      <div className="flex items-center justify-center p-1.5 rounded-xl bg-blue-50/90 border border-blue-100 shadow-2xs">
+      <div className="btn-moving-light flex items-center justify-center p-1.5 rounded-xl bg-blue-50/90 border border-blue-200 shadow-[0_0_12px_rgba(59,130,246,0.25)]">
         <MindMatrixIcon className="w-8 h-5" />
       </div>
       <div className="flex flex-col leading-none">
