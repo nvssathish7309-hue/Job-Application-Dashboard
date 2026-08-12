@@ -106,7 +106,7 @@ export default function EditCandidateModal({ candidate, isOpen, onClose }) {
             <div>
               <label className="block font-semibold text-slate-700 mb-1">Phone Number (10 digits)</label>
               <input
-                type="text"
+                type="tel"
                 value={formData.phone}
                 onChange={e => {
                   let input = e.target.value;
@@ -122,6 +122,7 @@ export default function EditCandidateModal({ candidate, isOpen, onClose }) {
                 maxLength={15}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white text-slate-900"
               />
+              <p className="text-[10px] text-slate-400 mt-1">Must be exactly 10 digits</p>
             </div>
 
             {/* Role */}

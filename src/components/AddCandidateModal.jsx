@@ -29,8 +29,10 @@ export default function AddCandidateModal({ isOpen, onClose, onAddCandidate }) {
       if (!value.trim()) error = 'Email address is required';
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) error = 'Enter a valid email address (e.g. name@company.com)';
     } else if (field === 'phone') {
+      let digits = (value || '').replace(/\D/g, '');
+      if (digits.startsWith('91')) digits = digits.slice(2);
       if (!value.trim()) error = 'Phone number is required';
-      else if (!/^\+?[0-9\s\-()]{8,15}$/.test(value.trim())) error = 'Enter a valid phone number (e.g. +91 9876543210)';
+      else if (digits.length !== 10) error = 'Phone number must be exactly 10 digits';
     } else if (field === 'skills') {
       if (!value.trim()) error = 'Provide at least 1 skill';
     } else if (field === 'educationDegree') {
@@ -214,11 +216,21 @@ export default function AddCandidateModal({ isOpen, onClose, onAddCandidate }) {
               <div className="relative">
                 <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
-                  type="text"
+                  type="tel"
                   placeholder="+91 9876543210"
                   value={formData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
+                  onChange={(e) => {
+                    let input = e.target.value;
+                    let digits = input.replace(/\D/g, '');
+                    if (digits.startsWith('91')) {
+                      digits = digits.slice(2);
+                    }
+                    const trimmedDigits = digits.slice(0, 10);
+                    const formatted = trimmedDigits ? `+91 ${trimmedDigits}` : '';
+                    handleChange('phone', formatted);
+                  }}
                   onBlur={() => handleBlur('phone')}
+                  maxLength={15}
                   className={`w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border rounded-xl ${
                     errors.phone && touched.phone
                       ? 'border-rose-400 focus:ring-rose-500 bg-rose-50/20'
@@ -226,6 +238,7 @@ export default function AddCandidateModal({ isOpen, onClose, onAddCandidate }) {
                   }`}
                 />
               </div>
+              <p className="text-[10px] text-slate-400 mt-1">Must be exactly 10 digits</p>
               {errors.phone && touched.phone && (
                 <p className="text-[11px] text-rose-500 font-semibold mt-1 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" /> {errors.phone}

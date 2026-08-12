@@ -207,34 +207,58 @@ function PieChartView({ metrics }) {
 
 // ── CHART: Funnel ─────────────────────────────────────────────────────────────
 function FunnelChart({ metrics }) {
-  const stages = [
-    { label: 'Total', value: metrics.totalCandidates, color: '#94a3b8' },
-    ...PIPELINE_SEGMENTS.map(s => ({ label: s.label, value: getMetricValue(metrics, s.key), color: s.color })),
-  ];
-  const max = stages[0].value || 1;
+  const total = metrics.totalCandidates || 1;
+
+  // Build stages and sort in descending order of value to ensure
+  // rounded pills decrease smoothly from top to bottom (Image 2 design with proper funnel order)
+  const sortedStages = useMemo(() => {
+    const raw = [
+      { label: 'Total', value: metrics.totalCandidates, color: '#94a3b8' },
+      ...PIPELINE_SEGMENTS.map(s => ({
+        label: s.label,
+        value: getMetricValue(metrics, s.key),
+        color: s.color
+      }))
+    ];
+    return raw.sort((a, b) => b.value - a.value);
+  }, [metrics]);
 
   return (
-    <div className="space-y-2 py-2">
-      {stages.map((stage, i) => {
-        const pct = (stage.value / max) * 100;
-        const indent = ((100 - pct) / 2);
+    <div className="space-y-3 py-3 w-full">
+      {sortedStages.map((stage) => {
+        const pct = Math.round((stage.value / total) * 100);
+        const barWidthPct = Math.max(8, pct);
+
         return (
-          <div key={stage.label} className="flex items-center gap-3">
-            <span className="text-[10px] font-bold text-slate-500 w-20 text-right shrink-0">{stage.label}</span>
+          <div key={stage.label} className="flex items-center gap-4 group">
+            {/* Left: Stage Label */}
+            <div className="w-24 text-right shrink-0">
+              <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors">
+                {stage.label}
+              </span>
+            </div>
+
+            {/* Center: Rounded Pill Bar (Image 2 design) */}
             <div className="flex-1 flex justify-center">
               <div
-                className="h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm transition-all duration-500 hover:opacity-80"
+                className="h-9 rounded-2xl flex items-center justify-center text-white text-xs font-extrabold shadow-xs transition-all duration-300 group-hover:scale-[1.01] group-hover:shadow-md"
                 style={{
-                  width: `${pct}%`,
+                  width: `${barWidthPct}%`,
                   minWidth: '40px',
-                  background: stage.color,
+                  backgroundColor: stage.color,
                 }}
-                title={`${stage.label}: ${stage.value}`}
+                title={`${stage.label}: ${stage.value} candidate(s) (${pct}%)`}
               >
                 {stage.value}
               </div>
             </div>
-            <span className="text-[10px] font-semibold text-slate-400 w-8 shrink-0">{pct.toFixed(0)}%</span>
+
+            {/* Right: Percentage */}
+            <div className="w-12 shrink-0">
+              <span className="text-xs font-semibold text-slate-500 group-hover:text-slate-900 transition-colors">
+                {pct}%
+              </span>
+            </div>
           </div>
         );
       })}

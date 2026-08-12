@@ -11,7 +11,7 @@ const LOCAL_STORAGE_TRASH_KEY = 'mindmatrix_trashed_candidates_v2';
 const DEFAULT_HR_PROFILE = {
   name: 'Ankita Kumar',
   email: 'ankita.kumar@mindmatrix.com',
-  phone: '+91 98765 43210',
+  phone: '+91 9876543210',
   title: 'Lead HR Recruiter',
   department: 'Talent Acquisition'
 };

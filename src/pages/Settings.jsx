@@ -33,6 +33,7 @@ export default function SettingsPage() {
   const [isProfileEdited, setIsProfileEdited] = useState(false);
   const [isNotificationsEdited, setIsNotificationsEdited] = useState(false);
   const [isSecurityEdited, setIsSecurityEdited] = useState(false);
+  const [hrPhoneError, setHrPhoneError] = useState('');
 
   // HR Profile local form state
   const [profileForm, setProfileForm] = useState({
@@ -80,8 +81,32 @@ export default function SettingsPage() {
     setIsProfileEdited(true); // Blue Save HR Profile button
   };
 
+  const handleHrPhoneChange = (e) => {
+    let input = e.target.value;
+    let digits = input.replace(/\D/g, '');
+    if (digits.startsWith('91')) {
+      digits = digits.slice(2);
+    }
+    const trimmedDigits = digits.slice(0, 10);
+    const formatted = trimmedDigits ? `+91 ${trimmedDigits}` : '';
+    handleProfileInputChange('phone', formatted);
+    if (hrPhoneError) setHrPhoneError('');
+  };
+
   const handleSaveProfile = (e) => {
     e.preventDefault();
+
+    let digits = (profileForm.phone || '').replace(/\D/g, '');
+    if (digits.startsWith('91')) {
+      digits = digits.slice(2);
+    }
+
+    if (!profileForm.phone || digits.length !== 10) {
+      setHrPhoneError('Phone number must be exactly 10 digits.');
+      return;
+    }
+
+    setHrPhoneError('');
     updateHrProfile(profileForm);
     setIsProfileEdited(false); // Matrix blue format "Saved" button
     
@@ -207,14 +232,24 @@ export default function SettingsPage() {
                 <div className="relative">
                   <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input 
-                    type="text"
+                    type="tel"
                     required
-                    placeholder="e.g. +91 98765 43210"
+                    placeholder="e.g. +91 9876543210"
                     value={profileForm.phone}
-                    onChange={(e) => handleProfileInputChange('phone', e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-blue-500"
+                    onChange={handleHrPhoneChange}
+                    maxLength={15}
+                    className={`w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border rounded-xl text-slate-800 font-medium focus:ring-2 ${
+                      hrPhoneError ? 'border-rose-400 focus:ring-rose-500' : 'border-slate-200 focus:ring-blue-500'
+                    }`}
                   />
                 </div>
+                <p className="text-[10px] text-slate-400 mt-1">Must be exactly 10 digits</p>
+                {hrPhoneError && (
+                  <p className="text-[11px] text-rose-600 font-semibold mt-1 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-600 inline-block"></span>
+                    {hrPhoneError}
+                  </p>
+                )}
               </div>
 
               <div>

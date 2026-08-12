@@ -255,8 +255,8 @@ export default function AddCandidate() {
                 Skills <span className="text-rose-500">*</span>
               </label>
               <div className={`flex flex-wrap gap-2 p-3 min-h-[52px] rounded-xl border transition-all ${errors.skills
-                  ? 'border-rose-400 focus-within:ring-2 focus-within:ring-rose-500 focus-within:border-rose-500'
-                  : 'border-slate-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-300 focus-within:bg-white'
+                ? 'border-rose-400 focus-within:ring-2 focus-within:ring-rose-500 focus-within:border-rose-500'
+                : 'border-slate-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-300 focus-within:bg-white'
                 } bg-slate-50`}>
                 {formData.skills.map((skill, i) => (
                   <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold">
@@ -343,10 +343,10 @@ export default function AddCandidate() {
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
               className={`btn-moving-light rounded-2xl p-10 text-center cursor-pointer transition-all relative ${isDragOver
-                  ? 'bg-blue-50/80 shadow-md'
-                  : errors.resume
-                    ? 'border border-rose-300'
-                    : 'bg-white hover:bg-slate-50/80'
+                ? 'bg-blue-50/80 shadow-md'
+                : errors.resume
+                  ? 'border border-rose-300'
+                  : 'bg-white hover:bg-slate-50/80'
                 }`}
             >
               <div className="relative z-[2]">
