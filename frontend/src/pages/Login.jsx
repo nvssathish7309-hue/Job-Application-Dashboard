@@ -56,7 +56,7 @@ export default function Login() {
         <div className="flex justify-center mb-2">
           <MindMatrixLogo layout="vertical" showTagline={false} />
         </div>
-        <p className="text-xs text-slate-500 font-bold tracking-wider uppercase mt-1">
+        <p className="text-xs font-black tracking-widest uppercase mt-1.5 bg-gradient-to-r from-blue-700 via-blue-500 to-indigo-600 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">
           RECRUITER HUB
         </p>
       </div>
