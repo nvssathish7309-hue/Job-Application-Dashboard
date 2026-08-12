@@ -43,7 +43,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 min-h-[calc(100vh-4rem)] p-4 flex flex-col justify-between shrink-0 shadow-lg hidden md:block">
+    <aside className="w-64 bg-white text-slate-700 min-h-[calc(100vh-4rem)] border-r border-slate-200 p-4 flex flex-col justify-between shrink-0 hidden md:block">
       <div className="space-y-6">
         {allNavItems.map((group, gIdx) => {
           const visibleItems = group.items.filter(item => item.roles.includes(user?.role));
@@ -65,7 +65,7 @@ export default function Sidebar() {
                         `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
                           isActive
                             ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-extrabold'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                            : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
                         }`
                       }
                     >
@@ -81,10 +81,10 @@ export default function Sidebar() {
       </div>
 
       {/* Role Footer Info */}
-      <div className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700 text-xs">
+      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
         <p className="text-[11px] font-semibold text-slate-400">Logged in as:</p>
-        <p className="font-extrabold text-white truncate">{user?.email}</p>
-        <span className="mt-1 inline-block text-[10px] font-black text-blue-400 uppercase tracking-widest">
+        <p className="font-extrabold text-slate-900 truncate">{user?.email}</p>
+        <span className="mt-1 inline-block text-[10px] font-black text-blue-600 uppercase tracking-widest">
           {user?.role?.replace('_', ' ')}
         </span>
       </div>
