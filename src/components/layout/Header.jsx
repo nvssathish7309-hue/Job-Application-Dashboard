@@ -127,12 +127,19 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
           <div className="relative" ref={notifRef}>
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200 relative transition-colors"
-              title="Notifications"
+              className={`p-2 rounded-xl border relative transition-all duration-300 ${
+                unreadNotifCount > 0
+                  ? 'notif-glow-active btn-moving-light border-blue-400 text-blue-600 bg-blue-50/60'
+                  : 'text-slate-600 hover:bg-slate-100 border-slate-200'
+              }`}
+              title={unreadNotifCount > 0 ? `${unreadNotifCount} new notification(s)` : 'Notifications'}
             >
               <Bell className="w-5 h-5" />
               {unreadNotifCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-white" />
+                <>
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-blue-600 ring-2 ring-white z-10" />
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping opacity-75 z-10" />
+                </>
               )}
             </button>
 
