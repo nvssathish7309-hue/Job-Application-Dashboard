@@ -2,13 +2,14 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Search, X, ChevronDown, SlidersHorizontal,
-  Eye, UserPlus, Users, ChevronLeft, ChevronRight, Trash2
+  Eye, UserPlus, Users, ChevronLeft, ChevronRight, Trash2, Pencil
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
 import Badge from '../components/common/Badge';
 import EmptyState from '../components/common/EmptyState';
 import ErrorState from '../components/common/ErrorState';
 import { TableRowSkeleton } from '../components/common/Skeleton';
+import EditCandidateModal from '../components/candidates/EditCandidateModal';
 
 // Debounce hook
 function useDebounce(value, delay = 300) {
@@ -25,6 +26,7 @@ const PAGE_SIZE = 10;
 export default function Candidates() {
   const location = useLocation();
   const { candidates, deleteCandidate, isLoading, isError, setIsError } = useCandidates();
+  const [editingCandidate, setEditingCandidate] = useState(null);
 
   // Parse initial search and status from URL query
   const params = new URLSearchParams(location.search);
@@ -286,7 +288,7 @@ export default function Candidates() {
                       </td>
                       <td className="py-3.5 px-4"><Badge status={c.status} /></td>
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1.5">
                           <Link
                             to={`/candidates/${c.id}`}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white font-semibold text-xs transition-all"
@@ -295,8 +297,15 @@ export default function Candidates() {
                             View
                           </Link>
                           <button
+                            onClick={() => setEditingCandidate(c)}
+                            className="p-1.5 rounded-lg text-amber-600 bg-amber-50 hover:bg-amber-600 hover:text-white border border-amber-200 transition-all cursor-pointer shadow-2xs"
+                            title={`Edit ${c.name}`}
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
                             onClick={() => {
-                              if (window.confirm(`Delete ${c.name}? All associated notifications will be removed.`)) {
+                              if (window.confirm(`Move ${c.name} to trash?`)) {
                                 deleteCandidate(c.id);
                               }
                             }}
@@ -403,17 +412,24 @@ export default function Candidates() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <Link
                       to={`/candidates/${c.id}`}
                       className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-slate-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-slate-200 hover:border-blue-600 font-semibold text-xs transition-all"
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      View Candidate
+                      View
                     </Link>
                     <button
+                      onClick={() => setEditingCandidate(c)}
+                      className="p-2 rounded-xl text-amber-600 bg-amber-50 hover:bg-amber-600 hover:text-white border border-amber-200 transition-all cursor-pointer shrink-0"
+                      title={`Edit ${c.name}`}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => {
-                        if (window.confirm(`Delete ${c.name}? All associated notifications will be removed.`)) {
+                        if (window.confirm(`Move ${c.name} to trash?`)) {
                           deleteCandidate(c.id);
                         }
                       }}
@@ -446,6 +462,13 @@ export default function Candidates() {
           )}
         </>
       )}
+
+      {/* Edit Candidate Modal */}
+      <EditCandidateModal
+        candidate={editingCandidate}
+        isOpen={!!editingCandidate}
+        onClose={() => setEditingCandidate(null)}
+      />
     </div>
   );
 }

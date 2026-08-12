@@ -321,6 +321,12 @@ export function CandidateProvider({ children }) {
     }
   };
 
+  const updateCandidate = (candidateId, updatedFields) => {
+    setCandidates(prev =>
+      prev.map(c => c.id === candidateId ? { ...c, ...updatedFields } : c)
+    );
+  };
+
   const deleteCandidate = (candidateId) => {
     const candidate = candidates.find(c => c.id === candidateId);
     if (candidate) {
@@ -405,6 +411,7 @@ export function CandidateProvider({ children }) {
         isError,
         setIsError,
         addCandidate,
+        updateCandidate,
         deleteCandidate,
         restoreCandidate,
         permanentlyDeleteCandidate,
