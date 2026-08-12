@@ -62,7 +62,7 @@ export default function Login() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-xl border border-slate-200 sm:rounded-3xl sm:px-10">
+        <div className="btn-moving-light bg-white py-8 px-6 shadow-[0_0_35px_rgba(59,130,246,0.25)] border border-blue-200/80 sm:rounded-3xl sm:px-10 relative z-10">
           
           {errorMessage && (
             <div className="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold animate-shake">
