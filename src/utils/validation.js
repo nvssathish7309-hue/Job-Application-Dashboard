@@ -20,12 +20,18 @@ export function validateCandidateForm(formData) {
     errors.email = "Please enter a valid email address (e.g. name@example.com).";
   }
 
-  // Phone validation (numeric / standard phone format)
-  const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
-  if (!formData.phone || !formData.phone.trim()) {
+  // Phone validation (MUST be exactly 10 digits)
+  const rawPhone = (formData.phone || '').trim();
+  const phoneDigits = rawPhone.replace(/\D/g, '');
+  let mobileDigits = phoneDigits;
+  if (phoneDigits.length === 12 && phoneDigits.startsWith('91')) {
+    mobileDigits = phoneDigits.slice(2);
+  }
+
+  if (!rawPhone) {
     errors.phone = "Phone number is required.";
-  } else if (!phoneRegex.test(formData.phone.trim().replace(/\s/g, ''))) {
-    errors.phone = "Please enter a valid phone number (min 10 digits).";
+  } else if (mobileDigits.length !== 10) {
+    errors.phone = "Phone number must be exactly 10 digits (11 digits is not allowed).";
   }
 
   // Role validation

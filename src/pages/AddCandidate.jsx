@@ -57,6 +57,17 @@ export default function AddCandidate() {
     setSkillInput('');
   };
 
+  const handlePhoneChange = (e) => {
+    let input = e.target.value;
+    let digits = input.replace(/\D/g, '');
+    if (digits.startsWith('91')) {
+      digits = digits.slice(2);
+    }
+    const trimmedDigits = digits.slice(0, 10);
+    const formatted = trimmedDigits ? `+91 ${trimmedDigits}` : '';
+    set('phone', formatted);
+  };
+
   const removeSkill = (skill) => set('skills', formData.skills.filter(s => s !== skill));
 
   const handleSkillKeyDown = (e) => {
@@ -186,11 +197,15 @@ export default function AddCandidate() {
               <div className="relative">
                 <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
-                  type="tel" placeholder="+91 9876543210"
-                  value={formData.phone} onChange={e => set('phone', e.target.value)}
+                  type="tel"
+                  placeholder="+91 9876543210"
+                  value={formData.phone}
+                  onChange={handlePhoneChange}
+                  maxLength={15}
                   className={`${inputClass('phone')} pl-9`}
                 />
               </div>
+              <p className="text-[10px] text-slate-400 mt-1">Must be exactly 10 digits</p>
               <FieldError error={errors.phone} />
             </div>
           </div>

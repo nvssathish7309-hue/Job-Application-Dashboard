@@ -104,11 +104,22 @@ export default function EditCandidateModal({ candidate, isOpen, onClose }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Phone */}
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Phone Number</label>
+              <label className="block font-semibold text-slate-700 mb-1">Phone Number (10 digits)</label>
               <input
                 type="text"
                 value={formData.phone}
-                onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                onChange={e => {
+                  let input = e.target.value;
+                  let digits = input.replace(/\D/g, '');
+                  if (digits.startsWith('91')) {
+                    digits = digits.slice(2);
+                  }
+                  const trimmedDigits = digits.slice(0, 10);
+                  const formatted = trimmedDigits ? `+91 ${trimmedDigits}` : '';
+                  setFormData(prev => ({ ...prev, phone: formatted }));
+                }}
+                placeholder="+91 9876543210"
+                maxLength={15}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white text-slate-900"
               />
             </div>
