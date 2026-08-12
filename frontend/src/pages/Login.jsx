@@ -56,8 +56,8 @@ export default function Login() {
         <div className="flex justify-center mb-2">
           <MindMatrixLogo layout="vertical" showTagline={false} />
         </div>
-        <p className="text-xs text-slate-500 font-medium">
-          Sign in to your full-stack job application suite
+        <p className="text-xs text-slate-500 font-bold tracking-wider uppercase mt-1">
+          RECRUITER HUB
         </p>
       </div>
 
