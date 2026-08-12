@@ -33,15 +33,21 @@ function getMetricValue(metrics, key) {
 // ── CHART: Horizontal stacked bar ─────────────────────────────────────────────
 function HorizontalBarChart({ metrics }) {
   const total = metrics.totalCandidates || 1;
+  const segments = useMemo(() => {
+    return PIPELINE_SEGMENTS.map(s => ({
+      ...s,
+      value: getMetricValue(metrics, s.key),
+      pct: (getMetricValue(metrics, s.key) / total) * 100
+    })).sort((a, b) => b.value - a.value);
+  }, [metrics, total]);
+
   return (
     <div className="space-y-4">
       <div className="w-full h-5 bg-slate-100 rounded-full overflow-hidden flex gap-0.5">
-        {PIPELINE_SEGMENTS.map(s => {
-          const val = getMetricValue(metrics, s.key);
-          const pct = (val / total) * 100;
-          return pct > 0 ? (
-            <div key={s.key} style={{ width: `${pct}%`, background: s.color }}
-              className="h-full transition-all rounded-sm" title={`${s.label}: ${val}`} />
+        {segments.map(s => {
+          return s.pct > 0 ? (
+            <div key={s.key} style={{ width: `${s.pct}%`, background: s.color }}
+              className="h-full transition-all rounded-sm" title={`${s.label}: ${s.value}`} />
           ) : null;
         })}
       </div>
@@ -50,11 +56,11 @@ function HorizontalBarChart({ metrics }) {
           <span className="text-slate-500 font-medium">All</span>
           <span className="font-bold text-slate-500">{metrics.totalCandidates}</span>
         </div>
-        {PIPELINE_SEGMENTS.map(s => (
+        {segments.map(s => (
           <div key={s.key} className="p-2.5 rounded-xl flex items-center justify-between border"
             style={{ background: s.light, borderColor: s.border }}>
             <span style={{ color: s.color }} className="font-medium">{s.label}</span>
-            <span style={{ color: s.color }} className="font-bold">{getMetricValue(metrics, s.key)}</span>
+            <span style={{ color: s.color }} className="font-bold">{s.value}</span>
           </div>
         ))}
       </div>
@@ -64,11 +70,14 @@ function HorizontalBarChart({ metrics }) {
 
 // ── CHART: Vertical bar ────────────────────────────────────────────────────────
 function VerticalBarChart({ metrics }) {
-  const total = metrics.totalCandidates || 1;
-  const allBars = [
-    { label: 'Total', value: metrics.totalCandidates, color: '#94a3b8' },
-    ...PIPELINE_SEGMENTS.map(s => ({ label: s.label, value: getMetricValue(metrics, s.key), color: s.color })),
-  ];
+  const allBars = useMemo(() => {
+    const raw = [
+      { label: 'Total', value: metrics.totalCandidates, color: '#94a3b8' },
+      ...PIPELINE_SEGMENTS.map(s => ({ label: s.label, value: getMetricValue(metrics, s.key), color: s.color })),
+    ];
+    return raw.sort((a, b) => b.value - a.value);
+  }, [metrics]);
+
   const max = Math.max(...allBars.map(b => b.value), 1);
 
   return (
@@ -97,11 +106,15 @@ function VerticalBarChart({ metrics }) {
 // ── CHART: Donut ───────────────────────────────────────────────────────────────
 function DonutChart({ metrics }) {
   const total = metrics.totalCandidates || 1;
-  const data = PIPELINE_SEGMENTS.map(s => ({
-    ...s,
-    value: getMetricValue(metrics, s.key),
-    pct: (getMetricValue(metrics, s.key) / total) * 100,
-  })).filter(d => d.value > 0);
+  const data = useMemo(() => {
+    return PIPELINE_SEGMENTS.map(s => ({
+      ...s,
+      value: getMetricValue(metrics, s.key),
+      pct: (getMetricValue(metrics, s.key) / total) * 100,
+    }))
+    .filter(d => d.value > 0)
+    .sort((a, b) => b.value - a.value);
+  }, [metrics, total]);
 
   // SVG arc helper
   const r = 70, cx = 90, cy = 90;
@@ -157,11 +170,15 @@ function DonutChart({ metrics }) {
 // ── CHART: Pie ────────────────────────────────────────────────────────────────
 function PieChartView({ metrics }) {
   const total = metrics.totalCandidates || 1;
-  const data = PIPELINE_SEGMENTS.map(s => ({
-    ...s,
-    value: getMetricValue(metrics, s.key),
-    pct: (getMetricValue(metrics, s.key) / total) * 100,
-  })).filter(d => d.value > 0);
+  const data = useMemo(() => {
+    return PIPELINE_SEGMENTS.map(s => ({
+      ...s,
+      value: getMetricValue(metrics, s.key),
+      pct: (getMetricValue(metrics, s.key) / total) * 100,
+    }))
+    .filter(d => d.value > 0)
+    .sort((a, b) => b.value - a.value);
+  }, [metrics, total]);
 
   // Build SVG pie slices using path commands
   const cx = 90, cy = 90, r = 80;
