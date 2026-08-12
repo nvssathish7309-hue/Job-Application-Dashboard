@@ -61,6 +61,7 @@ export default function Sidebar() {
                     <NavLink
                       key={idx}
                       to={item.path}
+                      end
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
                           isActive
