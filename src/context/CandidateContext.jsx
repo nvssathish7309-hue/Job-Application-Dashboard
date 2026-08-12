@@ -3,7 +3,7 @@ import { INITIAL_CANDIDATES } from '../data/mockCandidates';
 
 const CandidateContext = createContext(null);
 
-const LOCAL_STORAGE_KEY = 'mindmatrix_candidates_v3';
+const LOCAL_STORAGE_KEY = 'mindmatrix_candidates_v4';
 const HR_PROFILE_STORAGE_KEY = 'mindmatrix_hr_profile_v1';
 const LOCAL_STORAGE_NOTIFS_KEY = 'mindmatrix_notifications_v2';
 

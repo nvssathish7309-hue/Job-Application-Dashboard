@@ -414,13 +414,13 @@ const ADDITIONAL_NAMES = [
   "Ranveer Singh", "Alia Bhatt", "Sid Malhotra"
 ];
 
-// Seed to hit stats around: Total 48, Shortlisted 18, Interview 13, Selected 5, Rejected/Applied 12
+// Seed to hit stats: Total 48, Shortlisted 18, Interview 12, Selected 5
 const STAGE_DISTRIBUTION = [
   "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted", "Shortlisted",
-  "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled",
+  "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled", "Interview Scheduled",
   "Selected", "Selected",
   "Rejected", "Rejected", "Rejected", "Rejected", "Rejected", "Rejected",
-  "Applied", "Applied", "Applied", "Applied", "Applied", "Applied"
+  "Applied", "Applied", "Applied", "Applied", "Applied", "Applied", "Applied"
 ];
 
 ADDITIONAL_NAMES.forEach((name, idx) => {
