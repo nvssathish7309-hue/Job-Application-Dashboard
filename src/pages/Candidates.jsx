@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Search, X, ChevronDown, SlidersHorizontal,
-  Eye, UserPlus, Users, ChevronLeft, ChevronRight
+  Eye, UserPlus, Users, ChevronLeft, ChevronRight, Trash2
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
 import Badge from '../components/common/Badge';
@@ -24,7 +24,7 @@ const PAGE_SIZE = 10;
 
 export default function Candidates() {
   const location = useLocation();
-  const { candidates, isLoading, isError, setIsError } = useCandidates();
+  const { candidates, deleteCandidate, isLoading, isError, setIsError } = useCandidates();
 
   // Parse initial search and status from URL query
   const params = new URLSearchParams(location.search);
@@ -285,14 +285,27 @@ export default function Candidates() {
                         </div>
                       </td>
                       <td className="py-3.5 px-4"><Badge status={c.status} /></td>
-                      <td className="py-3.5 px-4 text-right">
-                        <Link
-                          to={`/candidates/${c.id}`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white font-semibold text-xs transition-all"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          View
-                        </Link>
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            to={`/candidates/${c.id}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white font-semibold text-xs transition-all"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            View
+                          </Link>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`Delete ${c.name}? All associated notifications will be removed.`)) {
+                                deleteCandidate(c.id);
+                              }
+                            }}
+                            className="p-1.5 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition-all cursor-pointer shadow-2xs"
+                            title={`Delete ${c.name}`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -390,13 +403,26 @@ export default function Candidates() {
                     )}
                   </div>
 
-                  <Link
-                    to={`/candidates/${c.id}`}
-                    className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-slate-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-slate-200 hover:border-blue-600 font-semibold text-xs transition-all"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    View Candidate
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to={`/candidates/${c.id}`}
+                      className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-slate-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-slate-200 hover:border-blue-600 font-semibold text-xs transition-all"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      View Candidate
+                    </Link>
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Delete ${c.name}? All associated notifications will be removed.`)) {
+                          deleteCandidate(c.id);
+                        }
+                      }}
+                      className="p-2 rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition-all cursor-pointer shrink-0"
+                      title={`Delete ${c.name}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

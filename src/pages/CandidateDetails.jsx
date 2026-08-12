@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Mail, Phone, MapPin, Calendar, Briefcase, GraduationCap,
   Code2, FileText, Download, ExternalLink, Star, ChevronLeft,
-  CalendarClock, Award, UserX, CheckCircle2, Clock, AlertCircle
+  CalendarClock, Award, UserX, CheckCircle2, Clock, AlertCircle, Trash2
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
 import Badge from '../components/common/Badge';
@@ -32,13 +32,20 @@ function StarRating({ rating = 0 }) {
 export default function CandidateDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getCandidateById, scheduleInterview, shortlistCandidate, selectCandidate, rejectCandidate, isLoading } = useCandidates();
+  const { getCandidateById, deleteCandidate, scheduleInterview, shortlistCandidate, selectCandidate, rejectCandidate, isLoading } = useCandidates();
 
   const [toast, setToast] = useState(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [shortlistOpen, setShortlistOpen] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+
+  const handleDeleteCandidate = () => {
+    if (window.confirm(`Are you sure you want to delete ${candidate?.name || 'this candidate'}? All associated notifications will also be deleted.`)) {
+      deleteCandidate(id);
+      navigate('/candidates');
+    }
+  };
 
   const candidate = getCandidateById(id);
 
@@ -166,6 +173,14 @@ export default function CandidateDetails() {
             >
               <UserX className="w-3.5 h-3.5" />
               Reject
+            </button>
+            <button
+              onClick={handleDeleteCandidate}
+              className="flex items-center gap-2 px-4 py-2 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 border border-rose-200 font-semibold text-xs rounded-xl transition-all cursor-pointer mt-1 sm:mt-0"
+              title="Delete candidate profile and remove all associated notifications"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete Candidate
             </button>
           </div>
         </div>

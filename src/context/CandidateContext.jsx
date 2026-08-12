@@ -299,6 +299,24 @@ export function CandidateProvider({ children }) {
     }
   };
 
+  const deleteCandidate = (candidateId) => {
+    setCandidates(prev => prev.filter(c => c.id !== candidateId));
+    setNotifications(prev => prev.filter(n => n.candidateId !== candidateId));
+  };
+
+  // Automatically remove notifications referencing deleted candidates
+  useEffect(() => {
+    if (!candidates) return;
+    const existingIds = new Set(candidates.map(c => c.id));
+    setNotifications(prev => {
+      const valid = prev.filter(n => !n.candidateId || existingIds.has(n.candidateId));
+      if (valid.length !== prev.length) {
+        return valid;
+      }
+      return prev;
+    });
+  }, [candidates]);
+
   const getCandidateById = (id) => {
     return candidates.find(c => c.id === id) || null;
   };
@@ -329,6 +347,7 @@ export function CandidateProvider({ children }) {
         isError,
         setIsError,
         addCandidate,
+        deleteCandidate,
         updateCandidateStatus,
         scheduleInterview,
         shortlistCandidate,

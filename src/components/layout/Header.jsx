@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, Plus, Menu, Bell, Loader2, AlertTriangle, X
@@ -9,6 +9,7 @@ import MindMatrixLogo from '../MindMatrixLogo';
 export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
   const navigate = useNavigate();
   const { 
+    candidates,
     hrProfile, 
     hrInitials, 
     isLoading, 
@@ -16,12 +17,22 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
     isError, 
     setIsError,
     notifications,
-    unreadNotifCount,
     markNotifAsRead,
     markAllNotifsAsRead
   } = useCandidates();
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
+
+  // Filter out notifications associated with deleted candidates
+  const validNotifications = useMemo(() => {
+    if (!candidates) return notifications || [];
+    const validCandidateIds = new Set(candidates.map(c => c.id));
+    return (notifications || []).filter(n => !n.candidateId || validCandidateIds.has(n.candidateId));
+  }, [notifications, candidates]);
+
+  const unreadNotifCount = useMemo(() => {
+    return validNotifications.filter(n => !n.isRead).length;
+  }, [validNotifications]);
 
   // Close notification popover when clicking anywhere outside
   useEffect(() => {
@@ -155,7 +166,7 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
                     ) : (
                       <span className="text-[11px] text-slate-400 font-medium">All read</span>
                     )}
-                    {notifications?.length > 0 && unreadNotifCount > 0 && (
+                    {validNotifications?.length > 0 && unreadNotifCount > 0 && (
                       <button
                         onClick={markAllNotifsAsRead}
                         className="text-[10px] text-slate-500 hover:text-blue-600 font-semibold underline transition-colors"
@@ -167,18 +178,21 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
                 </div>
 
                 <div className="py-2 space-y-2 text-xs max-h-80 overflow-y-auto pr-0.5">
-                  {!notifications || notifications.length === 0 ? (
+                  {!validNotifications || validNotifications.length === 0 ? (
                     <p className="text-center py-6 text-slate-400 text-xs font-medium">
                       No notifications yet
                     </p>
                   ) : (
-                    notifications.map((notif) => (
+                    validNotifications.map((notif) => (
                       <div
                         key={notif.id}
                         onClick={() => {
                           markNotifAsRead(notif.id);
                           if (notif.candidateId) {
-                            navigate(`/candidates/${notif.candidateId}`);
+                            const exists = candidates.some(c => c.id === notif.candidateId);
+                            if (exists) {
+                              navigate(`/candidates/${notif.candidateId}`);
+                            }
                             setShowNotifications(false);
                           }
                         }}
