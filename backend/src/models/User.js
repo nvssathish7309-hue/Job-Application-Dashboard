@@ -17,8 +17,8 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, default: '' },
     role: {
       type: String,
-      enum: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER'],
-      default: 'RECRUITER',
+      enum: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'CANDIDATE'],
+      default: 'CANDIDATE',
       index: true
     },
     avatar: { type: String, default: '' },

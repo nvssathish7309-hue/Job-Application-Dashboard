@@ -20,24 +20,24 @@ export default function Sidebar() {
 
   const allNavItems = [
     {
-      title: 'Recruitment',
+      title: 'Navigation',
       items: [
-        { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER'] },
+        { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'CANDIDATE'] },
         { label: 'Candidates', path: '/candidates', icon: Users, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER'] },
         { label: 'Jobs', path: '/jobs', icon: Briefcase, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'] },
-        { label: 'Applications', path: '/applications', icon: FileText, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'] },
+        { label: 'Applications', path: '/applications', icon: FileText, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'CANDIDATE'] },
         { label: 'Pipeline Board', path: '/applications/pipeline', icon: GitPullRequest, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER'] },
         { label: 'Interviews', path: '/interviews', icon: Calendar, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER'] }
       ]
     },
     {
-      title: 'Administration',
+      title: 'System & Portal',
       items: [
         { label: 'User Management', path: '/users', icon: UserCheck, roles: ['SUPER_ADMIN'] },
         { label: 'Audit Logs', path: '/audit-logs', icon: History, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
         { label: 'Reports & Analytics', path: '/reports', icon: BarChart3, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
-        { label: 'Public Careers', path: '/careers', icon: Globe, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER'] },
-        { label: 'Settings', path: '/settings', icon: Settings, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER'] }
+        { label: 'Public Careers', path: '/careers', icon: Globe, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'CANDIDATE'] },
+        { label: 'Settings', path: '/settings', icon: Settings, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'CANDIDATE'] }
       ]
     }
   ];

@@ -196,6 +196,18 @@ export default function Login() {
                 <span className="block text-[10px] text-amber-600 font-extrabold uppercase">Interviewer</span>
                 interviewer@company.com
               </button>
+
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('candidate@company.com', 'Password123!')}
+                className="col-span-2 p-2.5 rounded-xl border border-sky-200 bg-sky-50/70 hover:bg-sky-100 text-sky-900 font-bold text-left transition-colors flex items-center justify-between"
+              >
+                <div>
+                  <span className="block text-[10px] text-sky-600 font-extrabold uppercase">Applicant / Candidate</span>
+                  candidate@company.com
+                </div>
+                <span className="text-[10px] px-2 py-0.5 bg-sky-200 text-sky-800 font-bold rounded-lg">Apply & Track</span>
+              </button>
             </div>
           </div>
 

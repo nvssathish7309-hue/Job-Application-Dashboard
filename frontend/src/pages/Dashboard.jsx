@@ -6,6 +6,7 @@ import {
   BarChart3, PieChart, Triangle
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
+import { useAuth } from '../context/AuthContext';
 import ErrorState from '../components/common/ErrorState';
 import CandidateListModal from '../components/candidates/CandidateListModal';
 import { CardSkeleton, ChartSkeleton } from '../components/common/Skeleton';
@@ -282,6 +283,7 @@ function FunnelChart({ metrics }) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { candidates, metrics, isLoading, isError, setIsError } = useCandidates();
   
   const [chartType, setChartType] = useState('horizontal');
@@ -306,6 +308,81 @@ export default function Dashboard() {
         message="Unable to communicate with recruitment database service. Please retry."
         onRetry={() => setIsError(false)}
       />
+    );
+  }
+
+  // Specialized Candidate Portal View
+  if (user?.role === 'CANDIDATE') {
+    return (
+      <div className="space-y-6">
+        {/* Welcome Banner */}
+        <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+          <div className="relative z-10 max-w-2xl">
+            <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-blue-100 mb-3">
+              Candidate Portal
+            </span>
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+              Welcome back, {user.firstName || 'Applicant'}! 👋
+            </h1>
+            <p className="mt-2 text-sm text-blue-100/90 font-medium leading-relaxed">
+              Explore active job openings, submit applications, and track the status of your submitted applications.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/careers"
+                className="px-5 py-2.5 bg-white text-blue-700 hover:bg-blue-50 font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2"
+              >
+                <span>Explore Open Positions</span>
+                <Plus className="w-4 h-4" />
+              </Link>
+              <Link
+                to="/applications"
+                className="px-5 py-2.5 bg-blue-500/30 hover:bg-blue-500/40 text-white font-bold text-xs rounded-xl border border-white/20 transition-all flex items-center gap-2"
+              >
+                <span>My Applications</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Candidate Application Status Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Submitted Applications</p>
+            <p className="text-3xl font-extrabold text-slate-900 mt-2">1</p>
+            <p className="text-xs text-slate-400 mt-1">Active job submissions</p>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Current Pipeline Stage</p>
+            <p className="text-xl font-extrabold text-blue-600 mt-2">Shortlisted</p>
+            <p className="text-xs text-slate-400 mt-1">In review by recruiter</p>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Next Interview</p>
+            <p className="text-xl font-extrabold text-amber-600 mt-2">Technical Round 1</p>
+            <p className="text-xs text-slate-400 mt-1">Scheduled for Aug 15, 10:00 AM</p>
+          </div>
+        </div>
+
+        {/* Recent Submitted Application Card */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-extrabold text-slate-900">My Submitted Applications</h2>
+            <Link to="/careers" className="text-xs font-bold text-blue-600 hover:text-blue-700">Apply for more jobs →</Link>
+          </div>
+          <div className="divide-y divide-slate-100">
+            <div className="py-4 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-slate-900 text-sm">Senior Frontend Engineer</p>
+                <p className="text-xs text-slate-500 mt-0.5">Engineering · Full-time · Hybrid (Bangalore)</p>
+              </div>
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">
+                Shortlisted
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 

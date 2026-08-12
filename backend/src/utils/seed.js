@@ -65,6 +65,26 @@ const runSeedLogic = async () => {
     phone: '+1 800-555-0166'
   });
 
+  const candidateUser1 = await User.create({
+    firstName: 'Sathish',
+    lastName: 'N',
+    email: 'candidate@company.com',
+    password: 'Password123!',
+    role: 'CANDIDATE',
+    department: 'Applicant Portal',
+    phone: '+91 9876543210'
+  });
+
+  const candidateUser2 = await User.create({
+    firstName: 'Sathish',
+    lastName: 'NV',
+    email: 'nvssathish7309@gmail.com',
+    password: 'Password123!',
+    role: 'CANDIDATE',
+    department: 'Applicant Portal',
+    phone: '+91 9876543210'
+  });
+
   console.log('Seeding jobs...');
   const job1 = await Job.create({
     jobId: 'JOB-0001',
