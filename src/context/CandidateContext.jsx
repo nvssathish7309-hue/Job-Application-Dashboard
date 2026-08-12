@@ -5,6 +5,7 @@ const CandidateContext = createContext(null);
 
 const LOCAL_STORAGE_KEY = 'mindmatrix_candidates_v2';
 const HR_PROFILE_STORAGE_KEY = 'mindmatrix_hr_profile_v1';
+const LOCAL_STORAGE_NOTIFS_KEY = 'mindmatrix_notifications_v2';
 
 const DEFAULT_HR_PROFILE = {
   name: 'Ankita Kumar',
@@ -13,6 +14,29 @@ const DEFAULT_HR_PROFILE = {
   title: 'Lead HR Recruiter',
   department: 'Talent Acquisition'
 };
+
+const DEFAULT_NOTIFICATIONS = [
+  {
+    id: 'notif-1',
+    title: 'Rahul Sharma Shortlisted',
+    message: 'Interview scheduled for Tech Round 1',
+    time: '2 hours ago',
+    timestamp: Date.now() - 7200000,
+    isRead: false,
+    candidateId: 'cand-1',
+    type: 'status_update'
+  },
+  {
+    id: 'notif-2',
+    title: 'New Candidate Added',
+    message: 'Ananya Patel applied for AI Engineer',
+    time: '5 hours ago',
+    timestamp: Date.now() - 18000000,
+    isRead: false,
+    candidateId: 'cand-2',
+    type: 'new_candidate'
+  }
+];
 
 export function CandidateProvider({ children }) {
   const [candidates, setCandidates] = useState(() => {
@@ -39,6 +63,18 @@ export function CandidateProvider({ children }) {
     return DEFAULT_HR_PROFILE;
   });
 
+  const [notifications, setNotifications] = useState(() => {
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_NOTIFS_KEY);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.error("Failed to load notifications from localStorage", e);
+    }
+    return DEFAULT_NOTIFICATIONS;
+  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
@@ -60,6 +96,15 @@ export function CandidateProvider({ children }) {
     }
   }, [hrProfile]);
 
+  // Sync notifications to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_NOTIFS_KEY, JSON.stringify(notifications));
+    } catch (e) {
+      console.error("Failed to save notifications to localStorage", e);
+    }
+  }, [notifications]);
+
   const updateHrProfile = (newProfile) => {
     setHrProfile(prev => ({ ...prev, ...newProfile }));
   };
@@ -70,6 +115,34 @@ export function CandidateProvider({ children }) {
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }, [hrProfile?.name]);
+
+  // Notification actions
+  const addNotification = (notif) => {
+    const newNotif = {
+      id: `notif-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      time: 'Just now',
+      timestamp: Date.now(),
+      isRead: false,
+      ...notif
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+  };
+
+  const markNotifAsRead = (id) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+  };
+
+  const markAllNotifsAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+  };
+
+  const clearNotifications = () => {
+    setNotifications([]);
+  };
+
+  const unreadNotifCount = useMemo(() => {
+    return notifications.filter(n => !n.isRead).length;
+  }, [notifications]);
 
   // Derived Metric Counts
   const metrics = useMemo(() => {
@@ -130,6 +203,15 @@ export function CandidateProvider({ children }) {
     };
 
     setCandidates(prev => [newCandidate, ...prev]);
+
+    // Automatically trigger notification for recruitment alerts
+    addNotification({
+      title: 'New Candidate Added',
+      message: `${newCandidate.name} applied for ${newCandidate.role || 'Position'}`,
+      candidateId: newCandidate.id,
+      type: 'new_candidate'
+    });
+
     return newCandidate;
   };
 
@@ -140,6 +222,7 @@ export function CandidateProvider({ children }) {
   };
 
   const scheduleInterview = (candidateId, interviewData) => {
+    const candidate = getCandidateById(candidateId);
     setCandidates(prev =>
       prev.map(c => {
         if (c.id !== candidateId) return c;
@@ -157,17 +240,44 @@ export function CandidateProvider({ children }) {
         };
       })
     );
+    if (candidate) {
+      addNotification({
+        title: `${candidate.name} Interview Scheduled`,
+        message: `Scheduled for ${interviewData.round || 'Interview'} on ${interviewData.date}`,
+        candidateId,
+        type: 'interview_scheduled'
+      });
+    }
   };
 
   const shortlistCandidate = (candidateId) => {
+    const candidate = getCandidateById(candidateId);
     updateCandidateStatus(candidateId, 'Shortlisted');
+    if (candidate) {
+      addNotification({
+        title: `${candidate.name} Shortlisted`,
+        message: `Candidate shortlisted for ${candidate.role}`,
+        candidateId,
+        type: 'status_update'
+      });
+    }
   };
 
   const selectCandidate = (candidateId) => {
+    const candidate = getCandidateById(candidateId);
     updateCandidateStatus(candidateId, 'Selected');
+    if (candidate) {
+      addNotification({
+        title: `${candidate.name} Selected`,
+        message: `Candidate selected for ${candidate.role}`,
+        candidateId,
+        type: 'status_update'
+      });
+    }
   };
 
   const rejectCandidate = (candidateId, reason = '') => {
+    const candidate = getCandidateById(candidateId);
     setCandidates(prev =>
       prev.map(c => {
         if (c.id !== candidateId) return c;
@@ -178,6 +288,14 @@ export function CandidateProvider({ children }) {
         };
       })
     );
+    if (candidate) {
+      addNotification({
+        title: `${candidate.name} Rejected`,
+        message: reason ? `Reason: ${reason}` : `Application rejected for ${candidate.role}`,
+        candidateId,
+        type: 'status_update'
+      });
+    }
   };
 
   const getCandidateById = (id) => {
@@ -186,7 +304,9 @@ export function CandidateProvider({ children }) {
 
   const resetToDefaultData = () => {
     setCandidates(INITIAL_CANDIDATES);
+    setNotifications(DEFAULT_NOTIFICATIONS);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
+    localStorage.removeItem(LOCAL_STORAGE_NOTIFS_KEY);
   };
 
   return (
@@ -197,6 +317,12 @@ export function CandidateProvider({ children }) {
         hrProfile,
         updateHrProfile,
         hrInitials,
+        notifications,
+        unreadNotifCount,
+        addNotification,
+        markNotifAsRead,
+        markAllNotifsAsRead,
+        clearNotifications,
         isLoading,
         setIsLoading,
         isError,

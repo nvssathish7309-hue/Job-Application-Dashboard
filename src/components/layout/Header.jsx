@@ -8,7 +8,18 @@ import MindMatrixLogo from '../MindMatrixLogo';
 
 export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
   const navigate = useNavigate();
-  const { hrProfile, hrInitials, isLoading, setIsLoading, isError, setIsError } = useCandidates();
+  const { 
+    hrProfile, 
+    hrInitials, 
+    isLoading, 
+    setIsLoading, 
+    isError, 
+    setIsError,
+    notifications,
+    unreadNotifCount,
+    markNotifAsRead,
+    markAllNotifsAsRead
+  } = useCandidates();
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
 
@@ -120,7 +131,9 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
               title="Notifications"
             >
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-white" />
+              {unreadNotifCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-white" />
+              )}
             </button>
 
             {showNotifications && (
@@ -129,17 +142,55 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
                   <span className="font-bold text-xs text-slate-900 uppercase tracking-wider">
                     Recruitment Alerts
                   </span>
-                  <span className="text-[11px] text-blue-600 font-semibold">2 New</span>
+                  <div className="flex items-center gap-2">
+                    {unreadNotifCount > 0 ? (
+                      <span className="text-[11px] text-blue-600 font-semibold">{unreadNotifCount} New</span>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 font-medium">All read</span>
+                    )}
+                    {notifications?.length > 0 && unreadNotifCount > 0 && (
+                      <button
+                        onClick={markAllNotifsAsRead}
+                        className="text-[10px] text-slate-500 hover:text-blue-600 font-semibold underline transition-colors"
+                      >
+                        Mark read
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="py-2 space-y-2 text-xs">
-                  <div className="p-2 rounded-xl bg-blue-50 border border-blue-100">
-                    <p className="font-semibold text-slate-800">Rahul Sharma Shortlisted</p>
-                    <p className="text-slate-500 text-[11px]">Interview scheduled for Tech Round 1</p>
-                  </div>
-                  <div className="p-2 rounded-xl bg-slate-50">
-                    <p className="font-semibold text-slate-800">New Candidate Added</p>
-                    <p className="text-slate-500 text-[11px]">Ananya Patel applied for AI Engineer</p>
-                  </div>
+
+                <div className="py-2 space-y-2 text-xs max-h-80 overflow-y-auto pr-0.5">
+                  {!notifications || notifications.length === 0 ? (
+                    <p className="text-center py-6 text-slate-400 text-xs font-medium">
+                      No notifications yet
+                    </p>
+                  ) : (
+                    notifications.map((notif) => (
+                      <div
+                        key={notif.id}
+                        onClick={() => {
+                          markNotifAsRead(notif.id);
+                          if (notif.candidateId) {
+                            navigate(`/candidates/${notif.candidateId}`);
+                            setShowNotifications(false);
+                          }
+                        }}
+                        className={`p-2 rounded-xl transition-all cursor-pointer relative ${
+                          !notif.isRead
+                            ? 'bg-blue-50 border border-blue-100 hover:bg-blue-100/60'
+                            : 'bg-slate-50 border border-transparent hover:bg-slate-100/70'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-1">
+                          <p className="font-semibold text-slate-800 leading-snug">{notif.title}</p>
+                          {!notif.isRead && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0 mt-1" />
+                          )}
+                        </div>
+                        <p className="text-slate-500 text-[11px] mt-0.5 leading-tight">{notif.message}</p>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}

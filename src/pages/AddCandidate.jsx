@@ -109,10 +109,9 @@ export default function AddCandidate() {
   };
 
   const inputClass = (field) =>
-    `w-full px-3.5 py-2.5 text-sm bg-slate-50 border rounded-xl transition-all text-slate-900 placeholder-slate-400 focus:outline-none ${
-      errors[field]
-        ? 'border-rose-400 focus:ring-2 focus:ring-rose-500 focus:border-rose-500'
-        : 'border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-300'
+    `w-full px-3.5 py-2.5 text-sm bg-slate-50 border rounded-xl transition-all text-slate-900 placeholder-slate-400 focus:outline-none ${errors[field]
+      ? 'border-rose-400 focus:ring-2 focus:ring-rose-500 focus:border-rose-500'
+      : 'border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-300'
     }`;
 
   return (
@@ -240,11 +239,10 @@ export default function AddCandidate() {
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 Skills <span className="text-rose-500">*</span>
               </label>
-              <div className={`flex flex-wrap gap-2 p-3 min-h-[52px] rounded-xl border transition-all ${
-                errors.skills 
-                  ? 'border-rose-400 focus-within:ring-2 focus-within:ring-rose-500 focus-within:border-rose-500' 
+              <div className={`flex flex-wrap gap-2 p-3 min-h-[52px] rounded-xl border transition-all ${errors.skills
+                  ? 'border-rose-400 focus-within:ring-2 focus-within:ring-rose-500 focus-within:border-rose-500'
                   : 'border-slate-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-300 focus-within:bg-white'
-              } bg-slate-50`}>
+                } bg-slate-50`}>
                 {formData.skills.map((skill, i) => (
                   <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold">
                     {skill}
@@ -329,13 +327,12 @@ export default function AddCandidate() {
               onDragLeave={() => setIsDragOver(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`btn-moving-light rounded-2xl p-10 text-center cursor-pointer transition-all relative ${
-                isDragOver
+              className={`btn-moving-light rounded-2xl p-10 text-center cursor-pointer transition-all relative ${isDragOver
                   ? 'bg-blue-50/80 shadow-md'
                   : errors.resume
-                  ? 'border border-rose-300'
-                  : 'bg-white hover:bg-slate-50/80'
-              }`}
+                    ? 'border border-rose-300'
+                    : 'bg-white hover:bg-slate-50/80'
+                }`}
             >
               <div className="relative z-[2]">
                 <Upload className={`w-8 h-8 mx-auto mb-3 ${isDragOver ? 'text-blue-500' : 'text-blue-600'}`} />
@@ -365,8 +362,8 @@ export default function AddCandidate() {
             {isSubmitting ? (
               <>
                 <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
                 Adding Candidate...
               </>
