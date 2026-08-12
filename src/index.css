@@ -1,0 +1,240 @@
+/* ── Google Font — must be first ── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+/* ── CSS Custom Property for animatable angle (Chrome 85+, Edge 85+, Safari 16.4+) ── */
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    /* Soft glowing light effect colors */
+    --light-color-1: #38bdf8;
+    /* Sky Blue */
+    --light-color-2: #818cf8;
+    /* Indigo Light */
+    --light-color-3: #34d399;
+    /* Mint Emerald */
+    --light-color-4: #f472b6;
+    /* Soft Pink */
+    --light-color-5: #60a5fa;
+    /* Electric Blue */
+  }
+
+  html {
+    background: #f8fafc;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   ✦ BUTTON GLOW EFFECT
+   — Thin animated gradient border + soft ambient glow
+     radiating behind the button (concentrated at bottom).
+   — Button color & font are NEVER modified.
+════════════════════════════════════════════════════════ */
+
+/* Continuous slow spin for the gradient border */
+@keyframes border-spin {
+  to {
+    --border-angle: 360deg;
+  }
+}
+
+/* Glow behind the button: fades in then out */
+@keyframes glow-pulse {
+  0% {
+    opacity: 0;
+    filter: blur(16px) brightness(1.2);
+  }
+
+  30% {
+    opacity: 0.75;
+    filter: blur(20px) brightness(1.35);
+  }
+
+  100% {
+    opacity: 0;
+    filter: blur(24px) brightness(1);
+    visibility: hidden;
+  }
+}
+
+/* Positioning context & stacking root for interactive elements, glow elements & search glow */
+button:not(.no-glow),
+a:not(.no-glow),
+select:not(.no-glow),
+input[type="submit"]:not(.no-glow),
+input[type="button"]:not(.no-glow),
+[role="button"]:not(.no-glow),
+.btn-moving-light,
+.search-glow {
+  position: relative;
+  z-index: 0;
+}
+
+/* ── 1. THIN GRADIENT BORDER (::before) ──
+   Uses the mask-composite trick: a conic-gradient background
+   is masked so only a thin 1.5px border ring is visible.    */
+button:not(.no-glow):active::before,
+button:not(.no-glow):focus::before,
+button:not(.no-glow):focus-visible::before,
+a:not(.no-glow):active::before,
+a:not(.no-glow):focus::before,
+a:not(.no-glow):focus-visible::before,
+select:not(.no-glow):active::before,
+select:not(.no-glow):focus::before,
+select:not(.no-glow):focus-visible::before,
+[role="button"]:not(.no-glow):active::before,
+[role="button"]:not(.no-glow):focus::before,
+[role="button"]:not(.no-glow):focus-visible::before,
+input[type="submit"]:not(.no-glow):active::before,
+input[type="submit"]:not(.no-glow):focus::before,
+input[type="button"]:not(.no-glow):active::before,
+input[type="button"]:not(.no-glow):focus::before,
+.btn-moving-light::before,
+.search-glow:focus-within::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--border-angle),
+      var(--light-color-4),
+      var(--light-color-3),
+      var(--light-color-5),
+      var(--light-color-1),
+      var(--light-color-2),
+      var(--light-color-4));
+  animation: border-spin 2.5s linear infinite;
+  /* Mask to only show a thin border ring */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  padding: 1.5px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── 2. SOFT GLOW BEHIND / BELOW THE BUTTON (::after) ──
+   A blurred conic-gradient shifted downward so the glow
+   radiates mostly from behind the bottom edge.             */
+button:not(.no-glow):active::after,
+button:not(.no-glow):focus::after,
+button:not(.no-glow):focus-visible::after,
+a:not(.no-glow):active::after,
+a:not(.no-glow):focus::after,
+a:not(.no-glow):focus-visible::after,
+select:not(.no-glow):active::after,
+select:not(.no-glow):focus::after,
+select:not(.no-glow):focus-visible::after,
+[role="button"]:not(.no-glow):active::after,
+[role="button"]:not(.no-glow):focus::after,
+[role="button"]:not(.no-glow):focus-visible::after,
+input[type="submit"]:not(.no-glow):active::after,
+input[type="submit"]:not(.no-glow):focus::after,
+input[type="button"]:not(.no-glow):active::after,
+input[type="button"]:not(.no-glow):focus::after,
+.btn-moving-light::after,
+.search-glow:focus-within::after {
+  content: '';
+  position: absolute;
+  /* Push the glow downward — mostly behind the lower half */
+  left: 10%;
+  right: 10%;
+  bottom: -12px;
+  height: 60%;
+  border-radius: 50%;
+  background: conic-gradient(from var(--border-angle),
+      var(--light-color-4),
+      var(--light-color-3),
+      var(--light-color-5),
+      var(--light-color-1),
+      var(--light-color-2),
+      var(--light-color-4));
+  filter: blur(20px) brightness(1.3);
+  animation:
+    border-spin 2.5s linear infinite,
+    glow-pulse 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Remove native/Tailwind border and focus ring when search-glow is active */
+.search-glow:focus-within input {
+  border-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove default browser black focus ring on form elements */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Card hover animation */
+.card-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+/* ── ANIMATED HEADER GLOW LINE ── */
+.header-glow-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #a855f7, #ec4899, #06b6d4, #3b82f6);
+  background-size: 300% 100%;
+  animation: header-line-spin 4s linear infinite;
+  box-shadow: 0 1px 8px rgba(59, 130, 246, 0.4), 0 2px 14px rgba(168, 85, 247, 0.3);
+  z-index: 10;
+}
+
+@keyframes header-line-spin {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 300% 0%;
+  }
+}

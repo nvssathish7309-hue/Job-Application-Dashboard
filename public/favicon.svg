@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <rect width="120" height="120" rx="28" fill="#1e3a8a"/>
+  <!-- Concentric Arcs -->
+  <g transform="translate(0, 22)">
+    <!-- Outer Arch - Deep Blue -->
+    <path d="M 12 74 A 48 48 0 0 1 108 74" stroke="#3b82f6" stroke-width="11" stroke-linecap="butt"/>
+    <!-- Middle Arch - Light Blue -->
+    <path d="M 27 74 A 33 33 0 0 1 93 74" stroke="#93c5fd" stroke-width="4.5" stroke-linecap="butt"/>
+    <!-- Inner Arch - Deep Blue -->
+    <path d="M 40 74 A 20 20 0 0 1 80 74" stroke="#3b82f6" stroke-width="9" stroke-linecap="butt"/>
+  </g>
+</svg>
