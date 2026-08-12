@@ -29,7 +29,7 @@ export default function DashboardLayout({ children, searchQuery, setSearchQuery 
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
+        <footer className="footer-glow-line bg-white py-4 text-center text-xs text-slate-400 font-medium">
           MindMatrix Recruitment Dashboard · v2.4.0 · {new Date().getFullYear()}
         </footer>
       </div>

@@ -230,6 +230,25 @@ textarea:focus {
   z-index: 10;
 }
 
+/* ── ANIMATED FOOTER GLOW LINE ── */
+.footer-glow-line {
+  position: relative;
+}
+
+.footer-glow-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #06b6d4, #3b82f6);
+  background-size: 300% 100%;
+  animation: header-line-spin 4s linear infinite;
+  box-shadow: 0 -1px 8px rgba(59, 130, 246, 0.4), 0 -2px 14px rgba(139, 92, 246, 0.3);
+  z-index: 10;
+}
+
 @keyframes header-line-spin {
   0% {
     background-position: 0% 0%;

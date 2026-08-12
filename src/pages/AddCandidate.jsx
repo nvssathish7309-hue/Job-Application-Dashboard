@@ -128,9 +128,9 @@ export default function AddCandidate() {
 
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors mb-5"
+        className="btn-moving-light inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-white text-sm font-semibold text-slate-700 hover:text-blue-600 hover:border-blue-300 shadow-xs hover:shadow-md hover:shadow-blue-500/15 active:scale-95 transition-all mb-5 group"
       >
-        <ChevronLeft className="w-4 h-4" /> Back
+        <ChevronLeft className="w-4 h-4 text-blue-600 group-hover:-translate-x-0.5 transition-transform" /> Back
       </button>
 
       {/* Page Title */}
