@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, Lock, Mail, User, Phone, ArrowRight, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User, Phone, ArrowRight, UserPlus, LogIn } from 'lucide-react';
 import MindMatrixLogo from '../components/MindMatrixLogo';
 import { useAuth } from '../context/AuthContext';
 
@@ -22,6 +22,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isExistingAccount, setIsExistingAccount] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
   const from = location.state?.from?.pathname || '/dashboard';
@@ -30,6 +31,7 @@ export default function Login() {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
+    setIsExistingAccount(false);
 
     if (mode === 'login') {
       if (!email || !password) {
@@ -40,13 +42,13 @@ export default function Login() {
       setIsLoading(true);
       try {
         const res = await login(email, password);
-        if (res.success) {
+        if (res?.success) {
           navigate(from, { replace: true });
         } else {
-          setErrorMessage(res.message || 'Invalid credentials');
+          setErrorMessage(res?.message || 'Invalid credentials. Please check your email and password.');
         }
       } catch (err) {
-        setErrorMessage(err.response?.data?.message || 'Failed to communicate with authentication server.');
+        setErrorMessage(err.response?.data?.message || err.message || 'Failed to communicate with authentication server.');
       } finally {
         setIsLoading(false);
       }
@@ -60,14 +62,20 @@ export default function Login() {
       setIsLoading(true);
       try {
         const res = await register({ firstName, lastName, email, password, phone });
-        if (res.success) {
-          setSuccessMessage('Account created successfully! Redirecting...');
+        if (res?.success) {
+          setSuccessMessage('Account created successfully! Redirecting to candidate portal...');
           setTimeout(() => navigate('/dashboard', { replace: true }), 800);
         } else {
-          setErrorMessage(res.message || 'Registration failed.');
+          setErrorMessage(res?.message || 'Registration failed.');
         }
       } catch (err) {
-        setErrorMessage(err.response?.data?.message || 'Registration failed. Please check details.');
+        const serverMsg = err.response?.data?.message || err.message || '';
+        if (serverMsg.includes('already exists') || err.response?.status === 400 || err.response?.status === 409) {
+          setIsExistingAccount(true);
+          setErrorMessage(`An account with email "${email}" already exists. Please switch to Sign In to log in.`);
+        } else {
+          setErrorMessage(serverMsg || 'Registration failed. Please check details.');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -79,6 +87,14 @@ export default function Login() {
     setEmail(demoEmail);
     setPassword(demoPassword);
     setErrorMessage('');
+    setIsExistingAccount(false);
+  };
+
+  const handleSwitchToSignIn = () => {
+    setMode('login');
+    setPassword('Password123!');
+    setErrorMessage('');
+    setIsExistingAccount(false);
   };
 
   return (
@@ -101,7 +117,7 @@ export default function Login() {
           <div className="flex rounded-xl bg-slate-100 p-1 mb-6">
             <button
               type="button"
-              onClick={() => { setMode('login'); setErrorMessage(''); }}
+              onClick={() => { setMode('login'); setErrorMessage(''); setIsExistingAccount(false); }}
               className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
                 mode === 'login' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-900'
               }`}
@@ -110,7 +126,7 @@ export default function Login() {
             </button>
             <button
               type="button"
-              onClick={() => { setMode('register'); setErrorMessage(''); }}
+              onClick={() => { setMode('register'); setErrorMessage(''); setIsExistingAccount(false); }}
               className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
                 mode === 'register' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-900'
               }`}
@@ -121,7 +137,17 @@ export default function Login() {
 
           {errorMessage && (
             <div className="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold animate-shake">
-              {errorMessage}
+              <div>{errorMessage}</div>
+              {isExistingAccount && (
+                <button
+                  type="button"
+                  onClick={handleSwitchToSignIn}
+                  className="mt-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl text-[11px] flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Switch to Sign In for {email} →</span>
+                </button>
+              )}
             </div>
           )}
 
@@ -148,7 +174,7 @@ export default function Login() {
                         required
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="John"
+                        placeholder="Sathish"
                         className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                       />
                     </div>
@@ -163,7 +189,7 @@ export default function Login() {
                       required
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Doe"
+                      placeholder="N"
                       className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                     />
                   </div>
@@ -179,7 +205,7 @@ export default function Login() {
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+91 9876543210"
+                      placeholder="6380887476"
                       className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                     />
                   </div>
@@ -190,7 +216,7 @@ export default function Login() {
             {/* Email Field */}
             <div>
               <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                {mode === 'register' ? 'Email Address *' : 'Work Email Address'}
+                {mode === 'register' ? 'Email Address *' : 'Work or Candidate Email'}
               </label>
               <div className="relative rounded-xl flex items-center">
                 <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
@@ -199,7 +225,7 @@ export default function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
+                  placeholder="nvssathish7309@gmail.com"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                 />
               </div>
@@ -212,7 +238,7 @@ export default function Login() {
                   Password *
                 </label>
                 {mode === 'login' && (
-                  <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('For demo, use Password123!'); }} className="text-xs font-bold text-blue-600 hover:text-blue-700">
+                  <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('For demo accounts, default password is Password123!'); }} className="text-xs font-bold text-blue-600 hover:text-blue-700">
                     Forgot password?
                   </a>
                 )}
@@ -307,10 +333,22 @@ export default function Login() {
                   className="col-span-2 p-2.5 rounded-xl border border-sky-200 bg-sky-50/70 hover:bg-sky-100 text-sky-900 font-bold text-left transition-colors flex items-center justify-between"
                 >
                   <div>
-                    <span className="block text-[10px] text-sky-600 font-extrabold uppercase">Applicant / Candidate</span>
+                    <span className="block text-[10px] text-sky-600 font-extrabold uppercase">Demo Candidate</span>
                     candidate@company.com
                   </div>
-                  <span className="text-[10px] px-2 py-0.5 bg-sky-200 text-sky-800 font-bold rounded-lg">Apply & Track</span>
+                  <span className="text-[10px] px-2 py-0.5 bg-sky-200 text-sky-800 font-bold rounded-lg">Log In</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin('nvssathish7309@gmail.com', 'Password123!')}
+                  className="col-span-2 p-2.5 rounded-xl border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-indigo-900 font-bold text-left transition-colors flex items-center justify-between"
+                >
+                  <div>
+                    <span className="block text-[10px] text-indigo-600 font-extrabold uppercase">Candidate (Sathish)</span>
+                    nvssathish7309@gmail.com
+                  </div>
+                  <span className="text-[10px] px-2 py-0.5 bg-indigo-200 text-indigo-800 font-bold rounded-lg">Log In as Sathish</span>
                 </button>
               </div>
             </div>
