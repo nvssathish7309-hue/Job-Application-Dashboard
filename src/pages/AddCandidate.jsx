@@ -156,7 +156,7 @@ export default function AddCandidate() {
               <div className="relative">
                 <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
-                  type="text" placeholder="e.g. Rahul Sharma"
+                  type="text" placeholder="e.g. Candidate Name"
                   value={formData.name} onChange={e => set('name', e.target.value)}
                   className={`${inputClass('name')} pl-9`}
                 />
@@ -171,7 +171,7 @@ export default function AddCandidate() {
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
-                  type="email" placeholder="rahul@example.com"
+                  type="email" placeholder="example123@gmail.com"
                   value={formData.email} onChange={e => set('email', e.target.value)}
                   className={`${inputClass('email')} pl-9`}
                 />

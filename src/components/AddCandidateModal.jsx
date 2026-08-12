@@ -160,7 +160,7 @@ export default function AddCandidateModal({ isOpen, onClose, onAddCandidate }) {
                 <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="e.g. Rahul Sharma"
+                  placeholder="e.g. Candidate Name"
                   value={formData.name}
                   onChange={(e) => handleChange('name', e.target.value)}
                   onBlur={() => handleBlur('name')}
@@ -186,7 +186,7 @@ export default function AddCandidateModal({ isOpen, onClose, onAddCandidate }) {
                 <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="email"
-                  placeholder="rahul@example.com"
+                  placeholder="example123@gmail.com"
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
                   onBlur={() => handleBlur('email')}
