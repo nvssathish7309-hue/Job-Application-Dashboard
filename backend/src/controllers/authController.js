@@ -10,6 +10,58 @@ const generateToken = (userId) => {
   );
 };
 
+const register = async (req, res, next) => {
+  try {
+    const { firstName, lastName, email, password, phone } = req.body;
+
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide first name, last name, email, and password.'
+      });
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'An account with this email address already exists. Please log in.'
+      });
+    }
+
+    const newUser = await User.create({
+      firstName,
+      lastName,
+      email: email.toLowerCase(),
+      password,
+      phone: phone || '',
+      role: 'CANDIDATE',
+      department: 'Applicant Portal'
+    });
+
+    const token = generateToken(newUser._id);
+
+    await createAuditLog({
+      req: { user: newUser },
+      action: 'USER_REGISTER',
+      entity: 'User',
+      entityId: newUser._id,
+      description: `New candidate account registered: ${newUser.firstName} ${newUser.lastName} (${newUser.email}).`
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful! Welcome to the Candidate Portal.',
+      data: {
+        token,
+        user: newUser.toJSON()
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -92,6 +144,7 @@ const resetPassword = async (req, res) => {
 };
 
 module.exports = {
+  register,
   login,
   getMe,
   logout,

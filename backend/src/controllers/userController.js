@@ -26,7 +26,7 @@ const createUser = async (req, res, next) => {
     const user = await User.create({
       firstName,
       lastName,
-      email,
+      email: email.toLowerCase(),
       password,
       role,
       department: department || 'Human Resources',
@@ -43,6 +43,34 @@ const createUser = async (req, res, next) => {
     });
 
     res.status(201).json({ success: true, message: 'User created successfully', data: user.toJSON() });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateUserRole = async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const oldRole = user.role;
+    user.role = role;
+    await user.save();
+
+    await createAuditLog({
+      req,
+      action: 'UPDATE_USER_ROLE',
+      entity: 'User',
+      entityId: user._id,
+      oldValue: oldRole,
+      newValue: role,
+      description: `Super Admin updated user ${user.email} role from ${oldRole} to ${role}`
+    });
+
+    res.status(200).json({ success: true, message: `User role updated to ${role}`, data: user.toJSON() });
   } catch (error) {
     next(error);
   }
@@ -76,5 +104,6 @@ const toggleUserStatus = async (req, res, next) => {
 module.exports = {
   getUsers,
   createUser,
+  updateUserRole,
   toggleUserStatus
 };

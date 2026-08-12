@@ -28,6 +28,17 @@ export const AuthProvider = ({ children }) => {
     verifyUser();
   }, [token]);
 
+  const register = async (userData) => {
+    const res = await authService.register(userData);
+    if (res.success && res.data) {
+      setToken(res.data.token);
+      setUser(res.data.user);
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+    }
+    return res;
+  };
+
   const login = async (email, password) => {
     const res = await authService.login({ email, password });
     if (res.success && res.data) {
@@ -53,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, hasRole, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, loading, register, login, logout, hasRole, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   );

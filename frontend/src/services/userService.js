@@ -9,6 +9,10 @@ export const userService = {
     const res = await api.post('/users', userData);
     return res.data;
   },
+  updateUserRole: async (id, role) => {
+    const res = await api.put(`/users/${id}/role`, { role });
+    return res.data;
+  },
   toggleUserStatus: async (id) => {
     const res = await api.patch(`/users/${id}/toggle-status`);
     return res.data;
