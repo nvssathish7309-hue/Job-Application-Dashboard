@@ -49,13 +49,13 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
         {/* Desktop collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="btn-moving-light hidden md:flex p-1.5 rounded-xl border border-blue-200 bg-blue-50/70 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm shadow-blue-500/25 hover:shadow-blue-500/50 active:scale-95 transition-all duration-300 group"
+          className="hidden md:flex p-2 rounded-xl text-blue-600 bg-slate-50 hover:bg-blue-50 border border-slate-200 transition-all active:scale-95 cursor-pointer"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? (
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            <ChevronRight className="w-4 h-4" />
           ) : (
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            <ChevronLeft className="w-4 h-4" />
           )}
         </button>
       </div>
