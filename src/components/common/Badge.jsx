@@ -11,9 +11,9 @@ import React from 'react';
 export default function Badge({ status, className = "" }) {
   const normalized = (status || '').toLowerCase();
 
-  let styles = "bg-slate-100 text-slate-700 border-slate-200";
-  let dotColor = "bg-slate-400";
-  let label = status || "New";
+  let styles = "bg-purple-50 text-purple-700 border-purple-200";
+  let dotColor = "bg-purple-500";
+  let label = status || "Applied";
 
   if (normalized.includes("shortlist")) {
     styles = "bg-blue-50 text-blue-700 border-blue-200";
@@ -31,10 +31,10 @@ export default function Badge({ status, className = "" }) {
     styles = "bg-rose-50 text-rose-700 border-rose-200";
     dotColor = "bg-rose-500";
     label = "Rejected";
-  } else if (normalized.includes("new")) {
-    styles = "bg-sky-50 text-sky-700 border-sky-200";
-    dotColor = "bg-sky-500";
-    label = "New";
+  } else if (normalized.includes("applied") || normalized.includes("new")) {
+    styles = "bg-purple-50 text-purple-700 border-purple-200";
+    dotColor = "bg-purple-500";
+    label = normalized.includes("applied") ? "Applied" : "New";
   }
 
   return (
