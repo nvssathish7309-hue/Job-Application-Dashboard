@@ -4,14 +4,14 @@ import {
   Search, Plus, Menu, Bell, Loader2, AlertTriangle, X
 } from 'lucide-react';
 import { useCandidates } from '../../context/CandidateContext';
+import { useAuth } from '../../context/AuthContext';
 import MindMatrixLogo from '../MindMatrixLogo';
 
 export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { 
     candidates,
-    hrProfile, 
-    hrInitials, 
     isLoading, 
     setIsLoading, 
     isError, 
@@ -20,6 +20,42 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
     markNotifAsRead,
     markAllNotifsAsRead
   } = useCandidates();
+
+  const [localProfile, setLocalProfile] = useState(() => {
+    try {
+      const saved = localStorage.getItem('hrProfile');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) { return null; }
+  });
+
+  useEffect(() => {
+    const handleProfileUpdate = (e) => {
+      if (e?.detail) {
+        setLocalProfile(e.detail);
+      } else {
+        try {
+          const saved = localStorage.getItem('hrProfile');
+          if (saved) setLocalProfile(JSON.parse(saved));
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('userProfileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('userProfileUpdated', handleProfileUpdate);
+  }, []);
+
+  const headerName = (user?.firstName && user?.lastName)
+    ? `${user.firstName} ${user.lastName}`
+    : (localProfile?.name || user?.email || 'HR Recruiter');
+
+  const headerTitle = user?.department || localProfile?.title || user?.role?.replace('_', ' ') || 'Senior HR Manager';
+  const headerPhone = user?.phone || localProfile?.phone || '';
+
+  const calculatedInitials = useMemo(() => {
+    const parts = (headerName || '').trim().split(/\s+/);
+    if (!parts || !parts[0]) return 'HR';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }, [headerName]);
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
 
@@ -229,18 +265,18 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
             {/* Recruiter Avatar */}
             <div 
               onClick={() => navigate('/settings')}
-              title={`${hrProfile.name} (${hrProfile.title || 'HR Manager'}) • ${hrProfile.phone}`}
+              title={`${headerName} (${headerTitle}) • ${headerPhone}`}
               className="pl-1 flex items-center gap-2 border-l border-slate-200 cursor-pointer group"
             >
               <div className="btn-moving-light rounded-full w-9 h-9 bg-gradient-to-tr from-blue-700 to-blue-400 flex items-center justify-center text-white font-bold text-xs shadow-sm group-hover:scale-105 transition-transform">
-                {hrInitials}
+                {calculatedInitials}
               </div>
               <div className="hidden lg:flex flex-col text-left leading-tight pr-1">
                 <span className="text-xs font-bold text-slate-800 truncate max-w-[120px] group-hover:text-blue-600 transition-colors">
-                  {hrProfile.name}
+                  {headerName}
                 </span>
                 <span className="text-[10px] font-medium text-slate-400 truncate max-w-[120px]">
-                  {hrProfile.phone || hrProfile.title}
+                  {headerPhone || headerTitle}
                 </span>
               </div>
             </div>

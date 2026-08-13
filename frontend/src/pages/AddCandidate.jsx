@@ -5,6 +5,7 @@ import {
   Upload, X, CheckCircle2, ChevronLeft, Plus, AlertCircle, FileText
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
+import { useAuth } from '../context/AuthContext';
 import { validateCandidateForm } from '../utils/validation';
 import Toast from '../components/common/Toast';
 
@@ -31,12 +32,28 @@ function FieldError({ error }) {
 export default function AddCandidate() {
   const navigate = useNavigate();
   const { addCandidate } = useCandidates();
+  const { user } = useAuth();
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', role: '', experience: '',
     skills: [], education: '', resumeFileName: '', resume: null
   });
+
+  // Auto pre-fill personal info from login details for candidates/users
+  useEffect(() => {
+    if (user) {
+      const defaultName = (user.firstName && user.lastName)
+        ? `${user.firstName} ${user.lastName}`
+        : (user.name || '');
+      setFormData(prev => ({
+        ...prev,
+        name: prev.name || defaultName,
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || ''
+      }));
+    }
+  }, [user]);
   const [errors, setErrors] = useState({});
   const [skillInput, setSkillInput] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);

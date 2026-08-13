@@ -84,8 +84,28 @@ const updateStage = async (req, res, next) => {
   }
 };
 
+const deleteApplication = async (req, res, next) => {
+  try {
+    const application = await Application.findByIdAndDelete(req.params.id);
+    if (application && application.candidateId) {
+      await Candidate.findByIdAndDelete(application.candidateId);
+    }
+    await createAuditLog({
+      req,
+      action: 'DELETE_APPLICATION',
+      entity: 'Application',
+      entityId: req.params.id,
+      description: `Deleted application ${req.params.id}`
+    });
+    res.status(200).json({ success: true, message: 'Application deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getApplications,
   getApplicationById,
-  updateStage
+  updateStage,
+  deleteApplication
 };

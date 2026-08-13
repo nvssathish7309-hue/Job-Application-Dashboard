@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   User,
   Phone,
@@ -12,13 +12,31 @@ import {
   Download, 
   ChevronDown, 
   ChevronUp,
-  Save
+  Save,
+  GraduationCap,
+  Upload,
+  X,
+  FileText,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
+import { useAuth } from '../context/AuthContext';
 import Toast from '../components/common/Toast';
 
+const ROLES = [
+  'Software Engineer', 'AI Engineer', 'Frontend Developer',
+  'Backend Developer', 'Full Stack Developer', 'UI/UX Designer',
+  'DevOps Engineer', 'Data Engineer', 'Product Manager', 'QA Engineer'
+];
+
+const EXPERIENCE_LEVELS = [
+  'Fresher', '1 Year', '2 Years', '3 Years', '4 Years', '5 Years', '6–8 Years', '8+ Years'
+];
+
 export default function SettingsPage() {
-  const { candidates, resetToDefaultData, hrProfile, updateHrProfile, hrInitials } = useCandidates();
+  const { candidates, resetToDefaultData } = useCandidates();
+  const { user, updateCurrentUser } = useAuth();
   const [toast, setToast] = useState(null);
 
   // Expanded sections state — default ALL OPEN
@@ -35,26 +53,139 @@ export default function SettingsPage() {
   const [isSecurityEdited, setIsSecurityEdited] = useState(false);
   const [hrPhoneError, setHrPhoneError] = useState('');
 
-  // HR Profile local form state
-  const [profileForm, setProfileForm] = useState({
-    name: hrProfile?.name || '',
-    phone: hrProfile?.phone || '',
-    email: hrProfile?.email || '',
-    title: hrProfile?.title || 'Senior HR Manager'
-  });
+  // Helper to load profile data from user / localStorage
+  const loadProfileData = () => {
+    let saved = null;
+    try {
+      const stored = localStorage.getItem('hrProfile');
+      if (stored) saved = JSON.parse(stored);
+    } catch (e) {}
 
-  // Keep profileForm in sync if context changes
+    const userName = (user?.firstName && user?.lastName) ? `${user.firstName} ${user.lastName}` : (user?.name || '');
+    return {
+      name: saved?.name || userName || 'SATHISH N',
+      phone: saved?.phone || user?.phone || '+91 6380887476',
+      email: saved?.email || user?.email || 'nvssathish7309@gmail.com',
+      title: saved?.title || user?.department || 'Senior HR Manager'
+    };
+  };
+
+  // Helper to load candidate profile data
+  const loadCandidateData = () => {
+    let saved = null;
+    try {
+      const stored = localStorage.getItem('candidateProfile');
+      if (stored) saved = JSON.parse(stored);
+    } catch (e) {}
+
+    const defaultName = (user?.firstName && user?.lastName)
+      ? `${user.firstName} ${user.lastName}`
+      : (user?.name || '');
+
+    return {
+      name: saved?.name || defaultName || 'Sathish N',
+      email: saved?.email || user?.email || 'nvssathish7309@gmail.com',
+      phone: saved?.phone || user?.phone || '+91 6380887476',
+      role: saved?.role || 'Frontend Developer',
+      experience: saved?.experience || '3 Years',
+      skills: saved?.skills || ['React.js', 'JavaScript', 'Tailwind CSS', 'Node.js'],
+      education: saved?.education || 'B.Tech Computer Science, IIT Delhi (2026)',
+      resumeFileName: saved?.resumeFileName || 'Sathish_Resume_2026.pdf',
+      resume: null
+    };
+  };
+
+  const isCandidate = user?.role === 'CANDIDATE';
+  const fileInputRef = useRef(null);
+
+  // HR Profile local form state
+  const [profileForm, setProfileForm] = useState(loadProfileData);
+
+  // Candidate Profile local form state
+  const [candidateForm, setCandidateForm] = useState(loadCandidateData);
+  const [candidateSkillInput, setCandidateSkillInput] = useState('');
+  const [isCandidateDragOver, setIsCandidateDragOver] = useState(false);
+  const [isCandidateProfileEdited, setIsCandidateProfileEdited] = useState(false);
+
+  // Auto-sync profile when user or custom event changes
   useEffect(() => {
-    if (hrProfile) {
-      setProfileForm({
-        name: hrProfile.name || '',
-        phone: hrProfile.phone || '',
-        email: hrProfile.email || '',
-        title: hrProfile.title || 'Senior HR Manager'
-      });
+    const handleProfileUpdate = () => {
+      setProfileForm(loadProfileData());
+      setCandidateForm(loadCandidateData());
       setIsProfileEdited(false);
+      setIsCandidateProfileEdited(false);
+    };
+
+    handleProfileUpdate();
+    window.addEventListener('userProfileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('userProfileUpdated', handleProfileUpdate);
+  }, [user]);
+
+  const handleCandidateInputChange = (field, value) => {
+    setCandidateForm(prev => ({ ...prev, [field]: value }));
+    setIsCandidateProfileEdited(true);
+  };
+
+  const handleCandidatePhoneChange = (e) => {
+    let input = e.target.value;
+    let digits = input.replace(/\D/g, '');
+    if (digits.startsWith('91')) {
+      digits = digits.slice(2);
     }
-  }, [hrProfile]);
+    const trimmedDigits = digits.slice(0, 10);
+    const formatted = trimmedDigits ? `+91 ${trimmedDigits}` : '';
+    handleCandidateInputChange('phone', formatted);
+  };
+
+  const handleAddCandidateSkill = () => {
+    const s = candidateSkillInput.trim();
+    if (s && !candidateForm.skills.includes(s)) {
+      handleCandidateInputChange('skills', [...candidateForm.skills, s]);
+    }
+    setCandidateSkillInput('');
+  };
+
+  const handleRemoveCandidateSkill = (skill) => {
+    handleCandidateInputChange('skills', candidateForm.skills.filter(s => s !== skill));
+  };
+
+  const handleCandidateSkillKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); handleAddCandidateSkill(); }
+  };
+
+  const handleCandidateFile = (file) => {
+    if (!file) return;
+    handleCandidateInputChange('resumeFileName', file.name);
+    handleCandidateInputChange('resume', file);
+  };
+
+  const handleSaveCandidateProfile = (e) => {
+    e.preventDefault();
+    localStorage.setItem('candidateProfile', JSON.stringify(candidateForm));
+    
+    // Split name into firstName & lastName to update AuthContext if available
+    const nameParts = (candidateForm.name || '').trim().split(/\s+/);
+    const fName = nameParts[0] || '';
+    const lName = nameParts.slice(1).join(' ') || '';
+    if (updateCurrentUser) {
+      updateCurrentUser({
+        firstName: fName,
+        lastName: lName,
+        phone: candidateForm.phone
+      });
+    }
+
+    window.dispatchEvent(new CustomEvent('userProfileUpdated', { detail: candidateForm }));
+    setIsCandidateProfileEdited(false);
+    setToast({ type: 'success', message: 'Candidate Profile & Application details updated successfully!' });
+  };
+
+  const hrInitials = useMemo(() => {
+    const parts = (profileForm.name || '').trim().split(/\s+/);
+    if (!parts || !parts[0]) return 'HR';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }, [profileForm.name]);
 
   // Notifications form state
   const [notifications, setNotifications] = useState({
@@ -107,8 +238,23 @@ export default function SettingsPage() {
     }
 
     setHrPhoneError('');
-    updateHrProfile(profileForm);
-    setIsProfileEdited(false); // Matrix blue format "Saved" button
+    localStorage.setItem('hrProfile', JSON.stringify(profileForm));
+    
+    // Split name into firstName & lastName to update AuthContext if available
+    const nameParts = (profileForm.name || '').trim().split(/\s+/);
+    const fName = nameParts[0] || '';
+    const lName = nameParts.slice(1).join(' ') || '';
+    if (updateCurrentUser) {
+      updateCurrentUser({
+        firstName: fName,
+        lastName: lName,
+        phone: profileForm.phone,
+        department: profileForm.title
+      });
+    }
+
+    window.dispatchEvent(new CustomEvent('userProfileUpdated', { detail: profileForm }));
+    setIsProfileEdited(false);
     
     // Compute new initials for toast
     const parts = (profileForm.name || '').trim().split(/\s+/);
@@ -153,13 +299,269 @@ export default function SettingsPage() {
     }
   };
 
+  if (isCandidate) {
+    return (
+      <div className="space-y-6 max-w-4xl animate-fade-in pb-12">
+        
+        {/* Candidate Page Header */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <User className="w-7 h-7 text-blue-600" />
+            <span>Candidate Profile &amp; Application Details</span>
+          </h1>
+          <p className="text-sm text-slate-500 font-medium mt-1">
+            Personal information taken automatically from login details. Edit your details, application role, education, and resume anytime.
+          </p>
+        </div>
+
+        <form onSubmit={handleSaveCandidateProfile} className="space-y-5">
+          
+          {/* Section 1: Personal Information */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-5">
+              <div className="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-extrabold">1</div>
+              Personal Information
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Full Name <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Candidate Name"
+                    value={candidateForm.name}
+                    onChange={e => handleCandidateInputChange('name', e.target.value)}
+                    className="w-full pl-9 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl transition-all text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Email Address <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="email"
+                    required
+                    placeholder="example123@gmail.com"
+                    value={candidateForm.email}
+                    onChange={e => handleCandidateInputChange('email', e.target.value)}
+                    className="w-full pl-9 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl transition-all text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Phone Number <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+91 9876543210"
+                    value={candidateForm.phone}
+                    onChange={handleCandidatePhoneChange}
+                    maxLength={15}
+                    className="w-full pl-9 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl transition-all text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">Must be exactly 10 digits</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Application Details */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-5">
+              <div className="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-extrabold">2</div>
+              Application Details
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Role / Position <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <Briefcase className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
+                  <select
+                    value={candidateForm.role}
+                    onChange={e => handleCandidateInputChange('role', e.target.value)}
+                    className="w-full pl-9 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl transition-all text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none"
+                  >
+                    <option value="">Select a role...</option>
+                    {ROLES.map(r => <option key={r}>{r}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Experience Level <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={candidateForm.experience}
+                  onChange={e => handleCandidateInputChange('experience', e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl transition-all text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none"
+                >
+                  <option value="">Select experience...</option>
+                  {EXPERIENCE_LEVELS.map(l => <option key={l}>{l}</option>)}
+                </select>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Skills <span className="text-rose-500">*</span>
+                </label>
+                <div className="flex flex-wrap gap-2 p-3 min-h-[52px] rounded-xl border border-slate-200 bg-slate-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white">
+                  {candidateForm.skills.map((skill, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700 text-xs font-semibold">
+                      {skill}
+                      <button type="button" onClick={() => handleRemoveCandidateSkill(skill)} className="text-blue-500 hover:text-rose-500 transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                  <input
+                    type="text"
+                    placeholder={candidateForm.skills.length === 0 ? 'Type a skill and press Enter...' : 'Add more...'}
+                    value={candidateSkillInput}
+                    onChange={e => setCandidateSkillInput(e.target.value)}
+                    onKeyDown={handleCandidateSkillKeyDown}
+                    onBlur={handleAddCandidateSkill}
+                    className="flex-1 min-w-[140px] bg-transparent outline-none text-sm text-slate-900 placeholder-slate-400"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">Press Enter or comma to add skills</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Education */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-5">
+              <div className="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-extrabold">3</div>
+              Education
+            </h2>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Highest Qualification <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <GraduationCap className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="e.g. B.Tech Computer Science, IIT Delhi (2026)"
+                  value={candidateForm.education}
+                  onChange={e => handleCandidateInputChange('education', e.target.value)}
+                  className="w-full pl-9 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl transition-all text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Resume Upload */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-5">
+              <div className="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-extrabold">4</div>
+              Resume Upload <span className="text-rose-500">*</span>
+            </h2>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept=".pdf,.doc,.docx"
+              onChange={e => handleCandidateFile(e.target.files[0])}
+              className="hidden"
+            />
+
+            {candidateForm.resumeFileName ? (
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-blue-200 bg-blue-50/50">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 truncate">{candidateForm.resumeFileName}</p>
+                  <p className="text-xs text-blue-600 flex items-center gap-1 mt-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Resume file active
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { handleCandidateInputChange('resumeFileName', ''); handleCandidateInputChange('resume', null); }}
+                  className="text-slate-400 hover:text-rose-500 transition-colors p-1 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div
+                onDragOver={e => { e.preventDefault(); setIsCandidateDragOver(true); }}
+                onDragLeave={() => setIsCandidateDragOver(false)}
+                onDrop={e => { e.preventDefault(); setIsCandidateDragOver(false); handleCandidateFile(e.dataTransfer.files[0]); }}
+                onClick={() => fileInputRef.current?.click()}
+                className={`btn-moving-light rounded-2xl p-10 text-center cursor-pointer transition-all relative ${
+                  isCandidateDragOver ? 'bg-blue-50/80 shadow-md' : 'bg-white hover:bg-slate-50/80'
+                }`}
+              >
+                <div className="relative z-[2]">
+                  <Upload className={`w-8 h-8 mx-auto mb-3 ${isCandidateDragOver ? 'text-blue-500' : 'text-blue-600'}`} />
+                  <p className="text-sm font-bold text-slate-700 mb-1">Upload Resume <span className="text-rose-500">*</span></p>
+                  <p className="text-xs text-slate-500">Drag &amp; drop or <span className="text-blue-600 font-semibold">browse files</span></p>
+                  <p className="text-[11px] text-slate-400 mt-1">PDF, DOC, DOCX — Max 5MB</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Form Submit */}
+          <div className="flex justify-end pt-2">
+            <button
+              type="submit"
+              disabled={!isCandidateProfileEdited}
+              className={`px-6 py-3 font-bold text-xs rounded-xl transition-all flex items-center gap-2 ${
+                isCandidateProfileEdited
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/25 active:scale-[0.98] cursor-pointer'
+                  : 'bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs cursor-default'
+              }`}
+            >
+              {isCandidateProfileEdited ? (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save Candidate Profile</span>
+                </>
+              ) : (
+                <>
+                  <Check className="w-4 h-4 text-blue-600 stroke-[3]" />
+                  <span>Saved</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+
+        <Toast toast={toast} onClose={() => setToast(null)} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-4xl animate-fade-in pb-12">
       
       {/* Page Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Settings & Configurations
+          Settings &amp; Configurations
         </h1>
         <p className="text-sm text-slate-500 font-medium mt-1">
           Manage your HR recruiter profile, notification preferences, security policies, and data storage.

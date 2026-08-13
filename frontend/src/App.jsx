@@ -47,6 +47,7 @@ export default function App() {
           <CandidateProvider>
             <Routes>
               {/* Public Routes */}
+              <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<Login />} />
               <Route path="/careers" element={<PublicCareers />} />
 
@@ -112,11 +113,11 @@ export default function App() {
                 <Route path="/interviews" element={<Interviews />} />
                 <Route path="/interviews/:id/feedback" element={<InterviewFeedback />} />
 
-                {/* Super Admin User Management */}
+                {/* User Management */}
                 <Route
                   path="/users"
                   element={
-                    <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+                    <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR_MANAGER']}>
                       <Users />
                     </ProtectedRoute>
                   }

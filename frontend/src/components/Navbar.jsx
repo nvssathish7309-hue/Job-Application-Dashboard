@@ -20,7 +20,10 @@ export default function Navbar() {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between shadow-2xs">
+    <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between shadow-2xs relative">
+      
+      {/* Animated Spinning Glow Border Line */}
+      <div className="spinning-glow-line" />
       
       {/* Left: Brand Logo & Title */}
       <div className="flex items-center gap-3">
@@ -48,7 +51,7 @@ export default function Navbar() {
         {/* User Info */}
         {user && (
           <div className="flex items-center gap-3 border-l border-slate-200 pl-3">
-            <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
+            <div className="btn-moving-light rounded-full w-9 h-9 bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
               {user.firstName[0]}{user.lastName[0]}
             </div>
             

@@ -9,7 +9,8 @@ export default function Login() {
   const location = useLocation();
   const { login, register } = useAuth();
 
-  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [mode, setMode] = useState('login'); // Default: 'login' (Sign In page)
+  const [switchKey, setSwitchKey] = useState(0);
   
   // Login & Registration state
   const [email, setEmail] = useState('');
@@ -26,6 +27,22 @@ export default function Login() {
   const [successMessage, setSuccessMessage] = useState('');
 
   const from = location.state?.from?.pathname || '/dashboard';
+
+  const handleTabSwitch = (targetMode) => {
+    if (mode !== targetMode) {
+      setMode(targetMode);
+      setSwitchKey(prev => prev + 1);
+      setEmail('');
+      setPassword('');
+      setFirstName('');
+      setLastName('');
+      setPhone('');
+      setShowPassword(false);
+      setErrorMessage('');
+      setSuccessMessage('');
+      setIsExistingAccount(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,278 +99,312 @@ export default function Login() {
     }
   };
 
-  const handleDemoLogin = (demoEmail, demoPassword) => {
+  const handleDemoLogin = (demoEmail) => {
     setMode('login');
+    setSwitchKey(prev => prev + 1);
     setEmail(demoEmail);
-    setPassword(demoPassword);
+    setPassword(''); // Empty password so employee types their password
+    setShowPassword(false);
     setErrorMessage('');
     setIsExistingAccount(false);
   };
 
   const handleSwitchToSignIn = () => {
     setMode('login');
-    setPassword('Password123!');
+    setSwitchKey(prev => prev + 1);
+    setPassword('');
+    setShowPassword(false);
     setErrorMessage('');
     setIsExistingAccount(false);
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col justify-center py-10 sm:px-6 lg:px-8">
-      
-      {/* Brand Title Header */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
-        <div className="flex justify-center mb-2">
-          <MindMatrixLogo layout="vertical" showTagline={false} />
-        </div>
-        <p className="text-xs font-black tracking-widest uppercase mt-1.5 bg-gradient-to-r from-blue-700 via-blue-500 to-indigo-600 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">
-          RECRUITER HUB & CANDIDATE PORTAL
-        </p>
+    <div className="login-bg min-h-screen flex flex-col justify-center py-10 sm:px-6 lg:px-8 overflow-hidden relative">
+
+      {/* ── Animated Background Orbs ── */}
+      <div className="orb orb-1" />
+      <div className="orb orb-2" />
+      <div className="orb orb-3" />
+      <div className="orb orb-4" />
+      <div className="orb orb-5" />
+
+      {/* ── Floating Particles ── */}
+      <div className="particles">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div key={i} className={`particle particle-${i + 1}`} />
+        ))}
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="btn-moving-light bg-white py-8 px-6 shadow-[0_0_35px_rgba(59,130,246,0.25)] border border-blue-200/80 sm:rounded-3xl sm:px-10 relative z-10">
-          
-          {/* Mode Switcher Tabs */}
-          <div className="flex rounded-xl bg-slate-100 p-1 mb-6">
-            <button
-              type="button"
-              onClick={() => { setMode('login'); setErrorMessage(''); setIsExistingAccount(false); }}
-              className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
-                mode === 'login' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => { setMode('register'); setErrorMessage(''); setIsExistingAccount(false); }}
-              className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
-                mode === 'register' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              Candidate Sign Up
-            </button>
+      {/* ── Grid Overlay ── */}
+      <div className="grid-overlay" />
+
+      {/* ── Bottom Half-Circle Glow Dome ── */}
+      <div className="bottom-dome-glow-container">
+        <div className="bottom-dome-glow" />
+        <div className="bottom-dome-glow-core" />
+      </div>
+
+      {/* ── Content ── */}
+      <div className="relative z-10">
+        {/* Brand Title Header — Standard Static Logo */}
+        <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
+          <div className="flex justify-center mb-2">
+            <MindMatrixLogo layout="vertical" showTagline={false} />
           </div>
+          <p className="text-xs font-black tracking-widest uppercase mt-1.5 bg-gradient-to-r from-sky-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(147,197,253,0.6)]">
+            RECRUITER HUB &amp; CANDIDATE PORTAL
+          </p>
+        </div>
 
-          {errorMessage && (
-            <div className="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold animate-shake">
-              <div>{errorMessage}</div>
-              {isExistingAccount && (
-                <button
-                  type="button"
-                  onClick={handleSwitchToSignIn}
-                  className="mt-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl text-[11px] flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>Switch to Sign In for {email} →</span>
-                </button>
-              )}
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="login-card py-8 px-6 sm:rounded-3xl sm:px-10 relative">
+
+            {/* Mode Switcher Tabs */}
+            <div className="flex rounded-xl bg-white/10 border border-white/20 p-1 mb-6 backdrop-blur-sm">
+              <button
+                type="button"
+                onClick={() => handleTabSwitch('login')}
+                className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                  mode === 'login' ? 'bg-white/90 text-blue-700 shadow-md shadow-blue-500/20' : 'text-white/70 hover:text-white'
+                }`}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTabSwitch('register')}
+                className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                  mode === 'register' ? 'bg-white/90 text-blue-700 shadow-md shadow-blue-500/20' : 'text-white/70 hover:text-white'
+                }`}
+              >
+                Candidate Sign Up
+              </button>
             </div>
-          )}
 
-          {successMessage && (
-            <div className="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
-              {successMessage}
-            </div>
-          )}
+            {/* Animated Form Container */}
+            <div key={switchKey} className="animate-mode-switch">
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            
-            {/* Registration Fields */}
-            {mode === 'register' && (
-              <>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                      First Name *
-                    </label>
-                    <div className="relative rounded-xl flex items-center">
-                      <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
-                      <input
-                        type="text"
-                        required
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Sathish"
-                        className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                      />
+            {errorMessage && (
+              <div className="mb-5 p-4 rounded-2xl bg-rose-500/20 border border-rose-400/40 text-rose-200 text-xs font-semibold animate-shake backdrop-blur-sm">
+                <div>{errorMessage}</div>
+                {isExistingAccount && (
+                  <button
+                    type="button"
+                    onClick={handleSwitchToSignIn}
+                    className="mt-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-400 text-white font-extrabold rounded-xl text-[11px] flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <LogIn className="w-3.5 h-3.5" />
+                    <span>Switch to Sign In for {email} →</span>
+                  </button>
+                )}
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="mb-5 p-4 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-semibold backdrop-blur-sm">
+                {successMessage}
+              </div>
+            )}
+
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              
+              {/* Registration Fields */}
+              {mode === 'register' && (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">
+                        First Name *
+                      </label>
+                      <div className="login-input-wrap relative rounded-xl flex items-center">
+                        <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/70 pointer-events-none z-10" />
+                        <input
+                          type="text"
+                          required
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          placeholder="Jane"
+                          className="login-input w-full pl-9 pr-3 py-2 rounded-xl text-white font-medium text-xs placeholder-white/30 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">
+                        Last Name *
+                      </label>
+                      <div className="login-input-wrap relative rounded-xl flex items-center">
+                        <input
+                          type="text"
+                          required
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          placeholder="Doe"
+                          className="login-input w-full px-3 py-2 rounded-xl text-white font-medium text-xs placeholder-white/30 transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                      Last Name *
+                    <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">
+                      Phone Number
                     </label>
-                    <input
-                      type="text"
-                      required
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="N"
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                    />
+                    <div className="login-input-wrap relative rounded-xl flex items-center">
+                      <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/70 pointer-events-none z-10" />
+                      <span className="absolute left-9 top-1/2 -translate-y-1/2 text-blue-300/80 text-xs font-bold pointer-events-none z-10 select-none">+91</span>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          setPhone(digits);
+                        }}
+                        placeholder="9876543210"
+                        maxLength={10}
+                        inputMode="numeric"
+                        pattern="[0-9]{10}"
+                        className="login-input w-full pl-16 pr-3 py-2 rounded-xl text-white font-medium text-xs placeholder-white/30 transition-all"
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Phone Number
-                  </label>
-                  <div className="relative rounded-xl flex items-center">
-                    <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="6380887476"
-                      className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Email Field */}
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                {mode === 'register' ? 'Email Address *' : 'Work or Candidate Email'}
-              </label>
-              <div className="relative rounded-xl flex items-center">
-                <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nvssathish7309@gmail.com"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                  Password *
-                </label>
-                {mode === 'login' && (
-                  <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('For demo accounts, default password is Password123!'); }} className="text-xs font-bold text-blue-600 hover:text-blue-700">
-                    Forgot password?
-                  </a>
-                )}
-              </div>
-              <div className="relative rounded-xl flex items-center">
-                <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="no-glow absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer z-10"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>{mode === 'register' ? 'Creating Account...' : 'Signing in...'}</span>
-                </>
-              ) : (
-                <>
-                  <span>{mode === 'register' ? 'Register as Candidate' : 'Sign In'}</span>
-                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
-            </button>
-          </form>
 
-          {/* Quick Demo Accounts */}
-          {mode === 'login' && (
-            <div className="mt-6 pt-6 border-t border-slate-100">
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-                <span>One-Click Demo Accounts:</span>
+              {/* Email Field */}
+              <div>
+                <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">
+                  Email *
+                </label>
+                <div className="login-input-wrap relative rounded-xl flex items-center">
+                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-300/70 pointer-events-none z-10" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="candidate@mindmatrix.com"
+                    className="login-input w-full pl-10 pr-4 py-2.5 rounded-xl text-white font-medium text-xs placeholder-white/30 transition-all"
+                  />
+                </div>
               </div>
-              
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin('admin@company.com', 'Password123!')}
-                  className="p-2.5 rounded-xl border border-purple-200 bg-purple-50/60 hover:bg-purple-100 text-purple-900 font-bold text-left transition-colors"
-                >
-                  <span className="block text-[10px] text-purple-600 font-extrabold uppercase">Super Admin</span>
-                  admin@company.com
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin('hr@company.com', 'Password123!')}
-                  className="p-2.5 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100 text-blue-900 font-bold text-left transition-colors"
-                >
-                  <span className="block text-[10px] text-blue-600 font-extrabold uppercase">HR Manager</span>
-                  hr@company.com
-                </button>
+              {/* Password Field */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider">
+                    Password *
+                  </label>
+                  {mode === 'login' && (
+                    <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('For demo accounts, default password is Password123!'); }} className="text-xs font-bold text-blue-300 hover:text-sky-200 transition-colors">
+                      Forgot password?
+                    </a>
+                  )}
+                </div>
+                <div className="login-input-wrap relative rounded-xl flex items-center">
+                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-300/70 pointer-events-none z-10" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="login-input w-full pl-10 pr-10 py-2.5 rounded-xl text-white font-medium text-xs placeholder-white/30 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="no-glow absolute right-3.5 top-1/2 -translate-y-1/2 text-blue-300/70 hover:text-white focus:outline-none cursor-pointer z-10 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
 
+              {/* Submit Button */}
+              <div className="login-input-wrap relative rounded-xl mt-2">
                 <button
-                  type="button"
-                  onClick={() => handleDemoLogin('recruiter@company.com', 'Password123!')}
-                  className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100 text-emerald-900 font-bold text-left transition-colors"
+                  type="submit"
+                  disabled={isLoading}
+                  className="login-submit-btn w-full py-3 px-4 text-white font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
                 >
-                  <span className="block text-[10px] text-emerald-600 font-extrabold uppercase">Recruiter</span>
-                  recruiter@company.com
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin('interviewer@company.com', 'Password123!')}
-                  className="p-2.5 rounded-xl border border-amber-200 bg-amber-50/60 hover:bg-amber-100 text-amber-900 font-bold text-left transition-colors"
-                >
-                  <span className="block text-[10px] text-amber-600 font-extrabold uppercase">Interviewer</span>
-                  interviewer@company.com
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin('candidate@company.com', 'Password123!')}
-                  className="col-span-2 p-2.5 rounded-xl border border-sky-200 bg-sky-50/70 hover:bg-sky-100 text-sky-900 font-bold text-left transition-colors flex items-center justify-between"
-                >
-                  <div>
-                    <span className="block text-[10px] text-sky-600 font-extrabold uppercase">Demo Candidate</span>
-                    candidate@company.com
-                  </div>
-                  <span className="text-[10px] px-2 py-0.5 bg-sky-200 text-sky-800 font-bold rounded-lg">Log In</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleDemoLogin('nvssathish7309@gmail.com', 'Password123!')}
-                  className="col-span-2 p-2.5 rounded-xl border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 text-indigo-900 font-bold text-left transition-colors flex items-center justify-between"
-                >
-                  <div>
-                    <span className="block text-[10px] text-indigo-600 font-extrabold uppercase">Candidate (Sathish)</span>
-                    nvssathish7309@gmail.com
-                  </div>
-                  <span className="text-[10px] px-2 py-0.5 bg-indigo-200 text-indigo-800 font-bold rounded-lg">Log In as Sathish</span>
+                  {isLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>{mode === 'register' ? 'Creating Account...' : 'Signing in...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{mode === 'register' ? 'Register as Candidate' : 'Sign In'}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
               </div>
+            </form>
+
+            {/* Admin & Team Quick Login Email Selectors */}
+            {mode === 'login' && (
+              <div className="mt-6 pt-6 border-t border-white/15">
+                <div className="text-[11px] font-bold text-blue-300/70 uppercase tracking-wider mb-3">
+                  <span>Admin &amp; Team Accounts:</span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin('admin@mindmatrix.com')}
+                    className={`demo-btn btn-moving-light px-2.5 py-2 rounded-xl font-bold text-left transition-all cursor-pointer overflow-hidden ${
+                      email === 'admin@mindmatrix.com' ? 'scale-[1.02]' : ''
+                    }`}
+                    style={{'--demo-color': '#a855f7'}}
+                  >
+                    <span className="block text-[10px] font-extrabold uppercase mb-0.5" style={{color: '#c084fc'}}>Super Admin</span>
+                    <span className="block text-[10.5px] font-medium text-white/80 truncate tracking-tight">admin@mindmatrix.com</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin('hr@mindmatrix.com')}
+                    className={`demo-btn btn-moving-light px-2.5 py-2 rounded-xl font-bold text-left transition-all cursor-pointer overflow-hidden ${
+                      email === 'hr@mindmatrix.com' ? 'scale-[1.02]' : ''
+                    }`}
+                    style={{'--demo-color': '#3b82f6'}}
+                  >
+                    <span className="block text-[10px] font-extrabold uppercase mb-0.5" style={{color: '#93c5fd'}}>HR Manager</span>
+                    <span className="block text-[10.5px] font-medium text-white/80 truncate tracking-tight">hr@mindmatrix.com</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin('recruiter@mindmatrix.com')}
+                    className={`demo-btn btn-moving-light px-2.5 py-2 rounded-xl font-bold text-left transition-all cursor-pointer overflow-hidden ${
+                      email === 'recruiter@mindmatrix.com' ? 'scale-[1.02]' : ''
+                    }`}
+                    style={{'--demo-color': '#10b981'}}
+                  >
+                    <span className="block text-[10px] font-extrabold uppercase mb-0.5" style={{color: '#6ee7b7'}}>Recruiter</span>
+                    <span className="block text-[10.5px] font-medium text-white/80 truncate tracking-tight">recruiter@mindmatrix.com</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin('interviewer@mindmatrix.com')}
+                    className={`demo-btn btn-moving-light px-2.5 py-2 rounded-xl font-bold text-left transition-all cursor-pointer overflow-hidden ${
+                      email === 'interviewer@mindmatrix.com' ? 'scale-[1.02]' : ''
+                    }`}
+                    style={{'--demo-color': '#f59e0b'}}
+                  >
+                    <span className="block text-[10px] font-extrabold uppercase mb-0.5" style={{color: '#fcd34d'}}>Interviewer</span>
+                    <span className="block text-[10.5px] font-medium text-white/80 truncate tracking-tight">interviewer@mindmatrix.com</span>
+                  </button>
+                </div>
+              </div>
+            )}
             </div>
-          )}
 
+          </div>
         </div>
       </div>
     </div>

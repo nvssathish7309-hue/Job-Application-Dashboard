@@ -25,8 +25,17 @@ const PAGE_SIZE = 10;
 
 export default function Candidates() {
   const location = useLocation();
-  const { candidates, deleteCandidate, isLoading, isError, setIsError } = useCandidates();
+  const { candidates, refreshCandidates, deleteCandidate, isLoading, isError, setIsError } = useCandidates();
   const [editingCandidate, setEditingCandidate] = useState(null);
+
+  useEffect(() => {
+    if (refreshCandidates) refreshCandidates();
+    const handleGlobalCandidateSubmit = () => {
+      if (refreshCandidates) refreshCandidates();
+    };
+    window.addEventListener('candidateSubmitted', handleGlobalCandidateSubmit);
+    return () => window.removeEventListener('candidateSubmitted', handleGlobalCandidateSubmit);
+  }, [refreshCandidates]);
 
   // Parse initial search and status from URL query
   const params = new URLSearchParams(location.search);

@@ -46,6 +46,9 @@
 
 /* Continuous slow spin for the gradient border */
 @keyframes border-spin {
+  from {
+    --border-angle: 0deg;
+  }
   to {
     --border-angle: 360deg;
   }
@@ -78,14 +81,14 @@ input[type="submit"]:not(.no-glow),
 input[type="button"]:not(.no-glow),
 [role="button"]:not(.no-glow),
 .btn-moving-light,
+.demo-btn,
+.click-border-glow,
 .search-glow {
   position: relative;
   z-index: 0;
 }
 
-/* ── 1. THIN GRADIENT BORDER (::before) ──
-   Uses the mask-composite trick: a conic-gradient background
-   is masked so only a thin 1.5px border ring is visible.    */
+/* ── 1. THIN GRADIENT BORDER (::before) ── */
 button:not(.no-glow):active::before,
 button:not(.no-glow):focus::before,
 button:not(.no-glow):focus-visible::before,
@@ -103,20 +106,23 @@ input[type="submit"]:not(.no-glow):focus::before,
 input[type="button"]:not(.no-glow):active::before,
 input[type="button"]:not(.no-glow):focus::before,
 .btn-moving-light::before,
+.demo-btn:active::before,
+.demo-btn:focus::before,
+.demo-btn.click-border-glow::before,
+.click-border-glow::before,
 .search-glow:focus-within::before {
   content: '';
   position: absolute;
   inset: -1.5px;
   border-radius: inherit;
   background: conic-gradient(from var(--border-angle),
-      var(--light-color-4),
+      var(--demo-color, var(--light-color-4)),
       var(--light-color-3),
       var(--light-color-5),
       var(--light-color-1),
       var(--light-color-2),
-      var(--light-color-4));
+      var(--demo-color, var(--light-color-4)));
   animation: border-spin 2.5s linear infinite;
-  /* Mask to only show a thin border ring */
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -130,9 +136,7 @@ input[type="button"]:not(.no-glow):focus::before,
   pointer-events: none;
 }
 
-/* ── 2. SOFT GLOW BEHIND / BELOW THE BUTTON (::after) ──
-   A blurred conic-gradient shifted downward so the glow
-   radiates mostly from behind the bottom edge.             */
+/* ── 2. SOFT GLOW BEHIND / BELOW THE BUTTON (::after) ── */
 button:not(.no-glow):active::after,
 button:not(.no-glow):focus::after,
 button:not(.no-glow):focus-visible::after,
@@ -150,28 +154,18 @@ input[type="submit"]:not(.no-glow):focus::after,
 input[type="button"]:not(.no-glow):active::after,
 input[type="button"]:not(.no-glow):focus::after,
 .btn-moving-light::after,
+.demo-btn:active::after,
+.demo-btn:focus::after,
+.demo-btn.click-border-glow::after,
+.click-border-glow::after,
 .search-glow:focus-within::after {
-  content: '';
-  position: absolute;
-  /* Push the glow downward — mostly behind the lower half */
-  left: 10%;
-  right: 10%;
-  bottom: -12px;
-  height: 60%;
-  border-radius: 50%;
-  background: conic-gradient(from var(--border-angle),
-      var(--light-color-4),
-      var(--light-color-3),
-      var(--light-color-5),
-      var(--light-color-1),
-      var(--light-color-2),
-      var(--light-color-4));
-  filter: blur(20px) brightness(1.3);
-  animation:
-    border-spin 2.5s linear infinite,
-    glow-pulse 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  z-index: -1;
-  pointer-events: none;
+  display: none !important;
+}
+
+/* Circular spinning glow for rounded-full elements */
+.btn-moving-light.rounded-full::before,
+.btn-moving-light.rounded-full::after {
+  border-radius: 9999px !important;
 }
 
 /* Remove native/Tailwind border and focus ring when search-glow is active */
@@ -275,4 +269,642 @@ textarea:focus {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.85), 0 0 35px rgba(168, 85, 247, 0.55), inset 0 0 12px rgba(191, 219, 254, 0.6);
     border-color: rgba(59, 130, 246, 1);
   }
+}
+
+/* ══════════════════════════════════════════════════════════
+   ✦ LOGIN PAGE — ANIMATED BACKGROUND SYSTEM
+══════════════════════════════════════════════════════════ */
+
+/* ── Base Background ── */
+.login-bg {
+  background: radial-gradient(ellipse at 20% 50%, #0f1a3a 0%, #050d1f 40%, #0a0618 70%, #050d1f 100%);
+  background-attachment: fixed;
+}
+
+/* ── Color Orbs ── */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: orbFloat linear infinite;
+}
+
+.orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.45) 0%, transparent 70%);
+  top: -120px;
+  left: -100px;
+  animation-name: orbFloat1;
+  animation-duration: 18s;
+}
+
+.orb-2 {
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.35) 0%, transparent 70%);
+  bottom: -80px;
+  right: -80px;
+  animation-name: orbFloat2;
+  animation-duration: 22s;
+}
+
+.orb-3 {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.38) 0%, transparent 70%);
+  top: 35%;
+  right: 10%;
+  animation-name: orbFloat3;
+  animation-duration: 16s;
+}
+
+.orb-4 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
+  bottom: 25%;
+  left: 5%;
+  animation-name: orbFloat4;
+  animation-duration: 20s;
+}
+
+.orb-5 {
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
+  top: 55%;
+  left: 45%;
+  animation-name: orbFloat5;
+  animation-duration: 25s;
+}
+
+@keyframes orbFloat1 {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  33%  { transform: translate(60px, 80px) scale(1.08); }
+  66%  { transform: translate(-40px, 50px) scale(0.95); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes orbFloat2 {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  33%  { transform: translate(-70px, -60px) scale(1.1); }
+  66%  { transform: translate(50px, -30px) scale(0.92); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes orbFloat3 {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  50%  { transform: translate(-80px, 70px) scale(1.15); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes orbFloat4 {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  40%  { transform: translate(90px, -50px) scale(1.05); }
+  80%  { transform: translate(30px, 60px) scale(0.98); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes orbFloat5 {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  25%  { transform: translate(-50px, -70px) scale(1.12); }
+  75%  { transform: translate(40px, 40px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+/* ── Bottom Half-Circle Glow Dome ── */
+.bottom-dome-glow-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 380px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bottom-dome-glow {
+  position: absolute;
+  bottom: -220px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  max-width: 140vw;
+  height: 480px;
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
+  background: radial-gradient(ellipse at 50% 100%, 
+    rgba(99, 102, 241, 0.45) 0%, 
+    rgba(59, 130, 246, 0.35) 30%, 
+    rgba(168, 85, 247, 0.22) 55%, 
+    rgba(6, 182, 212, 0.12) 75%, 
+    transparent 100%);
+  filter: blur(40px);
+  animation: domeGlowPulse 6s ease-in-out infinite alternate;
+}
+
+.bottom-dome-glow-core {
+  position: absolute;
+  bottom: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 650px;
+  max-width: 110vw;
+  height: 300px;
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
+  background: radial-gradient(ellipse at 50% 100%, 
+    rgba(147, 197, 253, 0.6) 0%, 
+    rgba(99, 102, 241, 0.4) 35%, 
+    rgba(139, 92, 246, 0.2) 65%, 
+    transparent 100%);
+  filter: blur(25px);
+  box-shadow: 0 -15px 50px rgba(99, 102, 241, 0.5);
+  animation: domeCorePulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes domeGlowPulse {
+  0% {
+    opacity: 0.8;
+    transform: translateX(-50%) scale(0.96);
+    filter: blur(45px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
+    filter: blur(35px);
+  }
+}
+
+@keyframes domeCorePulse {
+  0% {
+    opacity: 0.75;
+    transform: translateX(-50%) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.04);
+  }
+}
+
+/* ── Spinning / Travelling Laser Glow Line ── */
+.spinning-glow-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.3) 15%,
+    #3b82f6 35%,
+    #a855f7 50%,
+    #06b6d4 65%,
+    rgba(59, 130, 246, 0.3) 85%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: spinningGlowLine 3s linear infinite;
+  box-shadow: 
+    0 0 10px rgba(59, 130, 246, 0.8),
+    0 0 20px rgba(168, 85, 247, 0.6),
+    0 0 30px rgba(6, 182, 212, 0.5);
+  z-index: 40;
+  pointer-events: none;
+}
+
+@keyframes spinningGlowLine {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ── Spinning Multi-Color Glow Border (Pill & Rect) ── */
+.spinning-glow-border-pill {
+  position: relative;
+  z-index: 0;
+  border-radius: 9999px;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #3b82f6 0%,
+    #a855f7 25%,
+    #ec4899 50%,
+    #10b981 75%,
+    #3b82f6 100%
+  );
+  animation: border-spin 3s linear infinite;
+  box-shadow: 
+    0 0 12px rgba(59, 130, 246, 0.4),
+    0 0 22px rgba(236, 72, 153, 0.3);
+}
+
+.spinning-glow-border-pill::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 9999px;
+  background: inherit;
+  filter: blur(8px);
+  opacity: 0.5;
+  z-index: -1;
+  animation: border-spin 3s linear infinite;
+}
+
+/* ── Grid Dot Overlay ── */
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 1;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, #000 40%, transparent 100%);
+}
+
+/* ── Floating Particles ── */
+.particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(147, 197, 253, 0.6);
+  animation: particleRise linear infinite;
+}
+
+/* Scatter particles across the screen */
+.particle-1  { left: 5%;  animation-duration: 8s;  animation-delay: 0s;   width: 3px; height: 3px; }
+.particle-2  { left: 12%; animation-duration: 12s; animation-delay: 1s;   width: 5px; height: 5px; background: rgba(196, 181, 253, 0.7); }
+.particle-3  { left: 20%; animation-duration: 9s;  animation-delay: 3s; }
+.particle-4  { left: 28%; animation-duration: 14s; animation-delay: 0.5s; width: 3px; height: 3px; background: rgba(110, 231, 183, 0.6); }
+.particle-5  { left: 35%; animation-duration: 11s; animation-delay: 2s; }
+.particle-6  { left: 42%; animation-duration: 7s;  animation-delay: 4s;   width: 6px; height: 6px; background: rgba(103, 232, 249, 0.7); }
+.particle-7  { left: 50%; animation-duration: 13s; animation-delay: 1.5s; }
+.particle-8  { left: 58%; animation-duration: 10s; animation-delay: 3.5s; width: 3px; height: 3px; background: rgba(249, 168, 212, 0.6); }
+.particle-9  { left: 65%; animation-duration: 8s;  animation-delay: 2.5s; }
+.particle-10 { left: 72%; animation-duration: 15s; animation-delay: 0s;   width: 5px; height: 5px; background: rgba(196, 181, 253, 0.7); }
+.particle-11 { left: 80%; animation-duration: 9s;  animation-delay: 1.2s; }
+.particle-12 { left: 88%; animation-duration: 11s; animation-delay: 3.8s; width: 3px; height: 3px; background: rgba(110, 231, 183, 0.6); }
+.particle-13 { left: 93%; animation-duration: 13s; animation-delay: 0.8s; }
+.particle-14 { left: 8%;  animation-duration: 10s; animation-delay: 6s;   background: rgba(103, 232, 249, 0.7); }
+.particle-15 { left: 25%; animation-duration: 12s; animation-delay: 5s;   width: 5px; height: 5px; }
+.particle-16 { left: 45%; animation-duration: 8s;  animation-delay: 7s;   background: rgba(249, 168, 212, 0.5); }
+.particle-17 { left: 62%; animation-duration: 14s; animation-delay: 2.2s; width: 3px; height: 3px; }
+.particle-18 { left: 75%; animation-duration: 9s;  animation-delay: 4.5s; background: rgba(196, 181, 253, 0.6); }
+.particle-19 { left: 85%; animation-duration: 16s; animation-delay: 1.8s; width: 6px; height: 6px; }
+.particle-20 { left: 96%; animation-duration: 11s; animation-delay: 3.2s; background: rgba(110, 231, 183, 0.5); }
+
+@keyframes particleRise {
+  0%   { transform: translateY(110vh) scale(0); opacity: 0; }
+  10%  { opacity: 1; transform: translateY(90vh) scale(1); }
+  90%  { opacity: 0.8; }
+  100% { transform: translateY(-10vh) scale(0.5); opacity: 0; }
+}
+
+/* ── Glassmorphism Login Card ── */
+.login-card {
+  background: rgba(15, 25, 60, 0.55);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid transparent;
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 0;
+}
+
+/* Thin spinning rainbow border ring around the card */
+.login-card::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--border-angle),
+    var(--light-color-4),
+    var(--light-color-3),
+    var(--light-color-5),
+    var(--light-color-1),
+    var(--light-color-2),
+    var(--light-color-4));
+  animation: border-spin 4s linear infinite;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  padding: 1.5px;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* Soft ambient outer glow behind the card */
+.login-card::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 2rem;
+  background: conic-gradient(from var(--border-angle),
+    var(--light-color-4),
+    var(--light-color-3),
+    var(--light-color-5),
+    var(--light-color-1),
+    var(--light-color-2),
+    var(--light-color-4));
+  filter: blur(28px);
+  opacity: 0.22;
+  animation: border-spin 4s linear infinite;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* ── Frosted Input Fields ── */
+.login-input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  color: #fff;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.login-input::placeholder {
+  color: rgba(147, 197, 253, 0.35);
+}
+
+.login-input:focus {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: transparent;
+  outline: none;
+}
+
+/* ── Spinning Rainbow Border on Focus (same effect as Sign In button) ── */
+.login-input-wrap {
+  position: relative;
+  z-index: 0;
+}
+
+/* Thin gradient border ring */
+.login-input-wrap:focus-within::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 0.75rem;
+  background: conic-gradient(from var(--border-angle),
+    var(--light-color-4),
+    var(--light-color-3),
+    var(--light-color-5),
+    var(--light-color-1),
+    var(--light-color-2),
+    var(--light-color-4));
+  animation: border-spin 2.5s linear infinite;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  padding: 1.5px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Soft ambient glow behind the input */
+.login-input-wrap:focus-within::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 1rem;
+  background: conic-gradient(from var(--border-angle),
+    var(--light-color-4),
+    var(--light-color-3),
+    var(--light-color-5),
+    var(--light-color-1),
+    var(--light-color-2),
+    var(--light-color-4));
+  filter: blur(18px);
+  opacity: 0.5;
+  animation: border-spin 2.5s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ── Gradient Submit Button ── */
+.login-submit-btn {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 40%, #8b5cf6 100%);
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.4);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-submit-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.login-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 40%, #7c3aed 100%);
+  box-shadow: 0 6px 30px rgba(79, 70, 229, 0.65), 0 0 0 1px rgba(99, 102, 241, 0.5);
+  transform: translateY(-1px);
+}
+
+.login-submit-btn:active:not(:disabled) {
+  transform: translateY(0px) scale(0.99);
+}
+
+/* ── Demo Account Buttons ── */
+.demo-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(var(--demo-color-rgb, 255, 255, 255), 0.15);
+  border-color: color-mix(in srgb, var(--demo-color) 30%, transparent);
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.2s ease;
+}
+
+.demo-btn:hover {
+  background: color-mix(in srgb, var(--demo-color) 15%, transparent);
+  border-color: color-mix(in srgb, var(--demo-color) 50%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--demo-color) 25%, transparent);
+}
+
+/* ── Mode Switch & Logo Animation Keyframes ── */
+@keyframes modeSwitchIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+.animate-mode-switch {
+  animation: modeSwitchIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes logoClickRipple {
+  0% {
+    transform: scale(0.92);
+    filter: brightness(1.3);
+  }
+  50% {
+    transform: scale(1.12) rotate(-3deg);
+    filter: brightness(1.6);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+.animate-logo-click {
+  animation: logoClickRipple 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes pulseGlowRing {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4), 0 0 30px rgba(99, 102, 241, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.8), 0 0 45px rgba(168, 85, 247, 0.5);
+  }
+}
+
+.logo-glow-pulse {
+  animation: pulseGlowRing 2.5s infinite ease-in-out;
+}
+
+/* ── SPINNING MULTI-COLOR GLOW BORDER PILL ── */
+.spinning-glow-border-pill {
+  position: relative;
+  isolation: isolate;
+  border-radius: 9999px;
+}
+
+.spinning-glow-border-pill::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #3b82f6,
+    #a855f7,
+    #ec4899,
+    #10b981,
+    #3b82f6
+  );
+  animation: border-spin 2.5s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.spinning-glow-border-pill::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #3b82f6,
+    #a855f7,
+    #ec4899,
+    #10b981,
+    #3b82f6
+  );
+  filter: blur(8px) opacity(0.7);
+  animation: border-spin 2.5s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ── SPINNING MULTI-COLOR GLOW BORDER CARD (ROUNDED RECTANGLE) ── */
+.spinning-glow-border-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 1rem;
+}
+
+.spinning-glow-border-card::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 1rem;
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #3b82f6,
+    #a855f7,
+    #ec4899,
+    #10b981,
+    #3b82f6
+  );
+  animation: border-spin 2.5s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.spinning-glow-border-card::after {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: -8px;
+  height: 65%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #3b82f6,
+    #a855f7,
+    #ec4899,
+    #10b981,
+    #3b82f6
+  );
+  filter: blur(14px) brightness(1.4);
+  animation: border-spin 2.5s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ── SMOOTH GROW / ENTRANCE ANIMATIONS FOR REPORTS & ANALYTICS ── */
+@keyframes smoothGrowUp {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-smooth-grow {
+  animation: smoothGrowUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

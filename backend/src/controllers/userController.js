@@ -101,9 +101,70 @@ const toggleUserStatus = async (req, res, next) => {
   }
 };
 
+const updateUserPassword = async (req, res, next) => {
+  try {
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ success: false, message: 'New password is required.' });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    user.password = password;
+    await user.save();
+
+    await createAuditLog({
+      req,
+      action: 'UPDATE_USER_PASSWORD',
+      entity: 'User',
+      entityId: user._id,
+      description: `Super Admin reset password for team member ${user.email}`
+    });
+
+    res.status(200).json({ success: true, message: `Password updated successfully for ${user.email}` });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateUser = async (req, res, next) => {
+  try {
+    const { firstName, lastName, department, phone, password } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (department !== undefined) user.department = department;
+    if (phone !== undefined) user.phone = phone;
+    if (password) user.password = password;
+
+    await user.save();
+
+    await createAuditLog({
+      req,
+      action: 'UPDATE_USER_DETAILS',
+      entity: 'User',
+      entityId: user._id,
+      description: `${req.user.role} updated user details for ${user.email}`
+    });
+
+    res.status(200).json({ success: true, message: 'User details updated successfully', data: user.toJSON() });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUsers,
   createUser,
+  updateUser,
   updateUserRole,
-  toggleUserStatus
+  toggleUserStatus,
+  updateUserPassword
 };

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { jobService } from '../services/jobService';
 import { candidateService } from '../services/candidateService';
-import { Briefcase, MapPin, Building, CheckCircle, Upload } from 'lucide-react';
+import { Briefcase, MapPin, Building, CheckCircle, Upload, ChevronLeft } from 'lucide-react';
 import MindMatrixLogo from '../components/MindMatrixLogo';
 
 export default function PublicCareers() {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,6 +53,7 @@ export default function PublicCareers() {
     try {
       const res = await candidateService.createCandidate(formData);
       if (res.success) {
+        window.dispatchEvent(new CustomEvent('candidateSubmitted', { detail: res.data }));
         setSubmitted(true);
       }
     } catch (err) {
@@ -64,13 +67,21 @@ export default function PublicCareers() {
       {/* Header */}
       <header className="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10 shadow-2xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MindMatrixLogo className="w-8 h-8" />
-            <span className="font-extrabold text-slate-900 text-base">MindMatrix Careers</span>
+          <div className="flex items-center gap-3 select-none">
+            <MindMatrixLogo layout="iconOnly" />
+            <div className="flex items-center text-lg sm:text-xl font-extrabold tracking-tight">
+              <span style={{ color: '#1d4ed8' }}>Mind</span>
+              <span style={{ color: '#3b82f6' }}>Matrix</span>
+              <span className="ml-2 text-slate-900 font-extrabold">Careers</span>
+            </div>
           </div>
-          <a href="/login" className="px-4 py-2 bg-slate-900 text-white font-bold text-xs rounded-xl">
-            Internal HR Portal
-          </a>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-[0.97]"
+          >
+            <ChevronLeft className="w-4 h-4 text-slate-500" />
+            <span>Back</span>
+          </button>
         </div>
       </header>
 

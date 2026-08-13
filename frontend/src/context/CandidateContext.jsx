@@ -45,6 +45,11 @@ export const CandidateProvider = ({ children }) => {
 
   useEffect(() => {
     fetchCandidateData();
+    const handleGlobalCandidateSubmit = () => {
+      fetchCandidateData();
+    };
+    window.addEventListener('candidateSubmitted', handleGlobalCandidateSubmit);
+    return () => window.removeEventListener('candidateSubmitted', handleGlobalCandidateSubmit);
   }, [fetchCandidateData]);
 
   const addCandidate = async (formData) => {

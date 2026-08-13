@@ -28,8 +28,8 @@ const runSeedLogic = async () => {
   const adminUser = await User.create({
     firstName: 'Super',
     lastName: 'Admin',
-    email: 'admin@company.com',
-    password: 'Password123!',
+    email: 'admin@mindmatrix.com',
+    password: 'Sathish@29',
     role: 'SUPER_ADMIN',
     department: 'Executive',
     phone: '+1 800-555-0199'
@@ -38,8 +38,8 @@ const runSeedLogic = async () => {
   const hrUser = await User.create({
     firstName: 'Sarah',
     lastName: 'Jenkins',
-    email: 'hr@company.com',
-    password: 'Password123!',
+    email: 'hr@mindmatrix.com',
+    password: 'Sathish@29',
     role: 'HR_MANAGER',
     department: 'Human Resources',
     phone: '+1 800-555-0122'
@@ -48,8 +48,8 @@ const runSeedLogic = async () => {
   const recruiterUser = await User.create({
     firstName: 'Alex',
     lastName: 'Rivera',
-    email: 'recruiter@company.com',
-    password: 'Password123!',
+    email: 'recruiter@mindmatrix.com',
+    password: 'Sathish@29',
     role: 'RECRUITER',
     department: 'Talent Acquisition',
     phone: '+1 800-555-0144'
@@ -58,31 +58,21 @@ const runSeedLogic = async () => {
   const interviewerUser = await User.create({
     firstName: 'David',
     lastName: 'Chen',
-    email: 'interviewer@company.com',
-    password: 'Password123!',
+    email: 'interviewer@mindmatrix.com',
+    password: 'Sathish@29',
     role: 'INTERVIEWER',
     department: 'Engineering',
     phone: '+1 800-555-0166'
   });
 
   const candidateUser1 = await User.create({
-    firstName: 'Sathish',
-    lastName: 'N',
-    email: 'candidate@company.com',
+    firstName: 'Jane',
+    lastName: 'Doe',
+    email: 'candidate@mindmatrix.com',
     password: 'Password123!',
     role: 'CANDIDATE',
     department: 'Applicant Portal',
-    phone: '+91 9876543210'
-  });
-
-  const candidateUser2 = await User.create({
-    firstName: 'Sathish',
-    lastName: 'NV',
-    email: 'nvssathish7309@gmail.com',
-    password: 'Password123!',
-    role: 'CANDIDATE',
-    department: 'Applicant Portal',
-    phone: '+91 9876543210'
+    phone: '+1 800-555-0188'
   });
 
   console.log('Seeding jobs...');
@@ -124,13 +114,13 @@ const runSeedLogic = async () => {
   const mockCandidates = [
     {
       candidateId: 'CAN-0001',
-      fullName: 'Sathish N',
-      email: 'nvssathish7309@gmail.com',
-      phone: '+91 9876543210',
+      fullName: 'Jane Doe',
+      email: 'candidate@mindmatrix.com',
+      phone: '+1 800-555-0188',
       role: 'Software Engineer',
       skills: ['React', 'Node.js', 'JavaScript', 'MongoDB', 'HTML5', 'CSS3'],
       education: 'B.Tech in Computer Science',
-      experience: 'Fresher',
+      experience: '2 years',
       projects: ['Job Application Dashboard', 'E-Commerce Platform', 'AI Chat Assistant'],
       status: 'Shortlisted',
       createdBy: recruiterUser._id

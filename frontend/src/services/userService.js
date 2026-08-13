@@ -16,5 +16,13 @@ export const userService = {
   toggleUserStatus: async (id) => {
     const res = await api.patch(`/users/${id}/toggle-status`);
     return res.data;
+  },
+  updateUserPassword: async (id, password) => {
+    const res = await api.put(`/users/${id}/password`, { password });
+    return res.data;
+  },
+  updateUser: async (id, data) => {
+    const res = await api.put(`/users/${id}`, data);
+    return res.data;
   }
 };

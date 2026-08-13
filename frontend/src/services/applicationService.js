@@ -12,5 +12,9 @@ export const applicationService = {
   updateStage: async (id, stage, remarks = '') => {
     const res = await api.patch(`/applications/${id}/stage`, { stage, remarks });
     return res.data;
+  },
+  deleteApplication: async (id) => {
+    const res = await api.delete(`/applications/${id}`);
+    return res.data;
   }
 };

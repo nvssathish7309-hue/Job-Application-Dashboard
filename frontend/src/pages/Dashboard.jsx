@@ -1,12 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Users, Calendar, CheckCircle2, Plus,
   TrendingUp, Award, AlignJustify, BarChart2,
-  BarChart3, PieChart, Triangle
+  BarChart3, PieChart, Triangle, Briefcase, FileText,
+  MapPin, Building, Clock, ArrowRight, X, CheckCircle
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
 import { useAuth } from '../context/AuthContext';
+import { jobService } from '../services/jobService';
+import { candidateService } from '../services/candidateService';
 import ErrorState from '../components/common/ErrorState';
 import CandidateListModal from '../components/candidates/CandidateListModal';
 import { CardSkeleton, ChartSkeleton } from '../components/common/Skeleton';
@@ -287,11 +290,26 @@ export default function Dashboard() {
   const { candidates, metrics, isLoading, isError, setIsError } = useCandidates();
   
   const [chartType, setChartType] = useState('horizontal');
+  const [publicJobs, setPublicJobs] = useState([]);
   const [modalState, setModalState] = useState({
     isOpen: false,
     title: '',
     statusFilter: 'All'
   });
+
+  useEffect(() => {
+    const fetchPublicJobsData = async () => {
+      try {
+        const res = await jobService.getPublicJobs();
+        if (res.success) {
+          setPublicJobs(res.data || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch public jobs:', err);
+      }
+    };
+    fetchPublicJobsData();
+  }, []);
 
   const handleCardClick = (title, status) => {
     setModalState({
@@ -311,10 +329,99 @@ export default function Dashboard() {
     );
   }
 
+  const [selectedJobToApply, setSelectedJobToApply] = useState(null);
+  const [applySubmitted, setApplySubmitted] = useState(false);
+  const [applyForm, setApplyForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    resume: null
+  });
+
+  const handleOpenApplyModal = (job) => {
+    setSelectedJobToApply(job);
+    setApplySubmitted(false);
+
+    let savedProfile = null;
+    try {
+      const stored = localStorage.getItem('candidateProfile');
+      if (stored) savedProfile = JSON.parse(stored);
+    } catch (e) {}
+
+    const defaultName = (user?.firstName && user?.lastName)
+      ? `${user.firstName} ${user.lastName}`
+      : (user?.name || savedProfile?.name || 'Sathish N');
+
+    setApplyForm({
+      fullName: defaultName,
+      email: user?.email || savedProfile?.email || 'nvssathish7309@gmail.com',
+      phone: user?.phone || savedProfile?.phone || '+91 6380887476',
+      resume: null
+    });
+  };
+
+  const [appliedJobTitles, setAppliedJobTitles] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`appliedJobs_${user?.email || 'guest'}`);
+      return stored ? JSON.parse(stored) : ['Senior Frontend Engineer'];
+    } catch (e) {
+      return ['Senior Frontend Engineer'];
+    }
+  });
+
+  useEffect(() => {
+    if (user?.email) {
+      try {
+        localStorage.setItem(`appliedJobs_${user.email}`, JSON.stringify(appliedJobTitles));
+      } catch (e) {}
+    }
+  }, [appliedJobTitles, user?.email]);
+
+  const handleApplySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append('fullName', applyForm.fullName);
+      formData.append('email', applyForm.email);
+      formData.append('phone', applyForm.phone);
+      formData.append('role', selectedJobToApply?.title || 'Senior Frontend Engineer');
+      if (applyForm.resume) {
+        formData.append('resume', applyForm.resume);
+      }
+      const res = await candidateService.createCandidate(formData);
+
+      if (selectedJobToApply?.title) {
+        setAppliedJobTitles(prev => [...new Set([...prev, selectedJobToApply.title])]);
+      }
+
+      window.dispatchEvent(new CustomEvent('candidateSubmitted', { detail: res?.data }));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setApplySubmitted(true);
+    }
+  };
+
   // Specialized Candidate Portal View
   if (user?.role === 'CANDIDATE') {
+    let savedProfile = null;
+    try {
+      const stored = localStorage.getItem('candidateProfile');
+      if (stored) savedProfile = JSON.parse(stored);
+    } catch (e) {}
+
+    const candidateRole = savedProfile?.role || 'Senior Frontend Engineer';
+    const candidateName = user.firstName || savedProfile?.name?.split(' ')[0] || 'Applicant';
+    const openJobsCount = publicJobs.length;
+
+    const submittedCount = appliedJobTitles.length;
+    const currentStageText = submittedCount > 0 ? 'Shortlisted' : 'Not Applied';
+    const currentStageSub = submittedCount > 0 ? 'In review by recruiter' : 'No active application';
+    const nextInterviewText = submittedCount > 0 ? 'Technical Round 1' : 'None Scheduled';
+    const nextInterviewSub = submittedCount > 0 ? 'Scheduled for Aug 15, 10:00 AM' : 'Will appear once scheduled';
+
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         {/* Welcome Banner */}
         <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
           <div className="relative z-10 max-w-2xl">
@@ -322,10 +429,10 @@ export default function Dashboard() {
               Candidate Portal
             </span>
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-              Welcome back, {user.firstName || 'Applicant'}! 👋
+              Welcome back, {candidateName}! 👋
             </h1>
             <p className="mt-2 text-sm text-blue-100/90 font-medium leading-relaxed">
-              Explore active job openings, submit applications, and track the status of your submitted applications.
+              Explore active job openings in your company, track your current pipeline stage, and review upcoming interview details.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -336,52 +443,265 @@ export default function Dashboard() {
                 <Plus className="w-4 h-4" />
               </Link>
               <Link
-                to="/applications"
+                to="/settings"
                 className="px-5 py-2.5 bg-blue-500/30 hover:bg-blue-500/40 text-white font-bold text-xs rounded-xl border border-white/20 transition-all flex items-center gap-2"
               >
-                <span>My Applications</span>
+                <span>Edit Candidate Profile</span>
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Candidate Application Status Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Submitted Applications</p>
-            <p className="text-3xl font-extrabold text-slate-900 mt-2">1</p>
-            <p className="text-xs text-slate-400 mt-1">Active job submissions</p>
+        {/* 4 Metric Cards Grid: Openings, Submitted Apps, Current Stage, Next Interview */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          {/* Card 1: Company Openings */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs hover:border-blue-300 hover:shadow-md transition-all group">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">
+                Company Openings
+              </span>
+              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                <Briefcase className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{openJobsCount}</span>
+              <Link to="/careers" className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-0.5">
+                View all <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+            <p className="text-xs text-slate-400 mt-2">{openJobsCount} active job hiring role{openJobsCount === 1 ? '' : 's'} in company</p>
           </div>
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Current Pipeline Stage</p>
-            <p className="text-xl font-extrabold text-blue-600 mt-2">Shortlisted</p>
-            <p className="text-xs text-slate-400 mt-1">In review by recruiter</p>
+
+          {/* Card 2: Submitted Applications */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs hover:border-blue-300 hover:shadow-md transition-all group">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">
+                Submitted Applications
+              </span>
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <FileText className="w-5 h-5" />
+              </div>
+            </div>
+            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{submittedCount}</span>
+            <p className="text-xs text-slate-400 mt-2">Active job submission{submittedCount === 1 ? '' : 's'}</p>
           </div>
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Next Interview</p>
-            <p className="text-xl font-extrabold text-amber-600 mt-2">Technical Round 1</p>
-            <p className="text-xs text-slate-400 mt-1">Scheduled for Aug 15, 10:00 AM</p>
+
+          {/* Card 3: Current Pipeline Stage */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs hover:border-blue-300 hover:shadow-md transition-all group">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">
+                Current Stage
+              </span>
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+            </div>
+            <span className="text-xl font-extrabold text-blue-600 tracking-tight block truncate">{currentStageText}</span>
+            <p className="text-xs text-slate-400 mt-2">{currentStageSub}</p>
           </div>
+
+          {/* Card 4: Next Interview */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs hover:border-amber-300 hover:shadow-md transition-all group">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-amber-600 transition-colors">
+                Next Interview
+              </span>
+              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                <Calendar className="w-5 h-5" />
+              </div>
+            </div>
+            <span className="text-xl font-extrabold text-amber-600 tracking-tight block truncate">{nextInterviewText}</span>
+            <p className="text-xs text-slate-400 mt-2">{nextInterviewSub}</p>
+          </div>
+
         </div>
 
-        {/* Recent Submitted Application Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-extrabold text-slate-900">My Submitted Applications</h2>
-            <Link to="/careers" className="text-xs font-bold text-blue-600 hover:text-blue-700">Apply for more jobs →</Link>
-          </div>
-          <div className="divide-y divide-slate-100">
-            <div className="py-4 flex items-center justify-between">
-              <div>
-                <p className="font-bold text-slate-900 text-sm">Senior Frontend Engineer</p>
-                <p className="text-xs text-slate-500 mt-0.5">Engineering · Full-time · Hybrid (Bangalore)</p>
+        {/* Next Interview Detail Card (Only shown if candidate has active application) */}
+        {submittedCount > 0 && (
+          <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-200/80 rounded-2xl p-6 shadow-xs relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold shrink-0 shadow-md shadow-amber-500/30">
+                  <Calendar className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold text-amber-700 bg-amber-100 border border-amber-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                      Upcoming Interview
+                    </span>
+                    <span className="text-xs font-semibold text-slate-500">Aug 15, 2026</span>
+                  </div>
+                  <h3 className="text-lg font-extrabold text-slate-900 mt-1">Technical Round 1 — {candidateRole}</h3>
+                  <p className="text-xs text-slate-600 mt-1 flex items-center gap-3 flex-wrap">
+                    <span className="flex items-center gap-1 font-medium"><Clock className="w-3.5 h-3.5 text-amber-600" /> 10:00 AM - 10:45 AM IST</span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1 font-medium"><Users className="w-3.5 h-3.5 text-blue-600" /> Interviewer: Ankita Kumar (Senior HR)</span>
+                  </p>
+                </div>
               </div>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">
-                Shortlisted
-              </span>
+              <div className="shrink-0">
+                <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white font-bold text-xs rounded-xl shadow-sm">
+                  <Clock className="w-3.5 h-3.5" /> Scheduled
+                </span>
+              </div>
             </div>
           </div>
+        )}
+
+        {/* Active Company Openings Preview */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-extrabold text-slate-900">Company Openings at MindMatrix</h2>
+              <p className="text-xs text-slate-500 mt-0.5">{openJobsCount} active position{openJobsCount === 1 ? '' : 's'} open for applications</p>
+            </div>
+            <Link to="/careers" className="text-xs font-bold text-blue-600 hover:text-blue-700">View All Openings →</Link>
+          </div>
+          {publicJobs.length === 0 ? (
+            <p className="text-xs text-slate-400">No active job openings available right now.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {publicJobs.map((job) => {
+                const isApplied = appliedJobTitles.includes(job.title) || appliedJobTitles.includes(job._id);
+                return (
+                  <div key={job._id || job.jobId} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-blue-300 hover:shadow-xs transition-all flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-slate-900 text-xs">{job.title}</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">{job.department} · {job.location || job.workMode || 'Bangalore'}</p>
+                    </div>
+                    {isApplied ? (
+                      <span className="px-3.5 py-1.5 text-xs font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl inline-flex items-center gap-1 select-none shadow-2xs">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                        Applied
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handleOpenApplyModal(job)}
+                        className="px-4 py-2 text-xs font-extrabold text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-xl transition-all shadow-2xs active:scale-[0.97] cursor-pointer"
+                      >
+                        Apply
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
+
+        {/* Apply Job Modal (Matching Screenshot 1) */}
+        {selectedJobToApply && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+            <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-scale-up relative">
+              
+              {applySubmitted ? (
+                <div className="text-center py-8 space-y-3">
+                  <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-xl font-extrabold text-slate-900">Application Submitted!</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    Thank you for applying for <span className="font-bold text-slate-800">{selectedJobToApply.title}</span>. Our HR recruiting team will review your application.
+                  </p>
+                  <button
+                    onClick={() => setSelectedJobToApply(null)}
+                    className="px-6 py-2.5 bg-blue-600 text-white font-extrabold text-xs rounded-xl shadow-md hover:bg-blue-700 transition-colors mt-2 cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <h3 className="font-extrabold text-lg sm:text-xl text-slate-900">
+                      Apply for {selectedJobToApply.title}
+                    </h3>
+                    <button
+                      onClick={() => setSelectedJobToApply(null)}
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleApplySubmit} className="space-y-4 text-xs">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1.5">
+                        Full Name <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={applyForm.fullName}
+                        onChange={(e) => setApplyForm({ ...applyForm, fullName: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-bold text-slate-700 mb-1.5">
+                          Email Address <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={applyForm.email}
+                          onChange={(e) => setApplyForm({ ...applyForm, email: e.target.value })}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-bold text-slate-700 mb-1.5">
+                          Phone Number <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={applyForm.phone}
+                          onChange={(e) => setApplyForm({ ...applyForm, phone: e.target.value })}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1.5">
+                        Upload Resume (PDF, DOCX) <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => setApplyForm({ ...applyForm, resume: e.target.files[0] })}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-3">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedJobToApply(null)}
+                        className="px-5 py-2.5 bg-slate-100 font-bold text-xs text-slate-700 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-600/25 active:scale-[0.98] transition-all cursor-pointer"
+                      >
+                        Submit Application
+                      </button>
+                    </div>
+                  </form>
+                </>
+              )}
+
+            </div>
+          </div>
+        )}
+
       </div>
     );
   }
