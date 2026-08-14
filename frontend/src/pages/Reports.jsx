@@ -148,17 +148,18 @@ export default function Reports() {
     fetchMetrics();
   }, []);
 
-  // Frame-by-frame 60fps bar growth & circular animation on mount
+  // Frame-by-frame 60fps buttery-smooth bar growth & circular animation on mount
   useEffect(() => {
     if (loading) return;
     setChartProgress(0);
     let startTime = null;
-    const duration = 1400;
+    const duration = 1300;
     const animate = (timestamp) => {
       if (!startTime) startTime = timestamp;
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+      // Smooth Quartic Ease-Out
+      const easeOut = 1 - Math.pow(1 - progress, 4);
       setChartProgress(easeOut);
       if (progress < 1) {
         window.requestAnimationFrame(animate);
@@ -191,13 +192,13 @@ export default function Reports() {
   const rejected = candidates?.filter(c => (c.status || c.stage) === 'Rejected').length || data?.metrics?.rejectedCount || 0;
   const newCount = candidates?.filter(c => (c.status || c.stage) === 'New' || (c.status || c.stage) === 'Applied').length || data?.metrics?.appliedCount || 0;
 
-  // Animated chart data rising frame by frame
+  // Continuous floating point chart data for liquid smooth 60fps visual growth
   const chartData = [
-    { name: 'New', count: Math.round(newCount * chartProgress), displayCount: newCount, color: '#8b5cf6' },
-    { name: 'Shortlisted', count: Math.round(shortlisted * chartProgress), displayCount: shortlisted, color: '#3b82f6' },
-    { name: 'Interview', count: Math.round(interview * chartProgress), displayCount: interview, color: '#f59e0b' },
-    { name: 'Selected', count: Math.round(selected * chartProgress), displayCount: selected, color: '#10b981' },
-    { name: 'Rejected', count: Math.round(rejected * chartProgress), displayCount: rejected, color: '#ef4444' }
+    { name: 'New', count: newCount * chartProgress, displayCount: newCount, color: '#8b5cf6' },
+    { name: 'Shortlisted', count: shortlisted * chartProgress, displayCount: shortlisted, color: '#3b82f6' },
+    { name: 'Interview', count: interview * chartProgress, displayCount: interview, color: '#f59e0b' },
+    { name: 'Selected', count: selected * chartProgress, displayCount: selected, color: '#10b981' },
+    { name: 'Rejected', count: rejected * chartProgress, displayCount: rejected, color: '#ef4444' }
   ];
 
   const maxVal = Math.max(newCount, shortlisted, interview, selected, rejected, 4);
