@@ -489,6 +489,20 @@ export default function Dashboard() {
         setAppliedJobTitles(prev => [...new Set([...prev, selectedJobToApply.title])]);
       }
 
+      try {
+        const existingNotifs = JSON.parse(localStorage.getItem('local_notifications') || '[]');
+        const applyNotif = {
+          id: `apply-notif-${Date.now()}`,
+          forCandidate: true,
+          candidateEmail: candEmail.toLowerCase(),
+          title: `💼 Job Application Submitted — MindMatrix`,
+          message: `Congratulations ${candName}! Your application for "${candRole}" has been submitted successfully to MindMatrix.`,
+          timestamp: new Date().toISOString(),
+          isRead: false
+        };
+        localStorage.setItem('local_notifications', JSON.stringify([applyNotif, ...existingNotifs]));
+      } catch (e) {}
+
       window.dispatchEvent(new CustomEvent('candidateSubmitted', { detail: res?.data || newCandidateRecord }));
     } catch (err) {
       console.error(err);

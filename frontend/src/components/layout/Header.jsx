@@ -345,7 +345,94 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
             </button>
           </div>
 
-          {/* Notification Bell Removed */}
+          {/* Notification Bell Menu */}
+          <div className="relative" ref={notifRef}>
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className={`p-2 rounded-xl border relative transition-all duration-300 cursor-pointer ${
+                unreadNotifCount > 0
+                  ? 'notif-glow-active btn-moving-light border-blue-400 text-blue-600 bg-blue-50/60 shadow-md shadow-blue-500/20'
+                  : 'text-slate-600 hover:bg-slate-100 border-slate-200'
+              }`}
+              title={unreadNotifCount > 0 ? `${unreadNotifCount} new notification(s)` : 'MindMatrix Notifications'}
+            >
+              <Bell className={`w-5 h-5 transition-transform ${unreadNotifCount > 0 ? 'animate-bell-ring text-blue-600' : ''}`} />
+              {unreadNotifCount > 0 && (
+                <>
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-blue-600 ring-2 ring-white z-10" />
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping opacity-75 z-10" />
+                </>
+              )}
+            </button>
+
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50 animate-fade-in">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                    <span className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
+                      MindMatrix Notifications
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {unreadNotifCount > 0 ? (
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold">{unreadNotifCount} New</span>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 font-medium">All read</span>
+                    )}
+                    {validNotifications?.length > 0 && unreadNotifCount > 0 && (
+                      <button
+                        onClick={markAllNotifsAsRead}
+                        className="text-[10px] text-slate-500 hover:text-blue-600 font-bold underline transition-colors cursor-pointer"
+                      >
+                        Mark read
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="py-2 space-y-2 text-xs max-h-80 overflow-y-auto pr-0.5">
+                  {!validNotifications || validNotifications.length === 0 ? (
+                    <p className="text-center py-6 text-slate-400 text-xs font-medium">
+                      No notifications yet
+                    </p>
+                  ) : (
+                    validNotifications.map((notif) => (
+                      <div
+                        key={notif.id}
+                        onClick={() => {
+                          markNotifAsRead(notif.id);
+                          if (notif.candidateId) {
+                            const exists = candidates.some(c => c.id === notif.candidateId);
+                            if (exists) {
+                              navigate(`/candidates/${notif.candidateId}`);
+                            }
+                            setShowNotifications(false);
+                          }
+                        }}
+                        className={`p-3 rounded-xl transition-all cursor-pointer relative ${
+                          !notif.isRead
+                            ? 'bg-blue-50/80 border border-blue-100 hover:bg-blue-100/70 shadow-2xs'
+                            : 'bg-slate-50 border border-transparent hover:bg-slate-100/70'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-1 mb-1">
+                          <p className="font-extrabold text-slate-900 leading-snug text-xs">{notif.title}</p>
+                          {!notif.isRead && (
+                            <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0 mt-1 ring-2 ring-blue-200" />
+                          )}
+                        </div>
+                        <p className="text-slate-600 text-[11px] leading-relaxed">{notif.message}</p>
+                        <span className="text-[10px] text-slate-400 font-medium block mt-1.5">
+                          {new Date(notif.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • MindMatrix Alerts
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Dark & Light Theme Toggle Option (Near Notification Bell) */}
           <button
