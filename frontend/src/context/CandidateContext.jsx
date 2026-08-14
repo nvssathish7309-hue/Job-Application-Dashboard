@@ -451,6 +451,19 @@ export const CandidateProvider = ({ children }) => {
     }
   };
 
+  const updateCandidate = async (id, updateData) => {
+    try {
+      const res = await candidateService.updateCandidate(id, updateData).catch(() => null);
+      const newStage = updateData.status || updateData.stage || 'Updated';
+      addCandidateNotification(id, newStage, updateData.remarks || updateData.notes || 'Profile details updated by HR');
+      await fetchCandidateData();
+      window.dispatchEvent(new CustomEvent('candidateSubmitted'));
+      return res || { success: true };
+    } catch (err) {
+      console.error('updateCandidate error:', err);
+    }
+  };
+
   return (
     <CandidateContext.Provider value={{
       candidates,
@@ -461,6 +474,7 @@ export const CandidateProvider = ({ children }) => {
       refreshCandidates: fetchCandidateData,
       getCandidateById,
       addCandidate,
+      updateCandidate,
       deleteCandidate,
       shortlistCandidate,
       scheduleInterview,
