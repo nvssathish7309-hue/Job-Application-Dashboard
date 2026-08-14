@@ -109,14 +109,22 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
 
   const validNotifications = useMemo(() => {
     const userEmail = (user?.email || 'nvssathish7309@gmail.com').toLowerCase();
-    const isCandidateUser = user?.role === 'CANDIDATE';
+    const userRole = user?.role || 'CANDIDATE';
 
     const merged = [...(notifications || [])];
 
     localNotifs.forEach(ln => {
-      if (isCandidateUser) {
-        const targetEmail = (ln.candidateEmail || '').toLowerCase();
-        if (!targetEmail || targetEmail === userEmail || userEmail.includes('sathish')) {
+      if (userRole === 'CANDIDATE') {
+        if (ln.forCandidate || !ln.forInterviewer) {
+          const targetEmail = (ln.candidateEmail || '').toLowerCase();
+          if (!targetEmail || targetEmail === userEmail || userEmail.includes('sathish')) {
+            if (!merged.some(n => n.id === ln.id)) {
+              merged.push(ln);
+            }
+          }
+        }
+      } else if (userRole === 'INTERVIEWER') {
+        if (ln.forInterviewer || ln.targetRole === 'INTERVIEWER') {
           if (!merged.some(n => n.id === ln.id)) {
             merged.push(ln);
           }

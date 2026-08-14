@@ -260,8 +260,11 @@ export const CandidateProvider = ({ children }) => {
       const candName = target?.fullName || target?.name || 'Applicant';
 
       const existingNotifs = JSON.parse(localStorage.getItem('local_notifications') || '[]');
-      const newNotif = {
-        id: `notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+
+      // 1. Candidate Notification
+      const candidateNotif = {
+        id: `cand-notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        forCandidate: true,
         title: `Status Updated: ${newStage}`,
         message: `Your application for "${candRole}" was updated to "${newStage}"${remarks ? `. Notes: ${remarks}` : '.'}`,
         timestamp: new Date().toISOString(),
@@ -269,7 +272,21 @@ export const CandidateProvider = ({ children }) => {
         candidateName: candName,
         isRead: false
       };
-      localStorage.setItem('local_notifications', JSON.stringify([newNotif, ...existingNotifs]));
+
+      // 2. Interviewer Notification (Notify Interviewer when stage is updated or interview scheduled)
+      const interviewerNotif = {
+        id: `int-notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        forInterviewer: true,
+        targetRole: 'INTERVIEWER',
+        interviewerEmail: 'interviewer@mindmatrix.com',
+        title: `Candidate Status Alert: ${candName}`,
+        message: `Candidate ${candName} (${candRole}) has been moved to stage "${newStage}"${remarks ? `. Notes: ${remarks}` : '.'}`,
+        timestamp: new Date().toISOString(),
+        candidateName: candName,
+        isRead: false
+      };
+
+      localStorage.setItem('local_notifications', JSON.stringify([candidateNotif, interviewerNotif, ...existingNotifs]));
     } catch (e) {}
   };
 
