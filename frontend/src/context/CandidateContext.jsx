@@ -252,8 +252,30 @@ export const CandidateProvider = ({ children }) => {
     }
   };
 
+  const addCandidateNotification = (id, newStage, remarks = '') => {
+    try {
+      const target = (candidates || []).find(c => isMatchCandidate(c, id));
+      const candEmail = target?.email || 'nvssathish7309@gmail.com';
+      const candRole = target?.role || 'Position Applied';
+      const candName = target?.fullName || target?.name || 'Applicant';
+
+      const existingNotifs = JSON.parse(localStorage.getItem('local_notifications') || '[]');
+      const newNotif = {
+        id: `notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        title: `Status Updated: ${newStage}`,
+        message: `Your application for "${candRole}" was updated to "${newStage}"${remarks ? `. Notes: ${remarks}` : '.'}`,
+        timestamp: new Date().toISOString(),
+        candidateEmail: candEmail.toLowerCase(),
+        candidateName: candName,
+        isRead: false
+      };
+      localStorage.setItem('local_notifications', JSON.stringify([newNotif, ...existingNotifs]));
+    } catch (e) {}
+  };
+
   const shortlistCandidate = async (id, remarks) => {
     const res = await candidateService.shortlistCandidate(id, remarks).catch(() => null);
+    addCandidateNotification(id, 'Shortlisted', remarks);
     try {
       const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
       const updated = saved.map(c => {
@@ -280,6 +302,7 @@ export const CandidateProvider = ({ children }) => {
   const scheduleInterview = async (id, data) => {
     try {
       await candidateService.updateCandidate(id, { ...data, status: 'Interview' }).catch(() => null);
+      addCandidateNotification(id, 'Interview Scheduled', data?.notes || '');
       try {
         const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
         const updated = saved.map(c => {
@@ -308,6 +331,7 @@ export const CandidateProvider = ({ children }) => {
   const selectCandidate = async (id, remarks = '') => {
     try {
       await candidateService.updateCandidate(id, { status: 'Selected', remarks }).catch(() => null);
+      addCandidateNotification(id, 'Selected / Offer', remarks);
       try {
         const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
         const updated = saved.map(c => {
@@ -335,6 +359,7 @@ export const CandidateProvider = ({ children }) => {
 
   const rejectCandidate = async (id, reason) => {
     const res = await candidateService.rejectCandidate(id, reason).catch(() => null);
+    addCandidateNotification(id, 'Rejected', reason);
     try {
       const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
       const updated = saved.map(c => {
@@ -362,6 +387,7 @@ export const CandidateProvider = ({ children }) => {
     try {
       const stageName = newStage === 'New Applicants' ? 'New' : newStage;
       await candidateService.updateCandidate(id, { status: stageName, stage: stageName, remarks }).catch(() => null);
+      addCandidateNotification(id, stageName, remarks);
       try {
         const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
         const updated = saved.map(c => {

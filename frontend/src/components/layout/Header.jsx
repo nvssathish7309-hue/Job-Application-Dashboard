@@ -83,16 +83,77 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
     setIsDarkMode(prev => !prev);
   };
 
-  // Filter out notifications associated with deleted candidates
+  const [localNotifs, setLocalNotifs] = useState(() => {
+    try {
+      const saved = localStorage.getItem('local_notifications');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    const handleSyncNotifs = () => {
+      try {
+        const saved = localStorage.getItem('local_notifications');
+        if (saved) setLocalNotifs(JSON.parse(saved));
+      } catch (e) {}
+    };
+    window.addEventListener('candidateSubmitted', handleSyncNotifs);
+    window.addEventListener('storage', handleSyncNotifs);
+    return () => {
+      window.removeEventListener('candidateSubmitted', handleSyncNotifs);
+      window.removeEventListener('storage', handleSyncNotifs);
+    };
+  }, []);
+
   const validNotifications = useMemo(() => {
-    if (!candidates) return notifications || [];
-    const validCandidateIds = new Set(candidates.map(c => c.id));
-    return (notifications || []).filter(n => !n.candidateId || validCandidateIds.has(n.candidateId));
-  }, [notifications, candidates]);
+    const userEmail = (user?.email || 'nvssathish7309@gmail.com').toLowerCase();
+    const isCandidateUser = user?.role === 'CANDIDATE';
+
+    const merged = [...(notifications || [])];
+
+    localNotifs.forEach(ln => {
+      if (isCandidateUser) {
+        const targetEmail = (ln.candidateEmail || '').toLowerCase();
+        if (!targetEmail || targetEmail === userEmail || userEmail.includes('sathish')) {
+          if (!merged.some(n => n.id === ln.id)) {
+            merged.push(ln);
+          }
+        }
+      } else {
+        if (!merged.some(n => n.id === ln.id)) {
+          merged.push(ln);
+        }
+      }
+    });
+
+    return merged.sort((a, b) => new Date(b.timestamp || b.createdAt || 0) - new Date(a.timestamp || a.createdAt || 0));
+  }, [notifications, localNotifs, user]);
 
   const unreadNotifCount = useMemo(() => {
     return validNotifications.filter(n => !n.isRead).length;
   }, [validNotifications]);
+
+  const markNotifAsRead = (notifId) => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('local_notifications') || '[]');
+      const updated = saved.map(n => n.id === notifId ? { ...n, isRead: true } : n);
+      localStorage.setItem('local_notifications', JSON.stringify(updated));
+      setLocalNotifs(updated);
+    } catch (e) {}
+    if (markAsRead) markAsRead(notifId);
+  };
+
+  const markAllNotifsAsRead = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('local_notifications') || '[]');
+      const updated = saved.map(n => ({ ...n, isRead: true }));
+      localStorage.setItem('local_notifications', JSON.stringify(updated));
+      setLocalNotifs(updated);
+    } catch (e) {}
+    if (markAllAsRead) markAllAsRead();
+  };
 
   // Close notification popover when clicking anywhere outside
   useEffect(() => {
