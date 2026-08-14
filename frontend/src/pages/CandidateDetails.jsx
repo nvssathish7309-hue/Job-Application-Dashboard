@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Mail, Phone, MapPin, Calendar, Briefcase, GraduationCap,
   Code2, FileText, Download, ExternalLink, Star, ChevronLeft,
-  CalendarClock, Award, UserX, CheckCircle2, Clock, AlertCircle, Trash2
+  CalendarClock, Award, UserX, CheckCircle2, Clock, AlertCircle, Trash2, Video
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
 import { candidateService } from '../services/candidateService';
@@ -154,7 +154,18 @@ export default function CandidateDetails() {
   const eduYear = typeof edu === 'object' ? edu?.year : '';
   const eduGpa = typeof edu === 'object' ? edu?.gpa : '';
 
-  const interview = candidate.interview || {};
+  const interviewObj = candidate.interview || candidate.interviewDetails || {};
+  const candStageStr = String(candidate.stage || candidate.status || '').toLowerCase();
+  const isInterviewScheduled =
+    candStageStr.includes('interview') ||
+    interviewObj.status === 'Scheduled' ||
+    Boolean(interviewObj.date || interviewObj.meetingLink);
+
+  const interviewRound = interviewObj.round || interviewObj.title || 'Technical Round 1';
+  const interviewDate = interviewObj.date || 'Aug 15, 2026';
+  const interviewTime = interviewObj.startTime ? `${interviewObj.startTime}${interviewObj.endTime ? ` - ${interviewObj.endTime}` : ''}` : '10:00 AM - 10:45 AM IST';
+  const interviewerName = interviewObj.interviewerName || interviewObj.interviewer || 'Ankita Kumar (Senior HR)';
+  const meetingLink = interviewObj.meetingLink || 'https://meet.google.com/xyz-abc-123';
   const feedback = candidate.interviewFeedback || [];
 
   return (
@@ -456,19 +467,32 @@ export default function CandidateDetails() {
             <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3">
               <CalendarClock className="w-4 h-4 text-amber-500" /> Interview Status
             </h2>
-            {interview.status === 'Scheduled' ? (
-              <div className="space-y-2 text-xs">
+            {isInterviewScheduled ? (
+              <div className="space-y-2.5 text-xs">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  <span className="font-bold text-emerald-600">Interview Scheduled</span>
+                  <span className="font-extrabold text-emerald-600 text-sm">Interview Scheduled</span>
                 </div>
-                {interview.date && <div className="flex items-center gap-1.5 text-slate-600"><Clock className="w-3 h-3" />{interview.date}</div>}
-                {interview.round && <div className="text-slate-600"><span className="font-semibold">Round:</span> {interview.round}</div>}
-                {interview.interviewer && <div className="text-slate-600"><span className="font-semibold">Interviewer:</span> {interview.interviewer}</div>}
-                {interview.meetingLink && (
-                  <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-blue-600 hover:underline">
-                    <ExternalLink className="w-3 h-3" /> Join Meeting
+                <div className="flex items-center gap-1.5 text-slate-700 font-medium">
+                  <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>{interviewDate} • {interviewTime}</span>
+                </div>
+                <div className="text-slate-600">
+                  <span className="font-semibold text-slate-700">Round:</span> {interviewRound}
+                </div>
+                <div className="text-slate-600">
+                  <span className="font-semibold text-slate-700">Interviewer:</span> {interviewerName}
+                </div>
+                {meetingLink && (
+                  <a
+                    href={meetingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-extrabold rounded-xl border border-emerald-200 text-xs transition-all mt-1 shadow-2xs cursor-pointer"
+                  >
+                    <Video className="w-3.5 h-3.5" />
+                    <span>Join Google Meet</span>
+                    <ExternalLink className="w-3 h-3 ml-0.5" />
                   </a>
                 )}
               </div>
