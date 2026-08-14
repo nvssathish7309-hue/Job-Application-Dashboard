@@ -350,13 +350,26 @@ export default function NotificationsDropdown() {
                       </span>
                     </div>
                     {item.link && (
-                      <Link
-                        to={item.link}
-                        onClick={() => setIsOpen(false)}
-                        className="text-slate-400 hover:text-blue-600 p-1"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </Link>
+                      item.link.startsWith('http') ? (
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-emerald-600 hover:text-emerald-700 p-1 bg-emerald-50 rounded-md border border-emerald-200 shrink-0"
+                          title="Join Meeting"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      ) : (
+                        <Link
+                          to={item.link}
+                          onClick={() => setIsOpen(false)}
+                          className="text-slate-400 hover:text-blue-600 p-1 shrink-0"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                      )
                     )}
                   </div>
                 ))
