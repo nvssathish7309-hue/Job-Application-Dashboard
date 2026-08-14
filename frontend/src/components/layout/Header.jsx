@@ -109,7 +109,8 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
 
   const validNotifications = useMemo(() => {
     const userEmail = (user?.email || 'nvssathish7309@gmail.com').toLowerCase();
-    const userRole = user?.role || 'CANDIDATE';
+    const userFirstName = (user?.firstName || 'Sathish').toLowerCase();
+    const userRole = (user?.role || 'CANDIDATE').toUpperCase();
 
     const merged = [...(notifications || [])];
 
@@ -117,7 +118,7 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
       if (userRole === 'CANDIDATE') {
         if (ln.forCandidate || !ln.forInterviewer) {
           const targetEmail = (ln.candidateEmail || '').toLowerCase();
-          if (!targetEmail || targetEmail === userEmail || userEmail.includes('sathish')) {
+          if (!targetEmail || targetEmail === userEmail || userEmail.includes('sathish') || targetEmail.includes('sathish')) {
             if (!merged.some(n => n.id === ln.id)) {
               merged.push(ln);
             }
@@ -136,29 +137,59 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
       }
     });
 
-    // Auto-populate candidate status notifications if candidate has submitted applications
+    // Sync candidate notifications directly with current dashboard stage
     if (userRole === 'CANDIDATE') {
       try {
         const savedCand = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
-        const candidateRecords = [...(candidates || []), ...savedCand].filter(c => 
-          (c.email || '').toLowerCase() === userEmail || (userEmail.includes('sathish') && (c.fullName || c.name || '').toLowerCase().includes('sathish'))
-        );
+        const allCand = [...(candidates || []), ...savedCand];
+        
+        const candidateRecords = allCand.filter(c => {
+          const cEmail = (c.email || '').toLowerCase();
+          const cName = (c.fullName || c.name || '').toLowerCase();
+          return cEmail === userEmail || cName.includes(userFirstName) || (userEmail.includes('sathish') && cName.includes('sathish'));
+        });
 
-        candidateRecords.forEach(c => {
-          const candName = c.fullName || c.name || user?.firstName || 'Sathish N';
+        const candName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : (candidateRecords[0]?.fullName || candidateRecords[0]?.name || 'Sathish N');
+
+        candidateRecords.forEach((c, idx) => {
           const apps = c.applications && c.applications.length > 0 ? c.applications : [c];
-          apps.forEach(app => {
+          apps.forEach((app, appIdx) => {
             const roleName = app.role || c.role || 'Position';
-            const currentStage = app.stage || app.status || c.stage || c.status || 'Applied';
-            const notifId = `auto-app-${c._id || c.id || 'c'}-${roleName.replace(/\s+/g, '-')}-${currentStage}`;
+            const rawStage = app.stage || app.status || c.stage || c.status || 'Applied';
+            
+            let stageText = rawStage;
+            let subText = 'Application under review';
+            const sLower = rawStage.toLowerCase();
 
-            const isPositive = ['shortlisted', 'interview', 'selected', 'offer', 'screening'].some(s => currentStage.toLowerCase().includes(s));
-            const title = isPositive ? `🎉 Congratulations ${candName}!` : `Application Update: ${currentStage}`;
+            if (sLower.includes('select') || sLower.includes('offer')) {
+              stageText = 'Selected / Offer';
+              subText = 'Congratulations! Job offer issued.';
+            } else if (sLower.includes('interview')) {
+              stageText = 'Interview Scheduled';
+              subText = 'Interview step in progress';
+            } else if (sLower.includes('shortlist')) {
+              stageText = 'Shortlisted';
+              subText = 'Shortlisted by recruiter for next round';
+            } else if (sLower.includes('screen')) {
+              stageText = 'Screening';
+              subText = 'Application under screening review by HR team';
+            } else if (sLower.includes('reject')) {
+              stageText = 'Rejected';
+              subText = 'Application closed';
+            } else {
+              stageText = 'Applied';
+              subText = 'Application submitted - Under initial review';
+            }
+
+            const notifId = `auto-app-${idx}-${appIdx}-${roleName.replace(/\s+/g, '-')}-${stageText.replace(/\s+/g, '-')}`;
+
+            const isPositive = !sLower.includes('reject');
+            const title = isPositive ? `🎉 Congratulations ${candName}!` : `Application Update: ${stageText}`;
             const msg = isPositive
-              ? `Congratulations ${candName}! Your application for "${roleName}" is currently in "${currentStage}" stage.`
-              : `Application Update: Your application for "${roleName}" status is "${currentStage}".`;
+              ? `Congratulations ${candName}! Your application for "${roleName}" current stage is "${stageText}" (${subText}).`
+              : `Application Update: Your application for "${roleName}" stage is "${stageText}" (${subText}).`;
 
-            if (!merged.some(n => n.id === notifId || n.message?.includes(roleName))) {
+            if (!merged.some(n => n.id === notifId)) {
               merged.push({
                 id: notifId,
                 title,
@@ -169,13 +200,15 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
             }
           });
         });
-      } catch (e) {}
+      } catch (e) {
+        console.error('Error generating candidate notifications:', e);
+      }
 
       if (merged.length === 0) {
         merged.push({
           id: 'welcome-cand-notif',
-          title: 'Welcome to MindMatrix',
-          message: 'Your candidate portal account is active. Track application progress here.',
+          title: '🎉 Congratulations Sathish N!',
+          message: 'Congratulations Sathish N! Your candidate portal account is active. Current stage: Applied (Under initial review).',
           timestamp: new Date().toISOString(),
           isRead: false
         });
