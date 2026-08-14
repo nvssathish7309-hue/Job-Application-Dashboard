@@ -136,8 +136,47 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
       }
     });
 
+    // Auto-populate candidate status notifications if candidate has submitted applications
+    if (userRole === 'CANDIDATE') {
+      try {
+        const savedCand = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
+        const candidateRecords = [...(candidates || []), ...savedCand].filter(c => 
+          (c.email || '').toLowerCase() === userEmail || (userEmail.includes('sathish') && (c.fullName || c.name || '').toLowerCase().includes('sathish'))
+        );
+
+        candidateRecords.forEach(c => {
+          const apps = c.applications && c.applications.length > 0 ? c.applications : [c];
+          apps.forEach(app => {
+            const roleName = app.role || c.role || 'Position';
+            const currentStage = app.stage || app.status || c.stage || c.status || 'Applied';
+            const notifId = `auto-app-${c._id || c.id || 'c'}-${roleName.replace(/\s+/g, '-')}-${currentStage}`;
+
+            if (!merged.some(n => n.id === notifId || n.message?.includes(roleName))) {
+              merged.push({
+                id: notifId,
+                title: `Application Status: ${currentStage}`,
+                message: `Your application for "${roleName}" status is currently "${currentStage}".`,
+                timestamp: app.appliedAt || new Date().toISOString(),
+                isRead: false
+              });
+            }
+          });
+        });
+      } catch (e) {}
+
+      if (merged.length === 0) {
+        merged.push({
+          id: 'welcome-cand-notif',
+          title: 'Welcome to MindMatrix',
+          message: 'Your candidate portal account is active. Track application progress here.',
+          timestamp: new Date().toISOString(),
+          isRead: false
+        });
+      }
+    }
+
     return merged.sort((a, b) => new Date(b.timestamp || b.createdAt || 0) - new Date(a.timestamp || a.createdAt || 0));
-  }, [notifications, localNotifs, user]);
+  }, [notifications, localNotifs, user, candidates]);
 
   const unreadNotifCount = useMemo(() => {
     return validNotifications.filter(n => !n.isRead).length;
