@@ -4,12 +4,48 @@ import { X, Calendar, Clock, User, Link as LinkIcon, FileText, CheckCircle2 } fr
 export default function ScheduleInterviewModal({ candidate, isOpen, onClose, onConfirm }) {
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
-    time: '14:00',
+    time: '10:00',
     round: 'Technical Round 1',
-    interviewer: 'Priya Nair (Senior Tech Lead)',
-    meetingLink: 'https://meet.google.com/xyz-abc-def',
-    notes: 'Focus on core system design and hands-on coding.'
+    interviewer: 'Interviewer I (Engineering)',
+    meetingLink: 'https://meet.google.com/xyz-abc-123',
+    notes: 'Focus on core system design and coding skills.'
   });
+
+  const getTeamUsers = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('users') || '[]');
+      return saved.filter(u => u.role !== 'CANDIDATE');
+    } catch (e) {
+      return [];
+    }
+  };
+
+  const activeTeamUsers = getTeamUsers();
+
+  React.useEffect(() => {
+    if (candidate && isOpen) {
+      const existingInt = candidate.interview || candidate.interviewDetails || {};
+      
+      let defaultInterviewer = existingInt.interviewerName || existingInt.interviewer;
+      if (!defaultInterviewer) {
+        const iUser = activeTeamUsers.find(u => (u.role || '').toUpperCase() === 'INTERVIEWER' || (u.email || '').toLowerCase().includes('interviewer'));
+        if (iUser) {
+          const name = (iUser.name || `${iUser.firstName || ''} ${iUser.lastName || ''}`).trim();
+          const dept = iUser.department ? ` (${iUser.department})` : '';
+          defaultInterviewer = `${name}${dept}`;
+        }
+      }
+
+      setFormData({
+        date: existingInt.date || new Date().toISOString().split('T')[0],
+        time: existingInt.time || existingInt.startTime || '10:00',
+        round: existingInt.round || existingInt.title || 'Technical Round 1',
+        interviewer: defaultInterviewer || 'Interviewer I (Engineering)',
+        meetingLink: existingInt.meetingLink || 'https://meet.google.com/xyz-abc-123',
+        notes: existingInt.notes || existingInt.remarks || 'Focus on core system design and coding skills.'
+      });
+    }
+  }, [candidate, isOpen]);
 
   if (!isOpen || !candidate) return null;
 
@@ -98,17 +134,42 @@ export default function ScheduleInterviewModal({ candidate, isOpen, onClose, onC
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Interviewer Name *
+              Interviewer Name &amp; Details *
             </label>
+            {activeTeamUsers.length > 0 && (
+              <select
+                onChange={(e) => {
+                  if (e.target.value) setFormData({ ...formData, interviewer: e.target.value });
+                }}
+                value={activeTeamUsers.some(u => {
+                  const name = (u.name || `${u.firstName || ''} ${u.lastName || ''}`).trim();
+                  const dept = u.department ? ` (${u.department})` : '';
+                  return `${name}${dept}` === formData.interviewer;
+                }) ? formData.interviewer : ''}
+                className="w-full px-3 py-1.5 mb-2 bg-blue-50/70 border border-blue-200 text-blue-900 rounded-xl text-xs font-bold focus:bg-white"
+              >
+                <option value="">-- Select from User Management Team Members --</option>
+                {activeTeamUsers.map(u => {
+                  const name = (u.name || `${u.firstName || ''} ${u.lastName || ''}`).trim();
+                  const dept = u.department ? ` (${u.department})` : '';
+                  const val = `${name}${dept}`;
+                  return (
+                    <option key={u._id || u.email} value={val}>
+                      {name} {dept} [{u.role?.replace('_', ' ')}]
+                    </option>
+                  );
+                })}
+              </select>
+            )}
             <div className="relative">
               <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input 
                 type="text"
                 required
-                placeholder="e.g. Priya Nair (Tech Lead)"
+                placeholder="e.g. Interviewer I (Engineering)"
                 value={formData.interviewer}
                 onChange={(e) => setFormData({ ...formData, interviewer: e.target.value })}
-                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900"
+                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-semibold"
               />
             </div>
           </div>

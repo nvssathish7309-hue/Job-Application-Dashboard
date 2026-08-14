@@ -779,7 +779,7 @@ export default function Dashboard() {
       }
     }
 
-    let activeInterviewerName = 'Santhosh N (Engineering)';
+    let activeInterviewerName = '';
     try {
       const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
       const interviewerUser = savedUsers.find(u =>
@@ -787,18 +787,18 @@ export default function Dashboard() {
         (u.email || '').toLowerCase().includes('interviewer')
       );
       if (interviewerUser) {
-        const iName = interviewerUser.name || `${interviewerUser.firstName || ''} ${interviewerUser.lastName || ''}`.trim();
-        const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : ' (Engineering)';
+        const iName = (interviewerUser.name || `${interviewerUser.firstName || ''} ${interviewerUser.lastName || ''}`).trim();
+        const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : '';
         if (iName) activeInterviewerName = `${iName}${iDept}`;
       }
     } catch (e) {}
 
     const firstCand = userApplications[0] || myApplications[0] || null;
-    if (firstCand?.interview?.interviewerName) {
-      activeInterviewerName = firstCand.interview.interviewerName;
-    } else if (firstCand?.interviewDetails?.interviewerName) {
-      activeInterviewerName = firstCand.interviewDetails.interviewerName;
+    const customIntName = firstCand?.interview?.interviewerName || firstCand?.interviewDetails?.interviewerName;
+    if (customIntName && !customIntName.toLowerCase().includes('santhosh') && !customIntName.toLowerCase().includes('tirumal')) {
+      activeInterviewerName = customIntName;
     }
+    if (!activeInterviewerName) activeInterviewerName = 'Interviewer I (Engineering)';
 
     return (
       <div className="space-y-6 animate-fade-in">

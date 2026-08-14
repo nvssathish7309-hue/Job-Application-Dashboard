@@ -175,22 +175,25 @@ export default function CandidateDetails() {
   const interviewRound = interviewObj.round || interviewObj.title || 'Technical Round 1';
   const interviewDate = interviewObj.date || 'Aug 15, 2026';
   const interviewTime = interviewObj.startTime ? `${interviewObj.startTime}${interviewObj.endTime ? ` - ${interviewObj.endTime}` : ''}` : '10:00 AM - 10:45 AM IST';
-  let interviewerName = interviewObj.interviewerName || interviewObj.interviewer;
-  if (!interviewerName) {
-    try {
-      const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-      const interviewerUser = savedUsers.find(u =>
-        (u.role || '').toUpperCase() === 'INTERVIEWER' ||
-        (u.email || '').toLowerCase().includes('interviewer')
-      );
-      if (interviewerUser) {
-        const iName = interviewerUser.name || `${interviewerUser.firstName || ''} ${interviewerUser.lastName || ''}`.trim();
-        const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : ' (Engineering)';
-        if (iName) interviewerName = `${iName}${iDept}`;
-      }
-    } catch (e) {}
+  let interviewerName = '';
+  try {
+    const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    const interviewerUser = savedUsers.find(u =>
+      (u.role || '').toUpperCase() === 'INTERVIEWER' ||
+      (u.email || '').toLowerCase().includes('interviewer')
+    );
+    if (interviewerUser) {
+      const iName = (interviewerUser.name || `${interviewerUser.firstName || ''} ${interviewerUser.lastName || ''}`).trim();
+      const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : '';
+      if (iName) interviewerName = `${iName}${iDept}`;
+    }
+  } catch (e) {}
+
+  const candInterviewer = interviewObj.interviewerName || interviewObj.interviewer;
+  if (candInterviewer && !candInterviewer.toLowerCase().includes('santhosh') && !candInterviewer.toLowerCase().includes('tirumal')) {
+    interviewerName = candInterviewer;
   }
-  if (!interviewerName) interviewerName = 'Santhosh N (Engineering)';
+  if (!interviewerName) interviewerName = 'Interviewer I (Engineering)';
   const meetingLink = interviewObj.meetingLink || 'https://meet.google.com/xyz-abc-123';
   const feedback = candidate.interviewFeedback || [];
   const candNameClean = (candidate?.name || candidate?.fullName || 'Candidate').replace(/\s+/g, '_');
@@ -640,18 +643,27 @@ Candidate Application Profile stored on MindMatrix Dashboard.
                 <div className="text-slate-600">
                   <span className="font-semibold text-slate-700">Interviewer:</span> {interviewerName}
                 </div>
-                {meetingLink && (
-                  <a
-                    href={meetingLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-extrabold rounded-xl border border-emerald-200 text-xs transition-all mt-1 shadow-2xs cursor-pointer"
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 mt-2">
+                  {meetingLink && (
+                    <a
+                      href={meetingLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-extrabold rounded-xl border border-emerald-200 text-xs transition-all shadow-2xs cursor-pointer"
+                    >
+                      <Video className="w-3.5 h-3.5" />
+                      <span>Join Google Meet</span>
+                      <ExternalLink className="w-3 h-3 ml-0.5" />
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setScheduleOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold rounded-xl border border-amber-200 text-xs transition-all cursor-pointer"
                   >
-                    <Video className="w-3.5 h-3.5" />
-                    <span>Join Google Meet</span>
-                    <ExternalLink className="w-3 h-3 ml-0.5" />
-                  </a>
-                )}
+                    <CalendarClock className="w-3.5 h-3.5" />
+                    <span>Edit Schedule</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-xs text-slate-500">
