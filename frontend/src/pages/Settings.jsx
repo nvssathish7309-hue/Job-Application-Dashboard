@@ -53,20 +53,31 @@ export default function SettingsPage() {
   const [isSecurityEdited, setIsSecurityEdited] = useState(false);
   const [hrPhoneError, setHrPhoneError] = useState('');
 
-  // Helper to load profile data from user / localStorage
+  // Helper to load profile data from logged in user / localStorage per user key
   const loadProfileData = () => {
     let saved = null;
+    const userKey = `userProfile_${user?.id || user?.email || 'default'}`;
     try {
-      const stored = localStorage.getItem('hrProfile');
+      const stored = localStorage.getItem(userKey);
       if (stored) saved = JSON.parse(stored);
     } catch (e) {}
 
-    const userName = (user?.firstName && user?.lastName) ? `${user.firstName} ${user.lastName}` : (user?.name || '');
+    const userName = (user?.firstName && user?.lastName)
+      ? `${user.firstName} ${user.lastName}`
+      : (user?.name || (user?.email ? user.email.split('@')[0] : 'Sathish N'));
+
+    const userTitle = user?.department || (
+      user?.role === 'SUPER_ADMIN' ? 'Super Admin' :
+      user?.role === 'HR_MANAGER' ? 'HR Manager' :
+      user?.role === 'RECRUITER' ? 'Recruiter' :
+      user?.role === 'INTERVIEWER' ? 'Interviewer' : 'Staff Member'
+    );
+
     return {
-      name: saved?.name || userName || 'SATHISH N',
-      phone: saved?.phone || user?.phone || '+91 6380887476',
-      email: saved?.email || user?.email || 'nvssathish7309@gmail.com',
-      title: saved?.title || user?.department || 'Senior HR Manager'
+      name: saved?.name || userName,
+      phone: saved?.phone || user?.phone || '+91 9876543210',
+      email: user?.email || saved?.email || 'admin@mindmatrix.com',
+      title: saved?.title || userTitle
     };
   };
 
@@ -238,7 +249,8 @@ export default function SettingsPage() {
     }
 
     setHrPhoneError('');
-    localStorage.setItem('hrProfile', JSON.stringify(profileForm));
+    const userKey = `userProfile_${user?.id || user?.email || 'default'}`;
+    localStorage.setItem(userKey, JSON.stringify(profileForm));
     
     // Split name into firstName & lastName to update AuthContext if available
     const nameParts = (profileForm.name || '').trim().split(/\s+/);
@@ -248,10 +260,28 @@ export default function SettingsPage() {
       updateCurrentUser({
         firstName: fName,
         lastName: lName,
+        name: profileForm.name,
         phone: profileForm.phone,
         department: profileForm.title
       });
     }
+
+    // Also update matching record in localStorage users array
+    try {
+      const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      const userIndex = savedUsers.findIndex(u => (u.email || '').toLowerCase() === (user?.email || '').toLowerCase());
+      if (userIndex !== -1) {
+        savedUsers[userIndex] = {
+          ...savedUsers[userIndex],
+          name: profileForm.name,
+          firstName: fName,
+          lastName: lName,
+          phone: profileForm.phone,
+          department: profileForm.title
+        };
+        localStorage.setItem('users', JSON.stringify(savedUsers));
+      }
+    } catch (err) {}
 
     window.dispatchEvent(new CustomEvent('userProfileUpdated', { detail: profileForm }));
     setIsProfileEdited(false);
@@ -262,7 +292,7 @@ export default function SettingsPage() {
 
     setToast({ 
       type: 'success', 
-      message: `HR Profile saved! Header avatar initials set to "${newInitials}".` 
+      message: `Profile updated for ${profileForm.name}! Avatar badge displays "${newInitials}".` 
     });
   };
 
@@ -579,8 +609,10 @@ export default function SettingsPage() {
               <User className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-bold text-slate-900 text-base">HR Recruiter Profile</h2>
-              <p className="text-xs text-slate-500">Update your HR name, phone number, and avatar badge</p>
+              <h2 className="font-bold text-slate-900 text-base">
+                {user?.role === 'SUPER_ADMIN' ? 'Super Admin Profile' : user?.role === 'INTERVIEWER' ? 'Interviewer Profile' : user?.role === 'HR_MANAGER' ? 'HR Manager Profile' : 'User Profile'}
+              </h2>
+              <p className="text-xs text-slate-500">Update your account name, phone number, and avatar badge</p>
             </div>
           </div>
           <div className="p-1 rounded-lg text-slate-400 hover:text-slate-600">
@@ -598,7 +630,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-slate-900 truncate">
-                  {profileForm.name || 'HR Recruiter Name'}
+                  {profileForm.name || 'User Profile Name'}
                 </p>
                 <p className="text-xs text-slate-600 font-medium">
                   {profileForm.title} · {profileForm.phone || 'Phone not set'}
@@ -612,7 +644,7 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  HR Recruiter Name *
+                  {user?.role === 'SUPER_ADMIN' ? 'Super Admin Name *' : user?.role === 'INTERVIEWER' ? 'Interviewer Name *' : user?.role === 'HR_MANAGER' ? 'HR Manager Name *' : 'Full Name *'}
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
