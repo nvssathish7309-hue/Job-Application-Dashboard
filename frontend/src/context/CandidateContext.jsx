@@ -215,7 +215,14 @@ export const CandidateProvider = ({ children }) => {
     if (cid && (cid === tid || tid.includes(cid) || cid.includes(tid))) return true;
     if (emailLower && (tid === emailLower || tid.includes(emailLower) || emailLower.includes(tid))) return true;
     if (nameLower && (tid.includes('sathish') && nameLower.includes('sathish'))) return true;
-    if (c.applications && c.applications.some(a => String(a._id || a.id || a.applicationId || '').toLowerCase() === tid)) return true;
+
+    if (c.applications && Array.isArray(c.applications)) {
+      return c.applications.some(a => {
+        const aId = String(a._id || a.id || a.applicationId || '').toLowerCase();
+        return aId && (aId === tid || tid.includes(aId) || aId.includes(tid));
+      });
+    }
+
     return false;
   };
 

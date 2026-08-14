@@ -181,18 +181,14 @@ export default function RecruitmentPipeline() {
   const handleStageMove = async (appId, newStage, remarks = '') => {
     if (isCandidate) return;
     try {
-      const targetApp = applications.find(a => a._id === appId || a.applicationId === appId || a.id === appId);
-      let candId = null;
-      if (targetApp) {
-        if (typeof targetApp.candidateId === 'object' && targetApp.candidateId) {
-          candId = targetApp.candidateId._id || targetApp.candidateId.id || targetApp.candidateId.candidateId;
-        } else if (targetApp.candidateId) {
-          candId = targetApp.candidateId;
-        } else {
-          candId = targetApp._id || targetApp.id;
-        }
-      }
-      if (!candId) candId = appId;
+      const targetApp = applications.find(a => 
+        a._id === appId || a.applicationId === appId || a.id === appId ||
+        String(a._id).toLowerCase() === String(appId).toLowerCase() ||
+        String(a.applicationId).toLowerCase() === String(appId).toLowerCase()
+      );
+
+      let candId = targetApp?.candidateId?._id || targetApp?.candidateId?.id || targetApp?.candidateId;
+      if (!candId) candId = targetApp?.candidateId?.email || targetApp?._id || appId;
 
       const normStage = newStage === 'New Applicants' ? 'New' : newStage;
       const stageLower = normStage.toLowerCase();
@@ -217,7 +213,14 @@ export default function RecruitmentPipeline() {
         const updated = saved.map(c => {
           const cIdStr = String(c._id || c.id || c.candidateId || '').toLowerCase();
           const candIdStr = String(candId || '').toLowerCase();
-          if (cIdStr === candIdStr || (candIdStr && cIdStr.includes(candIdStr)) || (c.fullName || c.name || '').toLowerCase().includes('sathish')) {
+          const cEmail = (c.email || '').toLowerCase();
+          const targetEmail = (targetApp?.candidateId?.email || '').toLowerCase();
+
+          const isMatch = (candIdStr && (cIdStr === candIdStr || cIdStr.includes(candIdStr) || candIdStr.includes(cIdStr))) ||
+            (targetEmail && cEmail === targetEmail) ||
+            ((c.fullName || c.name || '').toLowerCase().includes('sathish'));
+
+          if (isMatch) {
             const updatedApps = (c.applications || []).map(a => ({ ...a, status: normStage, stage: normStage }));
             return {
               ...c,
@@ -233,7 +236,6 @@ export default function RecruitmentPipeline() {
       } catch (e) {}
 
       await applicationService.updateStage(appId, normStage, remarks || `Moved to ${normStage} via Kanban Pipeline`).catch(() => null);
-      fetchApplications();
       if (refreshCandidates) await refreshCandidates();
       window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {
