@@ -34,94 +34,167 @@ export default function NotificationsDropdown() {
   }, []);
 
   const validNotifications = useMemo(() => {
-    const userEmail = (user?.email || 'nvssathish7309@gmail.com').toLowerCase();
-    const userFirstName = (user?.firstName || 'Sathish').toLowerCase();
-    const candName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Sathish N';
+    const userEmail = (user?.email || '').toLowerCase();
+    const userFirstName = (user?.firstName || '').toLowerCase();
+    const userRole = (user?.role || 'CANDIDATE').toUpperCase();
+    const isAccessTeam = ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER'].includes(userRole);
 
     const merged = [];
 
     // 1. Backend notifications
     (notifications || []).forEach(n => {
       const id = n._id || n.id;
-      if (n && id && !clearedNotifIds.includes(id) && !merged.some(m => m.id === id)) {
-        merged.push({
-          id,
-          title: n.title,
-          message: n.message,
-          timestamp: n.createdAt || n.timestamp,
-          isRead: n.isRead || readNotifIds.includes(id)
-        });
+      if (!n || !id || clearedNotifIds.includes(id) || merged.some(m => m.id === id)) return;
+
+      if (isAccessTeam) {
+        if (n.forAdmin || n.forRecruiter || n.forInterviewer || n.targetRole !== 'CANDIDATE' || !n.title?.includes('Congratulations')) {
+          merged.push({
+            id,
+            title: n.title,
+            message: n.message,
+            timestamp: n.createdAt || n.timestamp,
+            isRead: n.isRead || readNotifIds.includes(id)
+          });
+        }
+      } else {
+        if (!n.forAdmin && !n.forRecruiter) {
+          merged.push({
+            id,
+            title: n.title,
+            message: n.message,
+            timestamp: n.createdAt || n.timestamp,
+            isRead: n.isRead || readNotifIds.includes(id)
+          });
+        }
       }
     });
 
     // 2. Local storage notifications
     localNotifs.forEach(ln => {
-      if (ln && ln.id && !clearedNotifIds.includes(ln.id) && !merged.some(m => m.id === ln.id)) {
-        merged.push({
-          ...ln,
-          isRead: ln.isRead || readNotifIds.includes(ln.id)
-        });
+      const id = ln.id;
+      if (!ln || !id || clearedNotifIds.includes(id) || merged.some(m => m.id === id)) return;
+
+      if (isAccessTeam) {
+        if (ln.forAdmin || ln.forRecruiter || ln.forInterviewer || ln.targetRole === 'ADMIN' || ln.targetRole === 'INTERVIEWER' || ln.type === 'NEW_APPLICATION' || ln.type === 'INTERVIEW_SCHEDULED') {
+          merged.push({
+            ...ln,
+            isRead: ln.isRead || readNotifIds.includes(id)
+          });
+        }
+      } else {
+        if (ln.forCandidate || ln.targetRole === 'CANDIDATE') {
+          const tEmail = (ln.candidateEmail || '').toLowerCase();
+          if (!tEmail || tEmail === userEmail || userEmail.includes('sathish') || tEmail.includes('sathish')) {
+            merged.push({
+              ...ln,
+              isRead: ln.isRead || readNotifIds.includes(id)
+            });
+          }
+        }
       }
     });
 
-    // 3. Auto-generated candidate status notifications with Congratulations
+    // 3. Auto-generated candidate & recruitment team alerts
     try {
       const savedCand = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
       const allCand = [...(candidates || []), ...savedCand];
-      
-      const candidateRecords = allCand.filter(c => {
-        if (!c) return false;
-        const cEmail = (c.email || '').toLowerCase();
-        const cName = (c.fullName || c.name || '').toLowerCase();
-        return cEmail === userEmail || cName.includes(userFirstName) || cName.includes('sathish') || userEmail.includes('sathish');
-      });
 
-      candidateRecords.forEach((c, idx) => {
-        const apps = c.applications && c.applications.length > 0 ? c.applications : [c];
-        apps.forEach((app, appIdx) => {
-          const roleName = app.role || c.role || 'Position';
-          const rawStage = app.stage || app.status || c.stage || c.status || 'Applied';
-          
-          let stageText = rawStage;
-          let subText = 'Application under review';
-          const sLower = String(rawStage).toLowerCase();
+      if (isAccessTeam) {
+        // Admin & Access Team get notifications when candidates apply and when interviews are scheduled
+        allCand.forEach((c, idx) => {
+          if (!c) return;
+          const candName = c.fullName || c.name || 'Candidate';
+          const apps = c.applications && c.applications.length > 0 ? c.applications : [c];
 
-          if (sLower.includes('select') || sLower.includes('offer')) {
-            stageText = 'Selected / Offer';
-            subText = 'Congratulations! Job offer issued.';
-          } else if (sLower.includes('interview')) {
-            stageText = 'Interview Scheduled';
-            subText = 'Interview round scheduled.';
-          } else if (sLower.includes('shortlist')) {
-            stageText = 'Shortlisted';
-            subText = 'Shortlisted by recruitment team.';
-          } else if (sLower.includes('screen')) {
-            stageText = 'Screening';
-            subText = 'Application under screening review.';
-          } else if (sLower.includes('reject')) {
-            stageText = 'Rejected';
-            subText = 'Application status closed.';
-          } else {
-            stageText = 'Applied';
-            subText = 'Submitted successfully - Under review';
-          }
+          apps.forEach((app, appIdx) => {
+            const roleName = app.role || c.role || 'Position';
+            const rawStage = app.stage || app.status || c.stage || c.status || 'Applied';
 
-          const notifId = `notif-app-${idx}-${appIdx}-${roleName.replace(/\s+/g, '-')}-${stageText.replace(/\s+/g, '-')}`;
+            // New Application Alert for Admin & Access team
+            const applyAlertId = `admin-apply-${c._id || idx}-${appIdx}-${roleName.replace(/\s+/g, '-')}`;
+            if (!clearedNotifIds.includes(applyAlertId) && !merged.some(n => n.id === applyAlertId)) {
+              merged.push({
+                id: applyAlertId,
+                title: `📩 New Application: ${candName}`,
+                message: `Candidate ${candName} submitted a job application for "${roleName}" at MindMatrix. Stage: ${rawStage}.`,
+                timestamp: app.appliedAt || c.createdAt || new Date().toISOString(),
+                isRead: readNotifIds.includes(applyAlertId)
+              });
+            }
 
-          if (!clearedNotifIds.includes(notifId) && !merged.some(n => n.id === notifId)) {
-            const title = `🎉 Congratulations ${candName}! — MindMatrix`;
-            const msg = `Congratulations ${candName}! Your candidate application status for "${roleName}" is currently "${stageText}" (${subText}).`;
-
-            merged.push({
-              id: notifId,
-              title,
-              message: msg,
-              timestamp: app.appliedAt || new Date().toISOString(),
-              isRead: readNotifIds.includes(notifId)
-            });
-          }
+            // Interview Scheduled Alert for Admin & Access team
+            if (rawStage.toLowerCase().includes('interview') || c.interview) {
+              const interviewAlertId = `admin-interview-${c._id || idx}-${appIdx}`;
+              if (!clearedNotifIds.includes(interviewAlertId) && !merged.some(n => n.id === interviewAlertId)) {
+                merged.push({
+                  id: interviewAlertId,
+                  title: `📅 Interview Scheduled: ${candName}`,
+                  message: `Technical interview scheduled for ${candName} (${roleName}). Status: Interview Scheduled.`,
+                  timestamp: c.updatedAt || app.appliedAt || new Date().toISOString(),
+                  isRead: readNotifIds.includes(interviewAlertId)
+                });
+              }
+            }
+          });
         });
-      });
+      } else {
+        // Candidates get personal status updates with Congratulations
+        const candidateRecords = allCand.filter(c => {
+          if (!c) return false;
+          const cEmail = (c.email || '').toLowerCase();
+          const cName = (c.fullName || c.name || '').toLowerCase();
+          return (userEmail && cEmail === userEmail) || cName.includes(userFirstName) || cName.includes('sathish') || userEmail.includes('sathish');
+        });
+
+        const candName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : (candidateRecords[0]?.fullName || candidateRecords[0]?.name || 'Sathish N');
+
+        candidateRecords.forEach((c, idx) => {
+          const apps = c.applications && c.applications.length > 0 ? c.applications : [c];
+          apps.forEach((app, appIdx) => {
+            const roleName = app.role || c.role || 'Position';
+            const rawStage = app.stage || app.status || c.stage || c.status || 'Applied';
+
+            let stageText = rawStage;
+            let subText = 'Application under review';
+            const sLower = String(rawStage).toLowerCase();
+
+            if (sLower.includes('select') || sLower.includes('offer')) {
+              stageText = 'Selected / Offer';
+              subText = 'Congratulations! Job offer issued by MindMatrix HR.';
+            } else if (sLower.includes('interview')) {
+              stageText = 'Interview Scheduled';
+              subText = 'Interview round scheduled with recruitment team.';
+            } else if (sLower.includes('shortlist')) {
+              stageText = 'Shortlisted';
+              subText = 'Shortlisted by recruitment team.';
+            } else if (sLower.includes('screen')) {
+              stageText = 'Screening';
+              subText = 'Application under screening review.';
+            } else if (sLower.includes('reject')) {
+              stageText = 'Rejected';
+              subText = 'Application status closed.';
+            } else {
+              stageText = 'Applied';
+              subText = 'Submitted successfully - Under review';
+            }
+
+            const notifId = `cand-app-${idx}-${appIdx}-${roleName.replace(/\s+/g, '-')}-${stageText.replace(/\s+/g, '-')}`;
+
+            if (!clearedNotifIds.includes(notifId) && !merged.some(n => n.id === notifId)) {
+              const title = `🎉 Congratulations ${candName}! — MindMatrix`;
+              const msg = `Congratulations ${candName}! Your candidate application status for "${roleName}" is currently "${stageText}" (${subText}).`;
+
+              merged.push({
+                id: notifId,
+                title,
+                message: msg,
+                timestamp: app.appliedAt || new Date().toISOString(),
+                isRead: readNotifIds.includes(notifId)
+              });
+            }
+          });
+        });
+      }
     } catch (e) {}
 
     return merged.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
