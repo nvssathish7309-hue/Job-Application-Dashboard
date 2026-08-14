@@ -5,7 +5,7 @@ import {
   TrendingUp, Award, AlignJustify, BarChart2,
   BarChart3, PieChart, Triangle, Briefcase, FileText,
   MapPin, Building, Clock, ArrowRight, X, CheckCircle,
-  Trash2, Pencil
+  Trash2, Pencil, Video, ExternalLink, Bell
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
 import { useAuth } from '../context/AuthContext';
