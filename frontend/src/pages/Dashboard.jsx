@@ -702,6 +702,7 @@ export default function Dashboard() {
     }
 
     const appStages = candidateApps.map(a => (a.stage || a.status || '').toLowerCase());
+    const submittedCount = candidateApps.length;
     
     let currentStageText = 'Not Applied';
     let currentStageSub = 'No active application';
