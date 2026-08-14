@@ -1049,47 +1049,53 @@ export default function Dashboard() {
 
                   <form onSubmit={handleApplySubmit} className="space-y-4 text-xs">
                     <div>
-                      <label className="block font-bold text-slate-700 mb-1.5">
+                      <label className="block text-xs font-extrabold text-slate-900 mb-1.5">
                         Full Name <span className="text-rose-500">*</span>
                       </label>
                       <input
                         type="text"
                         required
+                        placeholder="e.g. Sathish N"
                         value={applyForm.fullName}
                         onChange={(e) => setApplyForm({ ...applyForm, fullName: e.target.value })}
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-bold placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                        style={{ color: '#0f172a' }}
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block font-bold text-slate-700 mb-1.5">
+                        <label className="block text-xs font-extrabold text-slate-900 mb-1.5">
                           Email Address <span className="text-rose-500">*</span>
                         </label>
                         <input
                           type="email"
                           required
+                          placeholder="sathish@example.com"
                           value={applyForm.email}
                           onChange={(e) => setApplyForm({ ...applyForm, email: e.target.value })}
-                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-bold placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                          style={{ color: '#0f172a' }}
                         />
                       </div>
                       <div>
-                        <label className="block font-bold text-slate-700 mb-1.5">
+                        <label className="block text-xs font-extrabold text-slate-900 mb-1.5">
                           Phone Number <span className="text-rose-500">*</span>
                         </label>
                         <input
                           type="tel"
                           required
+                          placeholder="e.g. 9876543210"
                           value={applyForm.phone}
                           onChange={(e) => setApplyForm({ ...applyForm, phone: e.target.value })}
-                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-bold placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                          style={{ color: '#0f172a' }}
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block font-bold text-slate-700 mb-1.5">
+                      <label className="block text-xs font-extrabold text-slate-900 mb-1.5">
                         Upload Resume (PDF, DOCX) <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -1097,7 +1103,8 @@ export default function Dashboard() {
                         required
                         accept=".pdf,.doc,.docx"
                         onChange={(e) => setApplyForm({ ...applyForm, resume: e.target.files[0] })}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 focus:outline-none"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                        style={{ color: '#0f172a' }}
                       />
                     </div>
 
@@ -1105,7 +1112,7 @@ export default function Dashboard() {
                       <button
                         type="button"
                         onClick={() => setSelectedJobToApply(null)}
-                        className="px-5 py-2.5 bg-slate-100 font-bold text-xs text-slate-700 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                        className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-extrabold text-xs rounded-xl transition-colors cursor-pointer"
                       >
                         Cancel
                       </button>

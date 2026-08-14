@@ -155,47 +155,62 @@ export default function PublicCareers() {
 
                   <form onSubmit={handleApplySubmit} className="space-y-4 text-xs">
                     <div>
-                      <label className="block font-bold mb-1">Full Name *</label>
+                      <label className="block text-xs font-extrabold text-slate-900 mb-1">
+                        Full Name <span className="text-rose-500">*</span>
+                      </label>
                       <input
                         type="text"
                         required
+                        placeholder="e.g. Sathish N"
                         value={applicantForm.fullName}
                         onChange={(e) => setApplicantForm({ ...applicantForm, fullName: e.target.value })}
-                        className="w-full p-2.5 bg-slate-50 border rounded-xl"
+                        className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        style={{ color: '#0f172a' }}
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block font-bold mb-1">Email Address *</label>
+                        <label className="block text-xs font-extrabold text-slate-900 mb-1">
+                          Email Address <span className="text-rose-500">*</span>
+                        </label>
                         <input
                           type="email"
                           required
+                          placeholder="sathish@example.com"
                           value={applicantForm.email}
                           onChange={(e) => setApplicantForm({ ...applicantForm, email: e.target.value })}
-                          className="w-full p-2.5 bg-slate-50 border rounded-xl"
+                          className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          style={{ color: '#0f172a' }}
                         />
                       </div>
                       <div>
-                        <label className="block font-bold mb-1">Phone Number *</label>
+                        <label className="block text-xs font-extrabold text-slate-900 mb-1">
+                          Phone Number <span className="text-rose-500">*</span>
+                        </label>
                         <input
-                          type="text"
+                          type="tel"
                           required
+                          placeholder="e.g. 9876543210"
                           value={applicantForm.phone}
                           onChange={(e) => setApplicantForm({ ...applicantForm, phone: e.target.value })}
-                          className="w-full p-2.5 bg-slate-50 border rounded-xl"
+                          className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          style={{ color: '#0f172a' }}
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block font-bold mb-1">Upload Resume (PDF, DOCX) *</label>
+                      <label className="block text-xs font-extrabold text-slate-900 mb-1">
+                        Upload Resume (PDF, DOCX) <span className="text-rose-500">*</span>
+                      </label>
                       <input
                         type="file"
                         required
                         accept=".pdf,.doc,.docx"
                         onChange={(e) => setApplicantForm({ ...applicantForm, resume: e.target.files[0] })}
-                        className="w-full p-2 bg-slate-50 border rounded-xl"
+                        className="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none"
+                        style={{ color: '#0f172a' }}
                       />
                     </div>
 
@@ -203,13 +218,13 @@ export default function PublicCareers() {
                       <button
                         type="button"
                         onClick={() => setSelectedJob(null)}
-                        className="px-4 py-2 bg-slate-100 font-bold rounded-xl"
+                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold rounded-xl border border-slate-300 transition-colors cursor-pointer"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="px-6 py-2 bg-blue-600 text-white font-extrabold rounded-xl"
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl shadow-md shadow-blue-600/30 transition-all cursor-pointer"
                       >
                         Submit Application
                       </button>
