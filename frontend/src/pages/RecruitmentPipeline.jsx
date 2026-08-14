@@ -99,11 +99,6 @@ export default function RecruitmentPipeline() {
   const applications = useMemo(() => {
     return (candidates || []).map((c, idx) => {
       const rawStage = c.stage || c.status || 'New';
-      const nameLower = (c.fullName || c.name || '').toLowerCase();
-      const emailLower = (c.email || '').toLowerCase();
-
-      const isSathish = (emailLower.includes('sathish') || nameLower.includes('sathish')) && !c.isHrUpdated;
-      const finalStage = isSathish ? 'New' : rawStage;
 
       return {
         _id: c._id || c.id || `app-${idx}`,
@@ -117,8 +112,8 @@ export default function RecruitmentPipeline() {
           role: c.role || 'Software Engineer',
           experience: c.experience || 'Fresher'
         },
-        stage: finalStage,
-        status: finalStage,
+        stage: rawStage,
+        status: rawStage,
         source: c.source || 'Candidate Portal',
         appliedAt: c.createdAt || c.appliedDate || new Date().toISOString()
       };
@@ -187,20 +182,18 @@ export default function RecruitmentPipeline() {
         try {
           const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
           const updated = saved.map(c => {
-            const nameLower = (c.fullName || c.name || '').toLowerCase();
-            const emailLower = (c.email || '').toLowerCase();
-            if (c._id === candId || c.id === candId || c.candidateId === candId || emailLower.includes('sathish') || nameLower.includes('sathish')) {
-              return { ...c, stage: newStage, status: newStage, isHrUpdated: true };
+            if (c._id === candId || c.id === candId || c.candidateId === candId) {
+              return { ...c, stage: newStage, status: newStage };
             }
             return c;
           });
           localStorage.setItem('registered_candidates', JSON.stringify(updated));
         } catch (e) {}
-        if (refreshCandidates) refreshCandidates();
-        window.dispatchEvent(new CustomEvent('candidateSubmitted'));
       }
 
       await applicationService.updateStage(appId, newStage, remarks || `Moved to ${newStage} via Kanban Pipeline`).catch(() => null);
+      if (refreshCandidates) await refreshCandidates();
+      window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {
       console.error(err);
     }

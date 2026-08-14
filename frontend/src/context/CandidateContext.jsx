@@ -175,8 +175,7 @@ export const CandidateProvider = ({ children }) => {
     return (candidates || []).find(c => 
       String(c._id || '').toLowerCase() === target || 
       String(c.id || '').toLowerCase() === target || 
-      String(c.candidateId || '').toLowerCase() === target ||
-      (target.includes('sathish') && (c.email?.toLowerCase().includes('sathish') || c.fullName?.toLowerCase().includes('sathish')))
+      String(c.candidateId || '').toLowerCase() === target
     ) || null;
   }, [candidates]);
 
@@ -190,15 +189,10 @@ export const CandidateProvider = ({ children }) => {
     if (!c || !targetId) return false;
     const tid = String(targetId).toLowerCase();
     const cid = String(c._id || c.id || c.candidateId || c.applicationId || '').toLowerCase();
-    const nameLower = (c.fullName || c.name || '').toLowerCase();
     const emailLower = (c.email || '').toLowerCase();
-    const roleLower = (c.role || '').toLowerCase();
 
     if (cid && (cid === tid || tid.includes(cid) || cid.includes(tid))) return true;
-    if (tid.includes('sathish') && (emailLower.includes('sathish') || nameLower.includes('sathish'))) {
-      if (tid.includes('node') && !roleLower.includes('node')) return false;
-      return true;
-    }
+    if (emailLower && tid === emailLower) return true;
     return false;
   };
 

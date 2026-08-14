@@ -647,8 +647,7 @@ export default function Dashboard() {
 
     const userApplications = (candidates || []).filter(c => 
       c.email?.toLowerCase() === candidateEmail ||
-      (c.fullName || c.name || '').toLowerCase().includes(candidateNameLower) ||
-      (candidateEmail.includes('sathish') && ((c.fullName || c.name || '').toLowerCase().includes('sathish')))
+      ((c.fullName || c.name || '').toLowerCase() === candidateNameLower && candidateNameLower !== '')
     );
 
     const matchedCandidate = userApplications[0] || null;
