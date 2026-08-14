@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { reportService } from '../services/reportService';
 import { useCandidates } from '../context/CandidateContext';
 import { Download, BarChart2, PieChart as PieIcon, Users, TrendingUp, CheckCircle2, UserCheck, Calendar } from 'lucide-react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 
 function AnimatedCount({ value, duration = 1400 }) {
   const [displayValue, setDisplayValue] = useState(0);
@@ -32,6 +32,102 @@ function AnimatedCount({ value, duration = 1400 }) {
   return <span>{displayValue}</span>;
 }
 
+function AnimatedCircleChart({ chartData, chartProgress }) {
+  const activeData = useMemo(() => {
+    return chartData.filter(d => d.displayCount > 0);
+  }, [chartData]);
+
+  const totalCount = useMemo(() => {
+    return activeData.reduce((acc, d) => acc + d.displayCount, 0);
+  }, [activeData]);
+
+  const r = 68;
+  const cx = 100;
+  const cy = 100;
+  const circumference = 2 * Math.PI * r;
+
+  let accumulatedPercent = 0;
+
+  return (
+    <div className="relative flex flex-col items-center justify-center py-2 w-full">
+      <div className="relative w-56 h-56 flex items-center justify-center">
+        <svg width="220" height="220" viewBox="0 0 200 200" className="transform -rotate-90">
+          {/* Background subtle ring */}
+          <circle
+            cx={cx}
+            cy={cy}
+            r={r}
+            fill="transparent"
+            stroke="#f1f5f9"
+            strokeWidth="24"
+          />
+
+          {/* Animated Circle Arc Slices */}
+          {activeData.map((item, idx) => {
+            const pct = totalCount > 0 ? (item.displayCount / totalCount) * 100 : 0;
+            const strokeLength = (pct / 100) * circumference * chartProgress;
+            const strokeGap = circumference - strokeLength;
+            const strokeOffset = -((accumulatedPercent / 100) * circumference * chartProgress);
+
+            accumulatedPercent += pct;
+
+            return (
+              <circle
+                key={idx}
+                cx={cx}
+                cy={cy}
+                r={r}
+                fill="transparent"
+                stroke={item.color}
+                strokeWidth="24"
+                strokeDasharray={`${strokeLength} ${strokeGap}`}
+                strokeDashoffset={strokeOffset}
+                className="transition-all duration-300 hover:stroke-[28] cursor-pointer"
+                style={{
+                  transition: 'stroke-width 0.2s ease, opacity 0.3s ease',
+                }}
+              />
+            );
+          })}
+        </svg>
+
+        {/* Center Animated Total Counter */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-3xl font-black text-slate-900 leading-none">
+            {Math.round(totalCount * chartProgress)}
+          </span>
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mt-1">
+            STAGE SHARE
+          </span>
+        </div>
+      </div>
+
+      {/* Floating Animated Percentage Badges */}
+      <div className="flex flex-wrap justify-center gap-2 mt-3 text-xs font-extrabold">
+        {activeData.map((item, idx) => {
+          const pct = totalCount > 0 ? Math.round((item.displayCount / totalCount) * 100) : 0;
+          return (
+            <div
+              key={idx}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all duration-500 transform hover:scale-105 shadow-2xs"
+              style={{
+                borderColor: `${item.color}40`,
+                backgroundColor: `${item.color}10`,
+                color: item.color,
+                opacity: chartProgress,
+                transform: `scale(${0.8 + chartProgress * 0.2})`
+              }}
+            >
+              <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: item.color }} />
+              <span>{item.name} {pct}%</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function Reports() {
   const { candidates } = useCandidates();
   const [data, setData] = useState(null);
@@ -52,7 +148,7 @@ export default function Reports() {
     fetchMetrics();
   }, []);
 
-  // Frame-by-frame bar chart rising growth animation on mount
+  // Frame-by-frame 60fps bar growth & circular animation on mount
   useEffect(() => {
     if (loading) return;
     setChartProgress(0);
@@ -247,7 +343,7 @@ export default function Reports() {
           </div>
         </div>
 
-        {/* Pipeline Ratio Pie Chart */}
+        {/* Pipeline Ratio Circle Donut Chart */}
         <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4 flex flex-col justify-between hover:shadow-md transition-shadow animate-fade-in-up delay-450">
           <div className="flex items-center justify-between">
             <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
@@ -257,45 +353,8 @@ export default function Reports() {
             <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">% Breakdown</span>
           </div>
 
-          <div className="h-60 w-full flex items-center justify-center relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData.filter(d => d.displayCount > 0)}
-                  dataKey="count"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  innerRadius={52}
-                  paddingAngle={5}
-                  isAnimationActive={true}
-                  animationBegin={0}
-                  animationDuration={1400}
-                  animationEasing="ease-out"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`pie-cell-${index}`} fill={entry.color || '#3b82f6'} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const d = payload[0];
-                      return (
-                        <div className="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-xl">
-                          <span>{d.name}: </span>
-                          <span className="text-purple-300 font-extrabold">{d.payload.displayCount}</span>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          {/* Animated 360 Degree Circle Chart */}
+          <AnimatedCircleChart chartData={chartData} chartProgress={chartProgress} />
 
           {/* Animated Progress Legend Pill Items */}
           <div className="flex flex-wrap gap-2 justify-center pt-2">
