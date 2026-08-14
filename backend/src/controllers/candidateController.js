@@ -4,7 +4,27 @@ const Notification = require('../models/Notification');
 const { generateCustomId } = require('../utils/idGenerator');
 const { createAuditLog } = require('../services/auditService');
 
+const mongoose = require('mongoose');
+
 const escapeRegex = (text) => text ? String(text).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') : '';
+
+const findCandidateByIdOrCustomId = async (idParam) => {
+  if (!idParam) return null;
+  const isMongoId = mongoose.isValidObjectId(idParam);
+  let candidate = null;
+  if (isMongoId) {
+    candidate = await Candidate.findById(idParam);
+  }
+  if (!candidate) {
+    candidate = await Candidate.findOne({
+      $or: [
+        { id: idParam },
+        { candidateId: idParam }
+      ]
+    });
+  }
+  return candidate;
+};
 
 const getCandidates = async (req, res, next) => {
   try {
@@ -76,7 +96,7 @@ const getCandidates = async (req, res, next) => {
 
 const getCandidateById = async (req, res, next) => {
   try {
-    const candidate = await Candidate.findById(req.params.id);
+    const candidate = await findCandidateByIdOrCustomId(req.params.id);
     if (!candidate) {
       return res.status(404).json({ success: false, message: 'Candidate not found.' });
     }
@@ -206,7 +226,7 @@ const createCandidate = async (req, res, next) => {
 
 const updateCandidate = async (req, res, next) => {
   try {
-    const candidate = await Candidate.findById(req.params.id);
+    const candidate = await findCandidateByIdOrCustomId(req.params.id);
     if (!candidate) {
       return res.status(404).json({ success: false, message: 'Candidate not found.' });
     }
@@ -246,10 +266,12 @@ const updateCandidate = async (req, res, next) => {
 
 const deleteCandidate = async (req, res, next) => {
   try {
-    const candidate = await Candidate.findByIdAndDelete(req.params.id);
+    const candidate = await findCandidateByIdOrCustomId(req.params.id);
     if (!candidate) {
       return res.status(404).json({ success: false, message: 'Candidate not found.' });
     }
+
+    await Candidate.findByIdAndDelete(candidate._id);
 
     await createAuditLog({
       req,
@@ -267,7 +289,7 @@ const deleteCandidate = async (req, res, next) => {
 
 const shortlistCandidate = async (req, res, next) => {
   try {
-    const candidate = await Candidate.findById(req.params.id);
+    const candidate = await findCandidateByIdOrCustomId(req.params.id);
     if (!candidate) {
       return res.status(404).json({ success: false, message: 'Candidate not found.' });
     }
@@ -308,7 +330,7 @@ const shortlistCandidate = async (req, res, next) => {
 
 const rejectCandidate = async (req, res, next) => {
   try {
-    const candidate = await Candidate.findById(req.params.id);
+    const candidate = await findCandidateByIdOrCustomId(req.params.id);
     if (!candidate) {
       return res.status(404).json({ success: false, message: 'Candidate not found.' });
     }

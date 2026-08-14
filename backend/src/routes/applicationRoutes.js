@@ -13,7 +13,11 @@ router.use(requireAuth);
 
 router.get('/', getApplications);
 router.get('/:id', getApplicationById);
-router.patch('/:id/stage', requireRole(['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), updateStage);
+router.route('/:id/stage')
+  .patch(requireRole(['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'ADMIN']), updateStage)
+  .put(requireRole(['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'ADMIN']), updateStage)
+  .post(requireRole(['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'ADMIN']), updateStage);
+
 router.delete('/:id', requireRole(['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), deleteApplication);
 
 module.exports = router;
