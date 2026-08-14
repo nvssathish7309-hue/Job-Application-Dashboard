@@ -40,25 +40,18 @@ export const CandidateProvider = ({ children }) => {
 
   const isCandidateDeleted = (c, deletedList) => {
     if (!c || !deletedList || deletedList.length === 0) return false;
-    const cid = String(c._id || c.id || c.candidateId || c.applicationId || '').toLowerCase();
-    const cemail = (c.email || '').toLowerCase();
-    const crole = (c.role || '').toLowerCase();
+    const cid = String(c._id || c.id || c.candidateId || '').toLowerCase();
+    if (!cid) return false;
 
     return deletedList.some(d => {
       if (!d) return false;
       if (typeof d === 'string') {
         const strD = d.toLowerCase();
-        return cid && (cid === strD || strD === cid);
+        return cid === strD;
       }
       if (typeof d === 'object') {
-        const dId = String(d.id || d._id || '').toLowerCase();
-        const dEmail = (d.email || '').toLowerCase();
-        const dRole = (d.role || '').toLowerCase();
-
-        if (dId && cid && (cid === dId || dId === cid)) return true;
-        if (dEmail && cemail && dEmail === cemail) {
-          if (dRole && crole && dRole === crole) return true;
-        }
+        const dId = String(d.id || d._id || d.candidateId || '').toLowerCase();
+        return dId && cid === dId;
       }
       return false;
     });
