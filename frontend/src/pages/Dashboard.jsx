@@ -768,6 +768,27 @@ export default function Dashboard() {
       }
     }
 
+    let activeInterviewerName = 'Tirumal M (Engineering Lead)';
+    try {
+      const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      const interviewerUser = savedUsers.find(u =>
+        (u.role || '').toUpperCase() === 'INTERVIEWER' ||
+        (u.email || '').toLowerCase().includes('interviewer')
+      );
+      if (interviewerUser) {
+        const iName = interviewerUser.name || `${interviewerUser.firstName || ''} ${interviewerUser.lastName || ''}`.trim();
+        const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : ' (Engineering Lead)';
+        if (iName) activeInterviewerName = `${iName}${iDept}`;
+      }
+    } catch (e) {}
+
+    const firstCand = candidateRecords[0];
+    if (firstCand?.interview?.interviewerName) {
+      activeInterviewerName = firstCand.interview.interviewerName;
+    } else if (firstCand?.interviewDetails?.interviewerName) {
+      activeInterviewerName = firstCand.interviewDetails.interviewerName;
+    }
+
     return (
       <div className="space-y-6 animate-fade-in">
         {/* Welcome Banner */}
@@ -896,7 +917,7 @@ export default function Dashboard() {
                   <p className="text-xs text-slate-600 mt-1 flex items-center gap-3 flex-wrap">
                     <span className="flex items-center gap-1 font-medium"><Clock className="w-3.5 h-3.5 text-amber-600" /> 10:00 AM - 10:45 AM IST</span>
                     <span>•</span>
-                    <span className="flex items-center gap-1 font-medium"><Users className="w-3.5 h-3.5 text-blue-600" /> Interviewer: Ankita Kumar (Senior HR)</span>
+                    <span className="flex items-center gap-1 font-medium"><Users className="w-3.5 h-3.5 text-blue-600" /> Interviewer: {activeInterviewerName}</span>
                   </p>
                 </div>
               </div>
@@ -1385,7 +1406,7 @@ export default function Dashboard() {
                     <span className="text-slate-500 font-semibold flex items-center gap-1.5">
                       <Users className="w-4 h-4 text-blue-600" /> Host / Interviewer:
                     </span>
-                    <span className="font-extrabold text-slate-900">Ankita Kumar (Senior HR)</span>
+                    <span className="font-extrabold text-slate-900">{activeInterviewerName}</span>
                   </div>
                 </div>
 
@@ -1707,7 +1728,7 @@ export default function Dashboard() {
                   <span className="text-slate-500 font-semibold flex items-center gap-1.5">
                     <Users className="w-4 h-4 text-blue-600" /> Host / Interviewer:
                   </span>
-                  <span className="font-extrabold text-slate-900">Ankita Kumar (Senior HR)</span>
+                  <span className="font-extrabold text-slate-900">{activeInterviewerName}</span>
                 </div>
               </div>
 

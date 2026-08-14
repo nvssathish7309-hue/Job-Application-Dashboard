@@ -164,7 +164,23 @@ export default function CandidateDetails() {
   const interviewRound = interviewObj.round || interviewObj.title || 'Technical Round 1';
   const interviewDate = interviewObj.date || 'Aug 15, 2026';
   const interviewTime = interviewObj.startTime ? `${interviewObj.startTime}${interviewObj.endTime ? ` - ${interviewObj.endTime}` : ''}` : '10:00 AM - 10:45 AM IST';
-  const interviewerName = interviewObj.interviewerName || interviewObj.interviewer || 'Ankita Kumar (Senior HR)';
+  let interviewerName = interviewObj.interviewerName || interviewObj.interviewer;
+  if (!interviewerName) {
+    try {
+      const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      const interviewerUser = savedUsers.find(u =>
+        (u.role || '').toUpperCase() === 'INTERVIEWER' ||
+        (u.email || '').toLowerCase().includes('interviewer')
+      );
+      if (interviewerUser) {
+        const iName = interviewerUser.name || `${interviewerUser.firstName || ''} ${interviewerUser.lastName || ''}`.trim();
+        const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : ' (Engineering Lead)';
+        if (iName) interviewerName = `${iName}${iDept}`;
+      }
+    } catch (e) {}
+  }
+  if (!interviewerName) interviewerName = 'Tirumal M (Engineering Lead)';
+  const feedback = candidate.interviewFeedback || [];
   const candNameClean = (candidate?.name || candidate?.fullName || 'Candidate').replace(/\s+/g, '_');
   const resumeFileName = typeof candidate?.resume === 'object' && candidate?.resume?.fileName
     ? candidate.resume.fileName

@@ -170,10 +170,20 @@ export default function NotificationsDropdown() {
               // 10-Minute Prior Interview Reminder Notification
               const reminder10MinId = `reminder-10min-${idx}-${appIdx}`;
               if (!clearedNotifIds.includes(reminder10MinId) && !merged.some(n => n.id === reminder10MinId)) {
+                let iName = c.interview?.interviewerName || c.interviewDetails?.interviewerName;
+                if (!iName) {
+                  try {
+                    const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+                    const iUser = savedUsers.find(u => (u.role || '').toUpperCase() === 'INTERVIEWER' || (u.email || '').toLowerCase().includes('interviewer'));
+                    if (iUser) iName = iUser.name || `${iUser.firstName || ''} ${iUser.lastName || ''}`.trim();
+                  } catch (e) {}
+                }
+                if (!iName) iName = 'Tirumal M';
+
                 merged.push({
                   id: reminder10MinId,
                   title: `⏰ Upcoming Interview Reminder — 10 Mins Away`,
-                  message: `Hi ${candName}! Your Technical Round 1 interview for "${roleName}" is starting in 10 minutes (10:00 AM IST). Click to join Google Meet: https://meet.google.com/xyz-abc-123`,
+                  message: `Hi ${candName}! Your Technical Round 1 interview for "${roleName}" with ${iName} is starting in 10 minutes (10:00 AM IST). Click to join Google Meet: https://meet.google.com/xyz-abc-123`,
                   timestamp: new Date().toISOString(),
                   isRead: readNotifIds.includes(reminder10MinId),
                   link: 'https://meet.google.com/xyz-abc-123'
