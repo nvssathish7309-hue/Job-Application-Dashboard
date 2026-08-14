@@ -322,10 +322,12 @@ export default function SettingsPage() {
     setToast({ type: 'success', message: `Exported ${candidates.length} candidates to CSV!` });
   };
 
-  const handleResetData = () => {
-    if (window.confirm('Are you sure you want to reset all candidate data back to default demo records?')) {
-      resetToDefaultData();
-      setToast({ type: 'info', message: 'Candidate database reset to default demo records.' });
+  const handleResetData = async () => {
+    if (window.confirm('Are you sure you want to reset all candidate data and metrics back to default demo records?')) {
+      if (typeof resetToDefaultData === 'function') {
+        await resetToDefaultData();
+      }
+      setToast({ type: 'info', message: 'Candidate database & metrics successfully reset to default demo state!' });
     }
   };
 

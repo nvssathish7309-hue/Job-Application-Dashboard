@@ -474,6 +474,25 @@ export const CandidateProvider = ({ children }) => {
     }
   };
 
+  const resetToDefaultData = async () => {
+    try {
+      localStorage.removeItem('registered_candidates');
+      localStorage.removeItem('deleted_candidate_ids');
+      localStorage.removeItem('readNotifIds');
+      localStorage.removeItem('clearedNotifIds');
+      localStorage.removeItem('userApplications');
+      localStorage.removeItem('myApplications');
+      localStorage.removeItem('candidate_user_applications');
+      localStorage.removeItem('candidateProfile');
+    } catch (e) {}
+
+    setCandidates(INITIAL_CANDIDATES);
+    await fetchCandidateData();
+    window.dispatchEvent(new CustomEvent('candidateSubmitted'));
+    window.dispatchEvent(new CustomEvent('userProfileUpdated'));
+    return { success: true };
+  };
+
   return (
     <CandidateContext.Provider value={{
       candidates,
@@ -490,7 +509,8 @@ export const CandidateProvider = ({ children }) => {
       scheduleInterview,
       selectCandidate,
       rejectCandidate,
-      updateCandidateStage
+      updateCandidateStage,
+      resetToDefaultData
     }}>
       {children}
     </CandidateContext.Provider>
