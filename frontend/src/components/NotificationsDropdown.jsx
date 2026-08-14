@@ -166,6 +166,19 @@ export default function NotificationsDropdown() {
             } else if (sLower.includes('interview')) {
               stageText = 'Interview Scheduled';
               subText = 'Interview round scheduled with recruitment team.';
+
+              // 10-Minute Prior Interview Reminder Notification
+              const reminder10MinId = `reminder-10min-${idx}-${appIdx}`;
+              if (!clearedNotifIds.includes(reminder10MinId) && !merged.some(n => n.id === reminder10MinId)) {
+                merged.push({
+                  id: reminder10MinId,
+                  title: `⏰ Upcoming Interview Reminder — 10 Mins Away`,
+                  message: `Hi ${candName}! Your Technical Round 1 interview for "${roleName}" is starting in 10 minutes (10:00 AM IST). Click to join Google Meet: https://meet.google.com/xyz-abc-123`,
+                  timestamp: new Date().toISOString(),
+                  isRead: readNotifIds.includes(reminder10MinId),
+                  link: 'https://meet.google.com/xyz-abc-123'
+                });
+              }
             } else if (sLower.includes('shortlist')) {
               stageText = 'Shortlisted';
               subText = 'Shortlisted by recruitment team.';

@@ -513,6 +513,7 @@ export default function Dashboard() {
   };
 
   const [showMyAppsModal, setShowMyAppsModal] = useState(false);
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
   const [myApplications, setMyApplications] = useState([]);
   const [loadingMyApps, setLoadingMyApps] = useState(false);
   const [editingApp, setEditingApp] = useState(null);
@@ -875,10 +876,13 @@ export default function Dashboard() {
 
         {/* Next Interview Detail Card (Only shown if interview is scheduled) */}
         {isInterviewScheduled && (
-          <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-200/80 rounded-2xl p-6 shadow-xs relative overflow-hidden">
+          <div 
+            onClick={() => setShowInterviewModal(true)}
+            className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-300 rounded-2xl p-6 shadow-xs hover:shadow-md transition-all cursor-pointer relative overflow-hidden group"
+          >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold shrink-0 shadow-md shadow-amber-500/30">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold shrink-0 shadow-md shadow-amber-500/30 group-hover:scale-105 transition-transform">
                   <Calendar className="w-6 h-6" />
                 </div>
                 <div>
@@ -888,7 +892,7 @@ export default function Dashboard() {
                     </span>
                     <span className="text-xs font-semibold text-slate-500">Aug 15, 2026</span>
                   </div>
-                  <h3 className="text-lg font-extrabold text-slate-900 mt-1">Technical Round 1 — {candidateRole}</h3>
+                  <h3 className="text-lg font-extrabold text-slate-900 mt-1 group-hover:text-amber-700 transition-colors">Technical Round 1 — {candidateRole}</h3>
                   <p className="text-xs text-slate-600 mt-1 flex items-center gap-3 flex-wrap">
                     <span className="flex items-center gap-1 font-medium"><Clock className="w-3.5 h-3.5 text-amber-600" /> 10:00 AM - 10:45 AM IST</span>
                     <span>•</span>
@@ -896,10 +900,16 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              <div className="shrink-0">
-                <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white font-bold text-xs rounded-xl shadow-sm">
-                  <Clock className="w-3.5 h-3.5" /> Scheduled
-                </span>
+              <div className="shrink-0 flex items-center gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowInterviewModal(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+                >
+                  <Video className="w-4 h-4" /> View Details & Join
+                </button>
               </div>
             </div>
           </div>
@@ -1561,6 +1571,90 @@ export default function Dashboard() {
         statusFilter={modalState.statusFilter}
         candidates={candidates}
       />
+
+      {/* ── INTERVIEW DETAILS & GOOGLE MEET LINK MODAL ── */}
+      {showInterviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-2xl p-6 space-y-4">
+            
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+                  <Video className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base">Interview Schedule Details</h3>
+                  <p className="text-xs text-slate-500 font-medium">MindMatrix Candidate Interview</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowInterviewModal(false)}
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3.5 text-xs">
+              
+              <div className="bg-amber-50/90 border border-amber-200 rounded-xl p-3.5 space-y-1.5">
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 uppercase tracking-wider">
+                  Technical Round 1
+                </span>
+                <h4 className="text-sm font-extrabold text-slate-900">
+                  Technical Round 1 — {candidateRole}
+                </h4>
+                <p className="text-slate-600 text-xs font-medium">MindMatrix Recruitment & Technical Assessment</p>
+              </div>
+
+              <div className="space-y-2.5 border-t border-b border-slate-100 py-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-semibold flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4 text-amber-600" /> Date:
+                  </span>
+                  <span className="font-extrabold text-slate-900">Aug 15, 2026</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-semibold flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-amber-600" /> Time:
+                  </span>
+                  <span className="font-extrabold text-slate-900">10:00 AM – 10:45 AM IST</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-semibold flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-blue-600" /> Host / Interviewer:
+                  </span>
+                  <span className="font-extrabold text-slate-900">Ankita Kumar (Senior HR)</span>
+                </div>
+              </div>
+
+              <div className="bg-blue-50/70 border border-blue-100 rounded-xl p-3 space-y-1 text-slate-600">
+                <div className="flex items-center gap-1.5 text-blue-700 font-bold text-xs">
+                  <Bell className="w-3.5 h-3.5" /> 10-Minute Alert Notification
+                </div>
+                <p className="text-[11px] leading-relaxed">
+                  You will receive a notification reminder in your MindMatrix alert bar 10 minutes before the interview start time (9:50 AM IST).
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <a
+                  href="https://meet.google.com/xyz-abc-123"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Video className="w-4 h-4" />
+                  <span>Join Google Meet Video Meeting</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
