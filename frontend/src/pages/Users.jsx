@@ -193,13 +193,25 @@ export default function Users() {
     e.preventDefault();
     if (!editModalUser) return;
 
+    if (!editFirstName.trim() || !editLastName.trim() || !editDepartment.trim() || !editPhone.trim()) {
+      alert('First Name, Last Name, Department, and Phone Number are all required fields.');
+      return;
+    }
+
+    let digits = editPhone.replace(/\D/g, '');
+    if (digits.startsWith('91')) digits = digits.slice(2);
+    if (digits.length !== 10) {
+      alert('Phone Number must be exactly 10 digits.');
+      return;
+    }
+
     setEditUpdating(true);
     try {
       const payload = {
-        firstName: editFirstName,
-        lastName: editLastName,
-        department: editDepartment,
-        phone: editPhone
+        firstName: editFirstName.trim(),
+        lastName: editLastName.trim(),
+        department: editDepartment.trim(),
+        phone: editPhone.trim()
       };
       if (editPassword.trim()) {
         payload.password = editPassword.trim();
@@ -662,7 +674,7 @@ export default function Users() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    First Name *
+                    First Name <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -675,7 +687,7 @@ export default function Users() {
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Last Name *
+                    Last Name <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -690,10 +702,12 @@ export default function Users() {
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Department / Role Title
+                  Department / Role Title <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
+                  required
+                  placeholder="e.g. Engineering / Human Resources"
                   value={editDepartment}
                   onChange={(e) => setEditDepartment(e.target.value)}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -703,11 +717,12 @@ export default function Users() {
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Phone Number (Ph. No)
+                  Phone Number (Ph. No) <span className="text-rose-500">*</span>
                 </label>
                 <input
-                  type="text"
-                  placeholder="e.g. +91 6380887476"
+                  type="tel"
+                  required
+                  placeholder="e.g. 9876543210"
                   value={editPhone}
                   onChange={(e) => setEditPhone(e.target.value)}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
