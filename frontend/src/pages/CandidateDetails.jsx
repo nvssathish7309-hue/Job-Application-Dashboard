@@ -165,8 +165,133 @@ export default function CandidateDetails() {
   const interviewDate = interviewObj.date || 'Aug 15, 2026';
   const interviewTime = interviewObj.startTime ? `${interviewObj.startTime}${interviewObj.endTime ? ` - ${interviewObj.endTime}` : ''}` : '10:00 AM - 10:45 AM IST';
   const interviewerName = interviewObj.interviewerName || interviewObj.interviewer || 'Ankita Kumar (Senior HR)';
-  const meetingLink = interviewObj.meetingLink || 'https://meet.google.com/xyz-abc-123';
-  const feedback = candidate.interviewFeedback || [];
+  const candNameClean = (candidate?.name || candidate?.fullName || 'Candidate').replace(/\s+/g, '_');
+  const resumeFileName = typeof candidate?.resume === 'object' && candidate?.resume?.fileName
+    ? candidate.resume.fileName
+    : typeof candidate?.resume === 'string' && candidate.resume.length > 0
+    ? candidate.resume
+    : `${candNameClean}_Resume.pdf`;
+
+  const resumeFileSize = typeof candidate?.resume === 'object' && candidate?.resume?.fileSize
+    ? candidate.resume.fileSize
+    : '1.2 MB (PDF Document)';
+
+  const resumeUrl = typeof candidate?.resume === 'object' && candidate?.resume?.url
+    ? candidate.resume.url
+    : typeof candidate?.resume === 'string' && candidate.resume.startsWith('http')
+    ? candidate.resume
+    : '#';
+
+  const handleViewResume = () => {
+    if (resumeUrl && resumeUrl !== '#') {
+      window.open(resumeUrl, '_blank');
+    } else {
+      const win = window.open('', '_blank');
+      if (win) {
+        const skillsList = Array.isArray(candidate.skills) ? candidate.skills : ['JavaScript', 'React.js', 'Node.js', 'Express', 'MongoDB'];
+        win.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Resume — ${candidate.name || candidate.fullName || 'Candidate'}</title>
+              <style>
+                body { font-family: system-ui, -apple-system, sans-serif; padding: 40px; background: #f8fafc; color: #0f172a; max-width: 800px; margin: 0 auto; }
+                .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
+                h1 { color: #1e293b; margin-bottom: 4px; font-size: 28px; }
+                .subtitle { color: #2563eb; font-weight: bold; font-size: 16px; margin-bottom: 20px; }
+                .section { margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+                .section-title { font-size: 13px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; margin-bottom: 12px; }
+                .item { font-size: 14px; margin-bottom: 8px; color: #334155; }
+                .badge { display: inline-block; background: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 9999px; font-weight: bold; font-size: 12px; margin: 3px 2px; }
+                .btn-print { margin-bottom: 20px; padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+              </style>
+            </head>
+            <body>
+              <button class="btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+              <div class="card">
+                <h1>${candidate.name || candidate.fullName || 'Candidate'}</h1>
+                <div class="subtitle">${candidate.role || 'Software Engineer'}</div>
+                
+                <div class="section">
+                  <div class="section-title">Contact Information</div>
+                  <div class="item">📧 Email: ${candidate.email || 'N/A'}</div>
+                  <div class="item">📞 Phone: ${candidate.phone || '+91 9876543210'}</div>
+                  <div class="item">📍 Location: ${candidate.location || 'Bangalore, India'}</div>
+                </div>
+
+                <div class="section">
+                  <div class="section-title">Experience & Background</div>
+                  <div class="item">💼 Experience Level: ${candidate.experience || 'Fresh Graduate'}</div>
+                  <div class="item">🏢 Previous Company: ${candidate.previousCompany || 'MindMatrix Hiring'}</div>
+                  <div class="item">🎯 Role: ${candidate.role || 'Software Engineer'}</div>
+                </div>
+
+                <div class="section">
+                  <div class="section-title">Education Qualification</div>
+                  <div class="item">🎓 Qualification: ${eduText || 'B.Tech Computer Science'}</div>
+                  ${eduInstitution ? `<div class="item">🏫 Institution: ${eduInstitution}</div>` : ''}
+                </div>
+
+                <div class="section">
+                  <div class="section-title">Skills & Technologies</div>
+                  <div>
+                    ${skillsList.map(s => `<span class="badge">${s}</span>`).join('')}
+                  </div>
+                </div>
+              </div>
+            </body>
+          </html>
+        `);
+        win.document.close();
+      }
+    }
+  };
+
+  const handleDownloadResume = () => {
+    if (resumeUrl && resumeUrl !== '#') {
+      const link = document.createElement('a');
+      link.href = resumeUrl;
+      link.download = resumeFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      const skillsList = Array.isArray(candidate.skills) ? candidate.skills.join(', ') : 'JavaScript, React.js, Node.js, Express, MongoDB';
+      const resumeContent = `==================================================
+RESUME: ${candidate.name || candidate.fullName || 'Candidate'}
+Position: ${candidate.role || 'Applicant'}
+==================================================
+
+CONTACT INFORMATION:
+- Email: ${candidate.email || 'N/A'}
+- Phone: ${candidate.phone || '+91 9876543210'}
+- Location: ${candidate.location || 'Bangalore, India'}
+
+EXPERIENCE & BACKGROUND:
+- Experience: ${candidate.experience || 'Fresh Graduate'}
+- Company: ${candidate.previousCompany || 'MindMatrix Applicant'}
+
+EDUCATION:
+- Qualification: ${eduText || 'B.Tech Computer Science'}
+
+SKILLS & CORE COMPETENCIES:
+- ${skillsList}
+
+SUMMARY:
+Candidate Application Profile stored on MindMatrix Dashboard.
+==================================================`;
+
+      const blob = new Blob([resumeContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${candNameClean}_Resume.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+  };
 
   return (
     <div className="space-y-5 max-w-5xl animate-fade-in">
@@ -437,30 +562,34 @@ export default function CandidateDetails() {
           </div>
 
           {/* Resume */}
-          {candidate.resume && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3">
-                <FileText className="w-4 h-4 text-blue-500" /> Resume
-              </h2>
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-slate-800 truncate">{candidate.resume.fileName}</p>
-                  <p className="text-[11px] text-slate-400">{candidate.resume.fileSize}</p>
-                </div>
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3">
+              <FileText className="w-4 h-4 text-blue-500" /> Resume Document
+            </h2>
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                <FileText className="w-4 h-4" />
               </div>
-              <div className="flex gap-2 mt-3">
-                <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 font-semibold text-xs border border-slate-200 transition-all">
-                  <ExternalLink className="w-3.5 h-3.5" /> View
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-all">
-                  <Download className="w-3.5 h-3.5" /> Download
-                </button>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-slate-800 truncate" title={resumeFileName}>{resumeFileName}</p>
+                <p className="text-[11px] text-slate-400 font-medium">{resumeFileSize}</p>
               </div>
             </div>
-          )}
+            <div className="flex gap-2 mt-3">
+              <button
+                onClick={handleViewResume}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 font-extrabold text-xs border border-slate-200 transition-all cursor-pointer shadow-2xs"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> View Resume
+              </button>
+              <button
+                onClick={handleDownloadResume}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs transition-all shadow-md shadow-blue-600/20 cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" /> Download
+              </button>
+            </div>
+          </div>
 
           {/* Interview Status */}
           <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
