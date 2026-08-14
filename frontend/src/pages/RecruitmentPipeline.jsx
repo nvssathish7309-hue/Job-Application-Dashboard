@@ -65,7 +65,7 @@ const STAGES = [
 export default function RecruitmentPipeline() {
   const { user } = useAuth();
   const isCandidate = user?.role === 'CANDIDATE';
-  const { candidates, isLoading, refreshCandidates, shortlistCandidate, scheduleInterview, selectCandidate, rejectCandidate } = useCandidates();
+  const { candidates, isLoading, refreshCandidates, shortlistCandidate, scheduleInterview, selectCandidate, rejectCandidate, updateCandidateStage } = useCandidates();
 
   // Track which stage columns are open/unfolded. Empty object means all folded by default!
   const [expandedStages, setExpandedStages] = useState({});
@@ -194,7 +194,8 @@ export default function RecruitmentPipeline() {
       const targetApp = applications.find(a => a._id === appId || a.applicationId === appId);
       const candId = targetApp?.candidateId?._id || targetApp?._id || appId;
 
-      const stageLower = newStage.toLowerCase();
+      const normStage = newStage === 'New Applicants' ? 'New' : newStage;
+      const stageLower = normStage.toLowerCase();
 
       if (stageLower.includes('shortlist')) {
         await shortlistCandidate(candId, remarks);
@@ -205,19 +206,12 @@ export default function RecruitmentPipeline() {
       } else if (stageLower.includes('reject')) {
         await rejectCandidate(candId, remarks);
       } else {
-        try {
-          const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
-          const updated = saved.map(c => {
-            if (c._id === candId || c.id === candId || c.candidateId === candId) {
-              return { ...c, stage: newStage, status: newStage };
-            }
-            return c;
-          });
-          localStorage.setItem('registered_candidates', JSON.stringify(updated));
-        } catch (e) {}
+        if (updateCandidateStage) {
+          await updateCandidateStage(candId, normStage, remarks);
+        }
       }
 
-      await applicationService.updateStage(appId, newStage, remarks || `Moved to ${newStage} via Kanban Pipeline`).catch(() => null);
+      await applicationService.updateStage(appId, normStage, remarks || `Moved to ${normStage} via Kanban Pipeline`).catch(() => null);
       if (refreshCandidates) await refreshCandidates();
       window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {

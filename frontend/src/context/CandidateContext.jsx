@@ -358,6 +358,47 @@ export const CandidateProvider = ({ children }) => {
     return res || { success: true };
   };
 
+  const updateCandidateStage = async (id, newStage, remarks = '') => {
+    try {
+      const stageName = newStage === 'New Applicants' ? 'New' : newStage;
+      await candidateService.updateCandidate(id, { status: stageName, stage: stageName, remarks }).catch(() => null);
+      try {
+        const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
+        const updated = saved.map(c => {
+          if (isMatchCandidate(c, id)) {
+            const updatedApps = (c.applications || []).map(a => ({ ...a, status: stageName, stage: stageName }));
+            return {
+              ...c,
+              status: stageName,
+              stage: stageName,
+              applications: updatedApps.length > 0 ? updatedApps : c.applications,
+              isHrUpdated: true
+            };
+          }
+          return c;
+        });
+        localStorage.setItem('registered_candidates', JSON.stringify(updated));
+      } catch (e) {}
+      setCandidates(prev => prev.map(c => {
+        if (isMatchCandidate(c, id)) {
+          const updatedApps = (c.applications || []).map(a => ({ ...a, status: stageName, stage: stageName }));
+          return {
+            ...c,
+            status: stageName,
+            stage: stageName,
+            applications: updatedApps.length > 0 ? updatedApps : c.applications,
+            isHrUpdated: true
+          };
+        }
+        return c;
+      }));
+      await fetchCandidateData();
+      window.dispatchEvent(new CustomEvent('candidateSubmitted'));
+    } catch (err) {
+      console.error('updateCandidateStage error:', err);
+    }
+  };
+
   return (
     <CandidateContext.Provider value={{
       candidates,
@@ -372,7 +413,8 @@ export const CandidateProvider = ({ children }) => {
       shortlistCandidate,
       scheduleInterview,
       selectCandidate,
-      rejectCandidate
+      rejectCandidate,
+      updateCandidateStage
     }}>
       {children}
     </CandidateContext.Provider>
