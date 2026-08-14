@@ -75,7 +75,8 @@ export default function NotificationsDropdown() {
       if (!ln || !id || clearedNotifIds.includes(id) || merged.some(m => m.id === id)) return;
 
       if (isAccessTeam) {
-        if (ln.forAdmin || ln.forRecruiter || ln.forInterviewer || ln.targetRole === 'ADMIN' || ln.targetRole === 'INTERVIEWER' || ln.type === 'NEW_APPLICATION' || ln.type === 'INTERVIEW_SCHEDULED') {
+        // Filter out granular candidate alerts for admin, keeping only system-wide notifications
+        if (ln.type === 'SYSTEM_ALERT' || (ln.forAdmin && !ln.title?.includes('Candidate Status Alert'))) {
           merged.push({
             ...ln,
             isRead: ln.isRead || readNotifIds.includes(id)
@@ -100,40 +101,41 @@ export default function NotificationsDropdown() {
       const allCand = [...(candidates || []), ...savedCand];
 
       if (isAccessTeam) {
-        // Admin & Access Team get notifications when candidates apply and when interviews are scheduled
+        // Admin & Access Team get ONE single consolidated summary notification per candidate application
         allCand.forEach((c, idx) => {
           if (!c) return;
           const candName = c.fullName || c.name || 'Candidate';
           const apps = c.applications && c.applications.length > 0 ? c.applications : [c];
 
           apps.forEach((app, appIdx) => {
-            const roleName = app.role || c.role || 'Position';
+            const roleName = app.role || c.role || app.jobTitle || 'Position';
             const rawStage = app.stage || app.status || c.stage || c.status || 'Applied';
+            
+            let stageSummary = `Stage: ${rawStage}`;
+            const sLower = String(rawStage).toLowerCase();
 
-            // New Application Alert for Admin & Access team
-            const applyAlertId = `admin-apply-${c._id || idx}-${appIdx}-${roleName.replace(/\s+/g, '-')}`;
-            if (!clearedNotifIds.includes(applyAlertId) && !merged.some(n => n.id === applyAlertId)) {
-              merged.push({
-                id: applyAlertId,
-                title: `📩 New Application: ${candName}`,
-                message: `Candidate ${candName} submitted a job application for "${roleName}" at MindMatrix. Stage: ${rawStage}.`,
-                timestamp: app.appliedAt || c.createdAt || new Date().toISOString(),
-                isRead: readNotifIds.includes(applyAlertId)
-              });
+            if (sLower.includes('interview') || c.interview) {
+              stageSummary = `Stage: Interview Scheduled (Technical round scheduled)`;
+            } else if (sLower.includes('select') || sLower.includes('offer')) {
+              stageSummary = `Stage: Selected / Offer (Job offer issued)`;
+            } else if (sLower.includes('shortlist')) {
+              stageSummary = `Stage: Shortlisted (Shortlisted by HR)`;
+            } else if (sLower.includes('screen')) {
+              stageSummary = `Stage: Screening (Under screening review)`;
+            } else if (sLower.includes('reject')) {
+              stageSummary = `Stage: Rejected (Application closed)`;
             }
 
-            // Interview Scheduled Alert for Admin & Access team
-            if (rawStage.toLowerCase().includes('interview') || c.interview) {
-              const interviewAlertId = `admin-interview-${c._id || idx}-${appIdx}`;
-              if (!clearedNotifIds.includes(interviewAlertId) && !merged.some(n => n.id === interviewAlertId)) {
-                merged.push({
-                  id: interviewAlertId,
-                  title: `📅 Interview Scheduled: ${candName}`,
-                  message: `Technical interview scheduled for ${candName} (${roleName}). Status: Interview Scheduled.`,
-                  timestamp: c.updatedAt || app.appliedAt || new Date().toISOString(),
-                  isRead: readNotifIds.includes(interviewAlertId)
-                });
-              }
+            const singleAlertId = `admin-summary-${c._id || c.email || idx}-${appIdx}`;
+
+            if (!clearedNotifIds.includes(singleAlertId) && !merged.some(n => n.id === singleAlertId)) {
+              merged.push({
+                id: singleAlertId,
+                title: `📋 Candidate Summary: ${candName} (${roleName})`,
+                message: `Candidate ${candName} applied for "${roleName}" at MindMatrix. ${stageSummary}.`,
+                timestamp: c.updatedAt || app.appliedAt || c.createdAt || new Date().toISOString(),
+                isRead: readNotifIds.includes(singleAlertId)
+              });
             }
           });
         });
