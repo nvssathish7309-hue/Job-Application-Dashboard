@@ -150,11 +150,51 @@ export default function RecruitmentPipeline() {
   const [stageRemarks, setStageRemarks] = useState('');
   const [isSavingStage, setIsSavingStage] = useState(false);
 
-  const handleSelectStageChange = async (app, candName, newStage) => {
+  // Interview Schedule Modal state
+  const [interviewModalData, setInterviewModalData] = useState(null);
+  const [interviewForm, setInterviewForm] = useState({
+    round: 'Technical Round 1',
+    date: '2026-08-15',
+    startTime: '10:00 AM',
+    endTime: '10:45 AM',
+    meetingLink: 'https://meet.google.com/xyz-abc-123',
+    interviewerName: 'Ankita Kumar (Senior HR)',
+    notes: ''
+  });
+
+  const handleSelectStageChange = (app, candName, newStage) => {
     const currentStageKey = (app.stage || app.status || 'New');
     if (currentStageKey === newStage) return;
 
-    await handleStageMove(app._id || app.id || app.applicationId, newStage, `Moved stage to ${newStage}`);
+    const currentStageLabel = STAGES.find(s => s.key === currentStageKey)?.label || currentStageKey;
+    const targetStageLabel = STAGES.find(s => s.key === newStage)?.label || newStage;
+
+    if (newStage === 'Interview' || newStage.toLowerCase().includes('interview')) {
+      setInterviewModalData({
+        app,
+        candName,
+        currentStage: currentStageLabel,
+        newStage
+      });
+      setInterviewForm({
+        round: 'Technical Round 1',
+        date: new Date().toISOString().split('T')[0],
+        startTime: '10:00 AM',
+        endTime: '10:45 AM',
+        meetingLink: 'https://meet.google.com/xyz-abc-123',
+        interviewerName: 'Ankita Kumar (Senior HR)',
+        notes: ''
+      });
+    } else {
+      setConfirmModalData({
+        app,
+        candName,
+        currentStage: currentStageLabel,
+        newStage,
+        targetStageLabel
+      });
+      setStageRemarks('');
+    }
   };
 
   const handleConfirmSaveStage = async () => {
@@ -163,7 +203,7 @@ export default function RecruitmentPipeline() {
     const { app, newStage } = confirmModalData;
 
     try {
-      await handleStageMove(app._id, newStage, stageRemarks);
+      await handleStageMove(app._id || app.id || app.applicationId, newStage, stageRemarks || `Moved to ${newStage}`);
 
       setExpandedStages(prev => ({
         ...prev,
@@ -171,6 +211,46 @@ export default function RecruitmentPipeline() {
       }));
 
       setConfirmModalData(null);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSavingStage(false);
+    }
+  };
+
+  const handleConfirmSaveInterview = async (e) => {
+    if (e) e.preventDefault();
+    if (!interviewModalData) return;
+    setIsSavingStage(true);
+    const { app } = interviewModalData;
+
+    try {
+      const interviewDetails = {
+        round: interviewForm.round || 'Technical Round 1',
+        date: interviewForm.date || '2026-08-15',
+        startTime: interviewForm.startTime || '10:00 AM',
+        endTime: interviewForm.endTime || '10:45 AM',
+        meetingLink: interviewForm.meetingLink || 'https://meet.google.com/xyz-abc-123',
+        interviewerName: interviewForm.interviewerName || 'Ankita Kumar (Senior HR)',
+        notes: interviewForm.notes || 'Interview scheduled'
+      };
+
+      let candId = typeof app.candidateId === 'object' && app.candidateId
+        ? (app.candidateId._id || app.candidateId.id || app.candidateId.candidateId)
+        : (app.candidateId || app._id);
+
+      if (scheduleInterview) {
+        await scheduleInterview(candId, interviewDetails);
+      }
+
+      await handleStageMove(app._id || app.id || app.applicationId, 'Interview', `Interview scheduled for ${interviewForm.date} ${interviewForm.startTime}`);
+
+      setExpandedStages(prev => ({
+        ...prev,
+        Interview: true
+      }));
+
+      setInterviewModalData(null);
     } catch (e) {
       console.error(e);
     } finally {
@@ -561,6 +641,168 @@ export default function RecruitmentPipeline() {
                 )}
               </button>
             </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ── SCHEDULE INTERVIEW MODAL (DATE, TIME, MEETING LINK) ── */}
+      {interviewModalData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl p-6 space-y-4">
+            
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base">Schedule Candidate Interview</h3>
+                  <p className="text-xs text-slate-500 font-medium">Set Date, Time & Meeting Link for Candidate</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setInterviewModalData(null)}
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmSaveInterview} className="space-y-3 text-xs">
+              
+              <div className="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-slate-600">Candidate:</span>
+                  <span className="font-extrabold text-slate-900">{interviewModalData.candName}</span>
+                </div>
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="font-medium text-slate-500">Stage Transition:</span>
+                  <span className="px-2 py-0.5 rounded bg-amber-200 text-amber-900 font-extrabold">Interview Scheduled</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Interview Round Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={interviewForm.round}
+                  onChange={(e) => setInterviewForm(f => ({ ...f, round: e.target.value }))}
+                  placeholder="e.g. Technical Round 1"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2.5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={interviewForm.date}
+                    onChange={(e) => setInterviewForm(f => ({ ...f, date: e.target.value }))}
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Start Time *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={interviewForm.startTime}
+                    onChange={(e) => setInterviewForm(f => ({ ...f, startTime: e.target.value }))}
+                    placeholder="10:00 AM"
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    End Time
+                  </label>
+                  <input
+                    type="text"
+                    value={interviewForm.endTime}
+                    onChange={(e) => setInterviewForm(f => ({ ...f, endTime: e.target.value }))}
+                    placeholder="10:45 AM"
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Video Meeting Link (Google Meet / Teams / Zoom) *
+                </label>
+                <input
+                  type="url"
+                  required
+                  value={interviewForm.meetingLink}
+                  onChange={(e) => setInterviewForm(f => ({ ...f, meetingLink: e.target.value }))}
+                  placeholder="https://meet.google.com/xyz-abc-123"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Interviewer / Host Name
+                </label>
+                <input
+                  type="text"
+                  value={interviewForm.interviewerName}
+                  onChange={(e) => setInterviewForm(f => ({ ...f, interviewerName: e.target.value }))}
+                  placeholder="e.g. Ankita Kumar (Senior HR)"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Remarks / Interview Instructions
+                </label>
+                <textarea
+                  value={interviewForm.notes}
+                  onChange={(e) => setInterviewForm(f => ({ ...f, notes: e.target.value }))}
+                  placeholder="Add optional preparation notes for candidate..."
+                  rows={2}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setInterviewModalData(null)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingStage}
+                  className="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-md shadow-amber-600/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {isSavingStage ? (
+                    <span>Saving...</span>
+                  ) : (
+                    <>
+                      <span>Save & Schedule Interview</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </>
+                  )}
+                </button>
+              </div>
+
+            </form>
 
           </div>
         </div>
