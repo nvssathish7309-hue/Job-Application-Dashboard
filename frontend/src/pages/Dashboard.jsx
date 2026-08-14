@@ -683,38 +683,69 @@ export default function Dashboard() {
     );
 
     const matchedCandidate = userApplications[0] || null;
-    const submittedCount = (myApplications && myApplications.length > 0)
-      ? myApplications.length 
-      : userApplications.length;
 
-    const latestApp = (myApplications && myApplications.length > 0) ? myApplications[0] : matchedCandidate;
-    const realStage = (latestApp?.stage || latestApp?.status || (submittedCount > 0 ? 'Applied' : '')).toLowerCase();
+    // Collect all application objects submitted by this candidate
+    const candidateApps = [];
+    (myApplications || []).forEach(item => {
+      if (item.applications && item.applications.length > 0) {
+        candidateApps.push(...item.applications);
+      } else {
+        candidateApps.push(item);
+      }
+    });
+    if (candidateApps.length === 0 && matchedCandidate) {
+      if (matchedCandidate.applications && matchedCandidate.applications.length > 0) {
+        candidateApps.push(...matchedCandidate.applications);
+      } else {
+        candidateApps.push(matchedCandidate);
+      }
+    }
 
+    const appStages = candidateApps.map(a => (a.stage || a.status || '').toLowerCase());
+    
     let currentStageText = 'Not Applied';
     let currentStageSub = 'No active application';
     let nextInterviewText = 'None Scheduled';
     let nextInterviewSub = 'Will appear once scheduled by HR';
     let isInterviewScheduled = false;
 
-    if (submittedCount > 0 || latestApp) {
-      if (realStage.includes('screen')) {
-        currentStageText = 'Screening';
-        currentStageSub = 'Application under screening review by HR team';
-      } else if (realStage.includes('shortlist')) {
-        currentStageText = 'Shortlisted';
-        currentStageSub = 'Shortlisted by recruiter for next round';
-      } else if (realStage.includes('interview')) {
+    if (candidateApps.length > 0) {
+      if (appStages.some(s => s.includes('interview'))) {
         currentStageText = 'Interview Scheduled';
         currentStageSub = 'Interview step in progress';
         nextInterviewText = 'Technical Round 1';
         nextInterviewSub = 'Scheduled for Aug 15, 10:00 AM';
         isInterviewScheduled = true;
-      } else if (realStage.includes('select') || realStage.includes('offer')) {
+      } else if (appStages.some(s => s.includes('shortlist'))) {
+        currentStageText = 'Shortlisted';
+        currentStageSub = 'Shortlisted by recruiter for next round';
+      } else if (appStages.some(s => s.includes('select') || s.includes('offer'))) {
         currentStageText = 'Selected / Offer';
         currentStageSub = 'Congratulations! Job offer issued.';
-      } else if (realStage.includes('reject')) {
+      } else if (appStages.some(s => s.includes('screen'))) {
+        currentStageText = 'Screening';
+        currentStageSub = 'Application under screening review by HR team';
+      } else if (appStages.length > 0 && appStages.every(s => s.includes('reject'))) {
         currentStageText = 'Rejected';
-        currentStageSub = 'Application closed';
+        currentStageSub = 'Application status: Rejected';
+      } else if (appStages.some(s => s.includes('reject'))) {
+        const activeApp = candidateApps.find(a => !(a.stage || a.status || '').toLowerCase().includes('reject'));
+        if (activeApp) {
+          const actStage = (activeApp.stage || activeApp.status || 'Applied').toLowerCase();
+          if (actStage.includes('screen')) {
+            currentStageText = 'Screening';
+            currentStageSub = 'Application under screening review by HR team';
+          } else if (actStage.includes('shortlist')) {
+            currentStageText = 'Shortlisted';
+            currentStageSub = 'Shortlisted by recruiter for next round';
+          } else {
+            currentStageText = 'Applied';
+            currentStageSub = 'Application submitted - Under initial review';
+          }
+        } else {
+          currentStageText = 'Rejected';
+          currentStageSub = 'Application status: Rejected';
+        }
       } else {
         currentStageText = 'Applied';
         currentStageSub = 'Application submitted - Under initial review';
