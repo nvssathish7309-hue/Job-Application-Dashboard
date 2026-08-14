@@ -42,8 +42,9 @@ export default function Navbar() {
         />
       </div>
 
-      {/* Right: User Profile, Role Badge, Logout */}
+      {/* Right: Notifications, User Profile, Role Badge, Logout */}
       <div className="flex items-center gap-3">
+        <NotificationsDropdown />
 
         {/* User Info */}
         {user && (
