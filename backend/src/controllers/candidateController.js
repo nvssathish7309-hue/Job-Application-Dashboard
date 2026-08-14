@@ -4,6 +4,8 @@ const Notification = require('../models/Notification');
 const { generateCustomId } = require('../utils/idGenerator');
 const { createAuditLog } = require('../services/auditService');
 
+const escapeRegex = (text) => text ? String(text).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') : '';
+
 const getCandidates = async (req, res, next) => {
   try {
     const { search, role, status, experience, sortBy = 'createdAt', order = 'desc', page = 1, limit = 50 } = req.query;
@@ -11,20 +13,23 @@ const getCandidates = async (req, res, next) => {
     const query = {};
 
     if (search) {
+      const safeSearch = escapeRegex(search);
       query.$or = [
-        { fullName: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { role: { $regex: search, $options: 'i' } },
-        { skills: { $in: [new RegExp(search, 'i')] } }
+        { fullName: { $regex: safeSearch, $options: 'i' } },
+        { email: { $regex: safeSearch, $options: 'i' } },
+        { role: { $regex: safeSearch, $options: 'i' } },
+        { skills: { $in: [new RegExp(safeSearch, 'i')] } }
       ];
     }
 
     if (role && role !== 'All') {
-      query.role = { $regex: new RegExp(`^${role}$`, 'i') };
+      const safeRole = escapeRegex(role);
+      query.role = { $regex: new RegExp(`^${safeRole}$`, 'i') };
     }
 
     if (status && status !== 'All') {
-      query.status = { $regex: new RegExp(`^${status}$`, 'i') };
+      const safeStatus = escapeRegex(status);
+      query.status = { $regex: new RegExp(`^${safeStatus}$`, 'i') };
     }
 
     if (experience && experience !== 'All') {
@@ -71,13 +76,13 @@ const getCandidateById = async (req, res, next) => {
 
 const createCandidate = async (req, res, next) => {
   try {
-    const { fullName, email, phone, role, skills, education, experience, projects } = req.body;
+    const { fullName, email, phone, role, skills, education, experience, projects, jobId, source } = req.body;
 
     if (!fullName || !email || !phone || !role) {
       return res.status(400).json({ success: false, message: 'Full name, email, phone, and role are required.' });
     }
 
-    const candidateId = await generateCustomId(Candidate, 'CAN');
+    const cleanEmail = email.toLowerCase().trim();
 
     const parsedSkills = Array.isArray(skills) 
       ? skills 
@@ -99,36 +104,66 @@ const createCandidate = async (req, res, next) => {
       };
     }
 
-    const candidate = await Candidate.create({
-      candidateId,
-      fullName,
-      email,
-      phone,
-      role,
-      skills: parsedSkills,
-      education: education || 'Bachelor Degree',
-      experience: experience || 'Fresher',
-      projects: parsedProjects,
-      resume: resumeData,
-      status: 'Applied',
-      createdBy: req.user ? req.user._id : null
-    });
+    // Check if candidate with this email already exists
+    let candidate = await Candidate.findOne({ email: cleanEmail });
 
-    // Automatically create Application entry
+    if (!candidate) {
+      const candidateId = await generateCustomId(Candidate, 'CAN');
+      candidate = await Candidate.create({
+        candidateId,
+        fullName,
+        email: cleanEmail,
+        phone,
+        role,
+        skills: parsedSkills,
+        education: education || 'Bachelor Degree',
+        experience: experience || 'Fresher',
+        projects: parsedProjects,
+        resume: resumeData,
+        status: 'New',
+        createdBy: req.user ? req.user._id : null
+      });
+    } else {
+      // Update existing candidate info with latest application data
+      candidate.fullName = fullName || candidate.fullName;
+      candidate.phone = phone || candidate.phone;
+      candidate.role = role || candidate.role;
+      if (parsedSkills.length > 0) candidate.skills = parsedSkills;
+      if (experience) candidate.experience = experience;
+      if (education) candidate.education = education;
+      if (req.file) candidate.resume = resumeData;
+      candidate.status = 'New';
+      await candidate.save();
+    }
+
+    // Always create an Application entry stored in the Applications & Candidates list
     const applicationId = await generateCustomId(Application, 'APP');
-    await Application.create({
+    const newApplication = await Application.create({
       applicationId,
       candidateId: candidate._id,
+      jobId: jobId || null,
       status: 'New',
       stage: 'New',
-      source: 'Direct',
+      source: source || (req.user ? 'Candidate Portal' : 'Careers Website'),
       appliedAt: new Date(),
       stageHistory: [{
         stage: 'New',
         changedBy: req.user ? req.user._id : null,
-        remarks: 'Candidate application created'
+        remarks: `Applied for ${role}`
       }]
     });
+
+    // Notify HR / Admins
+    try {
+      await Notification.create({
+        title: 'New Job Application Submitted',
+        message: `${fullName} applied for ${role} (${applicationId})`,
+        type: 'APPLICATION',
+        relatedId: newApplication._id
+      });
+    } catch (e) {
+      console.warn('Failed to create application notification:', e.message);
+    }
 
     await createAuditLog({
       req,
@@ -136,12 +171,12 @@ const createCandidate = async (req, res, next) => {
       entity: 'Candidate',
       entityId: candidate.candidateId,
       newValue: candidate.fullName,
-      description: `Created candidate profile ${candidate.candidateId} (${candidate.fullName})`
+      description: `Created candidate application ${applicationId} for ${candidate.fullName} (${role})`
     });
 
     res.status(201).json({
       success: true,
-      message: 'Candidate created successfully',
+      message: 'Candidate application submitted and stored in candidates list successfully',
       data: candidate
     });
   } catch (error) {

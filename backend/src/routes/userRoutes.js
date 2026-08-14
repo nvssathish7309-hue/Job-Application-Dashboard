@@ -6,11 +6,11 @@ const { requireRole } = require('../middleware/rbac');
 
 router.use(requireAuth);
 
-router.get('/', requireRole(['SUPER_ADMIN', 'HR_MANAGER']), getUsers);
-router.post('/', requireRole(['SUPER_ADMIN', 'HR_MANAGER']), createUser);
-router.put('/:id', requireRole(['SUPER_ADMIN', 'HR_MANAGER']), updateUser);
-router.put('/:id/role', requireRole(['SUPER_ADMIN', 'HR_MANAGER']), updateUserRole);
-router.put('/:id/password', requireRole(['SUPER_ADMIN', 'HR_MANAGER']), updateUserPassword);
-router.patch('/:id/toggle-status', requireRole(['SUPER_ADMIN', 'HR_MANAGER']), toggleUserStatus);
+router.get('/', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), getUsers);
+router.post('/', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), createUser);
+router.put('/:id', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), updateUser);
+router.put('/:id/role', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), updateUserRole);
+router.put('/:id/password', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), updateUserPassword);
+router.patch('/:id/toggle-status', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), toggleUserStatus);
 
 module.exports = router;

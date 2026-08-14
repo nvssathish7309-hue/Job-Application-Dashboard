@@ -6,8 +6,8 @@ const { requireRole } = require('../middleware/rbac');
 
 router.use(requireAuth);
 
-router.get('/', requireRole(['SUPER_ADMIN', 'HR_MANAGER']), getAuditLogs);
-router.delete('/:id', requireRole(['SUPER_ADMIN', 'HR_MANAGER']), deleteAuditLog);
-router.delete('/', requireRole(['SUPER_ADMIN', 'HR_MANAGER']), clearAllAuditLogs);
+router.get('/', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), getAuditLogs);
+router.delete('/:id', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), deleteAuditLog);
+router.delete('/', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), clearAllAuditLogs);
 
 module.exports = router;

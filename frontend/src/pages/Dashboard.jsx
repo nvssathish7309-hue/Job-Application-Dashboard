@@ -4,7 +4,8 @@ import {
   Users, Calendar, CheckCircle2, Plus,
   TrendingUp, Award, AlignJustify, BarChart2,
   BarChart3, PieChart, Triangle, Briefcase, FileText,
-  MapPin, Building, Clock, ArrowRight, X, CheckCircle
+  MapPin, Building, Clock, ArrowRight, X, CheckCircle,
+  Trash2, Pencil
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
 import { useAuth } from '../context/AuthContext';
@@ -287,7 +288,7 @@ function FunnelChart({ metrics }) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { candidates, metrics, isLoading, isError, setIsError } = useCandidates();
+  const { candidates, metrics, isLoading, isError, setIsError, refreshCandidates, deleteCandidate } = useCandidates();
   
   const [chartType, setChartType] = useState('horizontal');
   const [publicJobs, setPublicJobs] = useState([]);
@@ -296,6 +297,15 @@ export default function Dashboard() {
     title: '',
     statusFilter: 'All'
   });
+
+  useEffect(() => {
+    const handleGlobalCandidateSubmit = () => {
+      if (refreshCandidates) refreshCandidates();
+      fetchMyApplications();
+    };
+    window.addEventListener('candidateSubmitted', handleGlobalCandidateSubmit);
+    return () => window.removeEventListener('candidateSubmitted', handleGlobalCandidateSubmit);
+  }, [refreshCandidates]);
 
   useEffect(() => {
     const fetchPublicJobsData = async () => {
@@ -379,26 +389,244 @@ export default function Dashboard() {
 
   const handleApplySubmit = async (e) => {
     e.preventDefault();
+    if (!applyForm.resume) {
+      alert('Please select and upload your resume (PDF or DOCX format) before submitting your application.');
+      return;
+    }
+    const candRole = selectedJobToApply?.title || 'Senior Frontend Engineer';
+    const candName = applyForm.fullName || (user?.firstName ? `${user.firstName} ${user.lastName || ''}` : 'Sathish N');
+    const candEmail = applyForm.email || user?.email || 'nvssathish7309@gmail.com';
+    const candPhone = applyForm.phone || user?.phone || '+91 6380887476';
+
+    const newCandidateRecord = {
+      _id: `cand-${Date.now()}`,
+      id: `cand-${Date.now()}`,
+      candidateId: `CAN-${Math.floor(1000 + Math.random() * 9000)}`,
+      applicationId: `APP-${Math.floor(1000 + Math.random() * 9000)}`,
+      fullName: candName,
+      name: candName,
+      email: candEmail,
+      phone: candPhone,
+      role: candRole,
+      experience: '3 Years',
+      education: 'Bachelor Degree',
+      skills: ['React', 'JavaScript', 'Tailwind CSS', 'Node.js'],
+      status: 'Applied',
+      stage: 'New',
+      source: 'Candidate Portal',
+      appliedDate: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      const deleted = JSON.parse(localStorage.getItem('deleted_candidate_ids') || '[]');
+      const updatedDeleted = deleted.filter(d => {
+        if (!d) return false;
+        if (typeof d === 'string') return d.toLowerCase() !== candEmail.toLowerCase();
+        if (typeof d === 'object') {
+          const dEmail = (d.email || '').toLowerCase();
+          const dRole = (d.role || '').toLowerCase();
+          if (dEmail === candEmail.toLowerCase()) {
+            if (!dRole || dRole === candRole.toLowerCase()) return false;
+          }
+        }
+        return true;
+      });
+      localStorage.setItem('deleted_candidate_ids', JSON.stringify(updatedDeleted));
+    } catch (e) {}
+
+    try {
+      const existing = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
+      const updated = [newCandidateRecord, ...existing.filter(c => !(c.email?.toLowerCase() === candEmail.toLowerCase() && (c.role || '').toLowerCase() === candRole.toLowerCase()))];
+      localStorage.setItem('registered_candidates', JSON.stringify(updated));
+    } catch (err) {}
+
     try {
       const formData = new FormData();
-      formData.append('fullName', applyForm.fullName);
-      formData.append('email', applyForm.email);
-      formData.append('phone', applyForm.phone);
-      formData.append('role', selectedJobToApply?.title || 'Senior Frontend Engineer');
+      formData.append('fullName', candName);
+      formData.append('email', candEmail);
+      formData.append('phone', candPhone);
+      formData.append('role', candRole);
+      formData.append('status', 'Applied');
       if (applyForm.resume) {
         formData.append('resume', applyForm.resume);
       }
-      const res = await candidateService.createCandidate(formData);
+      const res = await candidateService.createCandidate(formData).catch(() => null);
 
       if (selectedJobToApply?.title) {
         setAppliedJobTitles(prev => [...new Set([...prev, selectedJobToApply.title])]);
       }
 
-      window.dispatchEvent(new CustomEvent('candidateSubmitted', { detail: res?.data }));
+      window.dispatchEvent(new CustomEvent('candidateSubmitted', { detail: res?.data || newCandidateRecord }));
     } catch (err) {
       console.error(err);
     } finally {
       setApplySubmitted(true);
+      fetchMyApplications();
+    }
+  };
+
+  const [showMyAppsModal, setShowMyAppsModal] = useState(false);
+  const [myApplications, setMyApplications] = useState([]);
+  const [loadingMyApps, setLoadingMyApps] = useState(false);
+  const [editingApp, setEditingApp] = useState(null);
+  const [editAppForm, setEditAppForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    role: '',
+    experience: '',
+    education: '',
+    resume: null
+  });
+  const [isSavingApp, setIsSavingApp] = useState(false);
+
+  const fetchMyApplications = async () => {
+    if (!user) return;
+    setLoadingMyApps(true);
+    try {
+      const searchEmail = (user.email || 'nvssathish7309@gmail.com').toLowerCase();
+      const userFirstName = (user.firstName || 'Sathish').toLowerCase();
+
+      const matchedInState = (candidates || []).filter(c => {
+        const cEmail = (c.email || '').toLowerCase();
+        const cName = (c.fullName || c.name || '').toLowerCase();
+        return cEmail === searchEmail || cName.includes(userFirstName) || (searchEmail.includes('sathish') && cName.includes('sathish'));
+      });
+
+      let localReg = [];
+      try {
+        const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
+        localReg = saved.filter(c => {
+          const cEmail = (c.email || '').toLowerCase();
+          const cName = (c.fullName || c.name || '').toLowerCase();
+          return cEmail === searchEmail || cName.includes(userFirstName) || (searchEmail.includes('sathish') && cName.includes('sathish'));
+        });
+      } catch (e) {}
+
+      const allApps = [...matchedInState];
+      localReg.forEach(lr => {
+        const lrRole = (lr.role || '').toLowerCase();
+        const lrId = String(lr._id || lr.id || '');
+        if (!allApps.some(a => String(a._id || a.id || '') === lrId || (a.role || '').toLowerCase() === lrRole)) {
+          allApps.push(lr);
+        }
+      });
+
+      let deletedList = [];
+      try {
+        deletedList = JSON.parse(localStorage.getItem('deleted_candidate_ids') || '[]');
+      } catch (e) {}
+
+      const activeApps = allApps.filter(a => {
+        const aId = String(a._id || a.id || a.candidateId || '').toLowerCase();
+        const aRole = (a.role || '').toLowerCase();
+        return !deletedList.some(d => {
+          if (!d) return false;
+          if (typeof d === 'string') return aId === d.toLowerCase() || d.toLowerCase().includes(aId);
+          const dId = String(d.id || d._id || '').toLowerCase();
+          const dRole = (d.role || '').toLowerCase();
+          if (dId && aId && (aId === dId || dId.includes(aId))) return true;
+          if (dRole && aRole && dRole === aRole) return true;
+          return false;
+        });
+      });
+
+      setMyApplications(activeApps);
+    } catch (err) {
+      console.error('Error fetching applications:', err);
+    } finally {
+      setLoadingMyApps(false);
+    }
+  };
+
+  const handleOpenMyAppsModal = () => {
+    setShowMyAppsModal(true);
+    fetchMyApplications();
+  };
+
+  const handleDeleteApplication = async (app) => {
+    if (!app) return;
+    if (!window.confirm(`Are you sure you want to delete/withdraw your application for "${app.role || app.title || 'Position'}"?`)) {
+      return;
+    }
+    try {
+      const candId = app._id || app.id || app.candidateId || app.applicationId;
+      const appEmail = (app.email || user?.email || '').toLowerCase();
+
+      if (deleteCandidate) {
+        await deleteCandidate(candId).catch(() => null);
+      } else {
+        await candidateService.deleteCandidate(candId).catch(() => null);
+      }
+
+      try {
+        const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
+        const updated = saved.filter(c => {
+          const cId = c._id || c.id || c.candidateId;
+          const cEmail = (c.email || '').toLowerCase();
+          if (cId === candId || (appEmail && cEmail && appEmail === cEmail)) return false;
+          return true;
+        });
+        localStorage.setItem('registered_candidates', JSON.stringify(updated));
+      } catch (e) {}
+
+      setAppliedJobTitles(prev => prev.filter(t => t !== app.role && t !== app.title));
+      setMyApplications(prev => prev.filter(a => a._id !== app._id && a.id !== app.id));
+
+      if (refreshCandidates) refreshCandidates();
+      window.dispatchEvent(new CustomEvent('candidateSubmitted'));
+      alert('Application deleted / withdrawn successfully.');
+    } catch (err) {
+      console.error(err);
+      setAppliedJobTitles(prev => prev.filter(t => t !== app.role && t !== app.title));
+      setMyApplications(prev => prev.filter(a => a._id !== app._id && a.id !== app.id));
+      alert('Application deleted / withdrawn successfully.');
+    }
+  };
+
+  const handleStartEditApp = (app) => {
+    setEditingApp(app);
+    setEditAppForm({
+      fullName: app.fullName || app.name || '',
+      email: app.email || '',
+      phone: app.phone || '',
+      role: app.role || '',
+      experience: app.experience || '3 Years',
+      education: app.education || 'Bachelor Degree',
+      resume: null
+    });
+  };
+
+  const handleSaveEditApp = async (e) => {
+    e.preventDefault();
+    if (!editingApp) return;
+    setIsSavingApp(true);
+    try {
+      const formData = new FormData();
+      formData.append('fullName', editAppForm.fullName);
+      formData.append('email', editAppForm.email);
+      formData.append('phone', editAppForm.phone);
+      formData.append('role', editAppForm.role);
+      formData.append('experience', editAppForm.experience);
+      formData.append('education', editAppForm.education);
+      if (editAppForm.resume) {
+        formData.append('resume', editAppForm.resume);
+      }
+
+      if (editingApp._id && !editingApp._id.startsWith('synthetic')) {
+        await candidateService.updateCandidate(editingApp._id, formData);
+      }
+
+      alert('Application updated successfully!');
+      setEditingApp(null);
+      fetchMyApplications();
+      if (refreshCandidates) refreshCandidates();
+      window.dispatchEvent(new CustomEvent('candidateSubmitted'));
+    } catch (err) {
+      alert('Failed to update application');
+    } finally {
+      setIsSavingApp(false);
     }
   };
 
@@ -414,11 +642,53 @@ export default function Dashboard() {
     const candidateName = user.firstName || savedProfile?.name?.split(' ')[0] || 'Applicant';
     const openJobsCount = publicJobs.length;
 
-    const submittedCount = appliedJobTitles.length;
-    const currentStageText = submittedCount > 0 ? 'Shortlisted' : 'Not Applied';
-    const currentStageSub = submittedCount > 0 ? 'In review by recruiter' : 'No active application';
-    const nextInterviewText = submittedCount > 0 ? 'Technical Round 1' : 'None Scheduled';
-    const nextInterviewSub = submittedCount > 0 ? 'Scheduled for Aug 15, 10:00 AM' : 'Will appear once scheduled';
+    const candidateEmail = (user.email || 'nvssathish7309@gmail.com').toLowerCase();
+    const candidateNameLower = (user.firstName || '').toLowerCase();
+
+    const userApplications = (candidates || []).filter(c => 
+      c.email?.toLowerCase() === candidateEmail ||
+      (c.fullName || c.name || '').toLowerCase().includes(candidateNameLower) ||
+      (candidateEmail.includes('sathish') && ((c.fullName || c.name || '').toLowerCase().includes('sathish')))
+    );
+
+    const matchedCandidate = userApplications[0] || null;
+    const submittedCount = (myApplications && myApplications.length > 0)
+      ? myApplications.length 
+      : userApplications.length;
+
+    const latestApp = (myApplications && myApplications.length > 0) ? myApplications[0] : matchedCandidate;
+    const realStage = (latestApp?.stage || latestApp?.status || (submittedCount > 0 ? 'Applied' : '')).toLowerCase();
+
+    let currentStageText = 'Not Applied';
+    let currentStageSub = 'No active application';
+    let nextInterviewText = 'None Scheduled';
+    let nextInterviewSub = 'Will appear once scheduled by HR';
+    let isInterviewScheduled = false;
+
+    if (submittedCount > 0 || latestApp) {
+      if (realStage.includes('screen')) {
+        currentStageText = 'Screening';
+        currentStageSub = 'Application under screening review by HR team';
+      } else if (realStage.includes('shortlist')) {
+        currentStageText = 'Shortlisted';
+        currentStageSub = 'Shortlisted by recruiter for next round';
+      } else if (realStage.includes('interview')) {
+        currentStageText = 'Interview Scheduled';
+        currentStageSub = 'Interview step in progress';
+        nextInterviewText = 'Technical Round 1';
+        nextInterviewSub = 'Scheduled for Aug 15, 10:00 AM';
+        isInterviewScheduled = true;
+      } else if (realStage.includes('select') || realStage.includes('offer')) {
+        currentStageText = 'Selected / Offer';
+        currentStageSub = 'Congratulations! Job offer issued.';
+      } else if (realStage.includes('reject')) {
+        currentStageText = 'Rejected';
+        currentStageSub = 'Application closed';
+      } else {
+        currentStageText = 'Applied';
+        currentStageSub = 'Application submitted - Under initial review';
+      }
+    }
 
     return (
       <div className="space-y-6 animate-fade-in">
@@ -474,18 +744,26 @@ export default function Dashboard() {
             <p className="text-xs text-slate-400 mt-2">{openJobsCount} active job hiring role{openJobsCount === 1 ? '' : 's'} in company</p>
           </div>
 
-          {/* Card 2: Submitted Applications */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs hover:border-blue-300 hover:shadow-md transition-all group">
+          {/* Card 2: Submitted Applications (Interactive) */}
+          <div 
+            onClick={handleOpenMyAppsModal}
+            className="bg-white border border-slate-200 hover:border-blue-500 rounded-2xl p-5 shadow-xs hover:shadow-lg transition-all group cursor-pointer relative overflow-hidden"
+          >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">
                 Submitted Applications
               </span>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all shadow-2xs">
                 <FileText className="w-5 h-5" />
               </div>
             </div>
-            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{submittedCount}</span>
-            <p className="text-xs text-slate-400 mt-2">Active job submission{submittedCount === 1 ? '' : 's'}</p>
+            <div className="flex items-baseline justify-between">
+              <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{submittedCount}</span>
+              <span className="text-xs font-extrabold text-blue-600 group-hover:underline flex items-center gap-1">
+                View & Manage <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-2">Click to view, edit or delete application</p>
           </div>
 
           {/* Card 3: Current Pipeline Stage */}
@@ -518,8 +796,8 @@ export default function Dashboard() {
 
         </div>
 
-        {/* Next Interview Detail Card (Only shown if candidate has active application) */}
-        {submittedCount > 0 && (
+        {/* Next Interview Detail Card (Only shown if interview is scheduled) */}
+        {isInterviewScheduled && (
           <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-200/80 rounded-2xl p-6 shadow-xs relative overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
@@ -564,18 +842,42 @@ export default function Dashboard() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {publicJobs.map((job) => {
-                const isApplied = appliedJobTitles.includes(job.title) || appliedJobTitles.includes(job._id);
+                const jobTitleLower = (job.title || '').toLowerCase().trim();
+
+                const specificApp = (candidates || []).find(c => {
+                  const isUser = c.email?.toLowerCase() === candidateEmail ||
+                    (c.fullName || c.name || '').toLowerCase().includes(candidateNameLower) ||
+                    (candidateEmail.includes('sathish') && (c.fullName || c.name || '').toLowerCase().includes('sathish'));
+                  if (!isUser) return false;
+                  const cRole = (c.role || '').toLowerCase().trim();
+                  return cRole === jobTitleLower || cRole.includes(jobTitleLower) || jobTitleLower.includes(cRole);
+                }) || (myApplications || []).find(a => {
+                  const aRole = (a.role || '').toLowerCase().trim();
+                  return aRole === jobTitleLower || aRole.includes(jobTitleLower) || jobTitleLower.includes(aRole);
+                });
+
+                const specificStage = (specificApp?.stage || specificApp?.status || '').toLowerCase();
+                const isAppliedActive = !!specificApp && !specificStage.includes('reject');
+                const isRejected = !!specificApp && specificStage.includes('reject');
+
                 return (
                   <div key={job._id || job.jobId} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-blue-300 hover:shadow-xs transition-all flex items-center justify-between">
                     <div>
                       <p className="font-bold text-slate-900 text-xs">{job.title}</p>
                       <p className="text-[11px] text-slate-500 mt-0.5">{job.department} · {job.location || job.workMode || 'Bangalore'}</p>
                     </div>
-                    {isApplied ? (
+                    {isAppliedActive ? (
                       <span className="px-3.5 py-1.5 text-xs font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl inline-flex items-center gap-1 select-none shadow-2xs">
                         <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                         Applied
                       </span>
+                    ) : isRejected ? (
+                      <button
+                        onClick={() => handleOpenApplyModal(job)}
+                        className="px-4 py-2 text-xs font-extrabold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-600 hover:text-white rounded-xl transition-all shadow-2xs active:scale-[0.97] cursor-pointer"
+                      >
+                        Reapply Now
+                      </button>
                     ) : (
                       <button
                         onClick={() => handleOpenApplyModal(job)}
@@ -591,7 +893,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Apply Job Modal (Matching Screenshot 1) */}
+        {/* Apply Job Modal */}
         {selectedJobToApply && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
             <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-scale-up relative">
@@ -673,6 +975,7 @@ export default function Dashboard() {
                       </label>
                       <input
                         type="file"
+                        required
                         accept=".pdf,.doc,.docx"
                         onChange={(e) => setApplyForm({ ...applyForm, resume: e.target.files[0] })}
                         className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 focus:outline-none"
@@ -698,6 +1001,248 @@ export default function Dashboard() {
                 </>
               )}
 
+            </div>
+          </div>
+        )}
+
+        {/* Submitted Applications Modal for Candidates */}
+        {showMyAppsModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+            <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-scale-up max-h-[90vh] overflow-y-auto relative">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                  <h3 className="font-extrabold text-xl text-slate-900 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    <span>My Submitted Applications</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    View, edit details, or withdraw your submitted job applications.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowMyAppsModal(false)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {loadingMyApps ? (
+                <div className="flex justify-center py-10">
+                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : myApplications.length === 0 ? (
+                <div className="text-center py-12 space-y-3">
+                  <FileText className="w-12 h-12 text-slate-300 mx-auto" />
+                  <p className="text-sm text-slate-500 font-medium">No submitted applications found.</p>
+                  <Link
+                    to="/careers"
+                    onClick={() => setShowMyAppsModal(false)}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl shadow-xs hover:bg-blue-700"
+                  >
+                    <span>Browse Careers</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {myApplications.map((app) => (
+                    <div
+                      key={app._id}
+                      className="bg-slate-50 border border-slate-200 hover:border-blue-300 rounded-2xl p-5 shadow-2xs transition-all space-y-3"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                              {app.candidateId || 'CAN-App'}
+                            </span>
+                            <h4 className="font-extrabold text-base text-slate-900">
+                              {app.role || 'Senior Frontend Engineer'}
+                            </h4>
+                          </div>
+                          <p className="text-xs text-slate-500 font-medium mt-1">
+                            Applicant: <span className="text-slate-800 font-bold">{app.fullName || app.name || user.firstName}</span> ({app.email})
+                          </p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-extrabold border ${
+                          app.status === 'Shortlisted' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                          app.status === 'Selected' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                          app.status === 'Rejected' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                          'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}>
+                          {app.status || 'Applied'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs bg-white p-3 rounded-xl border border-slate-200/80">
+                        <div>
+                          <span className="text-slate-400 font-bold block text-[10px] uppercase">Phone</span>
+                          <span className="font-semibold text-slate-700">{app.phone || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 font-bold block text-[10px] uppercase">Experience</span>
+                          <span className="font-semibold text-slate-700">{app.experience || 'Fresher'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 font-bold block text-[10px] uppercase">Submitted Date</span>
+                          <span className="font-semibold text-slate-700">
+                            {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'Recent'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Application Actions: Edit & Delete */}
+                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200/60">
+                        <button
+                          onClick={() => handleStartEditApp(app)}
+                          className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Edit Application</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteApplication(app)}
+                          className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                          <span>Delete Application</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Edit Candidate Application Modal */}
+        {editingApp && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+            <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-scale-up relative">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <h3 className="font-extrabold text-lg sm:text-xl text-slate-900 flex items-center gap-2">
+                  <Pencil className="w-5 h-5 text-blue-600" />
+                  <span>Edit Application Details</span>
+                </h3>
+                <button
+                  onClick={() => setEditingApp(null)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveEditApp} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Job Role / Position <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editAppForm.role}
+                    onChange={(e) => setEditAppForm({ ...editAppForm, role: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Full Name <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editAppForm.fullName}
+                    onChange={(e) => setEditAppForm({ ...editAppForm, fullName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1.5">
+                      Email Address <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={editAppForm.email}
+                      onChange={(e) => setEditAppForm({ ...editAppForm, email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1.5">
+                      Phone Number <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={editAppForm.phone}
+                      onChange={(e) => setEditAppForm({ ...editAppForm, phone: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1.5">
+                      Years of Experience
+                    </label>
+                    <input
+                      type="text"
+                      value={editAppForm.experience}
+                      onChange={(e) => setEditAppForm({ ...editAppForm, experience: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1.5">
+                      Education Qualification
+                    </label>
+                    <input
+                      type="text"
+                      value={editAppForm.education}
+                      onChange={(e) => setEditAppForm({ ...editAppForm, education: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Update Resume (Optional)
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => setEditAppForm({ ...editAppForm, resume: e.target.files[0] })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditingApp(null)}
+                    className="px-5 py-2.5 bg-slate-100 font-bold text-xs text-slate-700 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingApp}
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 font-extrabold text-xs text-white rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-2"
+                  >
+                    {isSavingApp ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

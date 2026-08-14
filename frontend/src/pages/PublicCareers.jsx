@@ -38,6 +38,10 @@ export default function PublicCareers() {
 
   const handleApplySubmit = async (e) => {
     e.preventDefault();
+    if (!applicantForm.resume) {
+      alert('Please select and upload your resume (PDF or DOCX format) before submitting your application.');
+      return;
+    }
     const formData = new FormData();
     formData.append('fullName', applicantForm.fullName);
     formData.append('email', applicantForm.email);
@@ -188,6 +192,7 @@ export default function PublicCareers() {
                       <label className="block font-bold mb-1">Upload Resume (PDF, DOCX) *</label>
                       <input
                         type="file"
+                        required
                         accept=".pdf,.doc,.docx"
                         onChange={(e) => setApplicantForm({ ...applicantForm, resume: e.target.files[0] })}
                         className="w-full p-2 bg-slate-50 border rounded-xl"

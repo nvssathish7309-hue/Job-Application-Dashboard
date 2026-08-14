@@ -28,7 +28,7 @@ export default function ShortlistModal({ candidate, isOpen, onClose, onConfirm }
           </button>
           <button
             onClick={() => {
-              onConfirm(candidate.id);
+              onConfirm(candidate._id || candidate.id || candidate.candidateId);
               onClose();
             }}
             className="px-5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-600/20 transition-all flex items-center gap-1.5"

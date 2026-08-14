@@ -84,6 +84,65 @@ export default function Users() {
     }
   };
 
+  const generateRoleEmail = (role, firstName = '', lastName = '') => {
+    const f = (firstName || '').toLowerCase().trim();
+    const l = (lastName || '').toLowerCase().trim();
+    const namePrefix = f ? (l ? `${f}.${l}` : f) : '';
+
+    if (role === 'HR_MANAGER') {
+      return namePrefix ? `${namePrefix}.hr@mindmatrix.com` : 'hr@mindmatrix.com';
+    }
+    if (role === 'RECRUITER') {
+      return namePrefix ? `${namePrefix}.recruiter@mindmatrix.com` : 'recruiter@mindmatrix.com';
+    }
+    if (role === 'INTERVIEWER') {
+      return namePrefix ? `${namePrefix}.interviewer@mindmatrix.com` : 'interviewer@mindmatrix.com';
+    }
+    if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
+      return namePrefix ? `${namePrefix}.admin@mindmatrix.com` : 'admin@mindmatrix.com';
+    }
+    if (role === 'CANDIDATE') {
+      return namePrefix ? `${namePrefix}@gmail.com` : 'candidate@mindmatrix.com';
+    }
+    return 'hr@mindmatrix.com';
+  };
+
+  const handleOpenAddModal = () => {
+    const defaultRole = 'HR_MANAGER';
+    setNewUser({
+      firstName: '',
+      lastName: '',
+      email: generateRoleEmail(defaultRole),
+      password: 'Password123!',
+      role: defaultRole,
+      department: 'Human Resources',
+      phone: ''
+    });
+    setShowAddModal(true);
+  };
+
+  const handleRoleSelectChange = (newRole) => {
+    const newEmail = generateRoleEmail(newRole, newUser.firstName, newUser.lastName);
+    setNewUser(prev => ({
+      ...prev,
+      role: newRole,
+      email: newEmail
+    }));
+  };
+
+  const handleNameInputChange = (field, val) => {
+    setNewUser(prev => {
+      const fn = field === 'firstName' ? val : prev.firstName;
+      const ln = field === 'lastName' ? val : prev.lastName;
+      const newEmail = generateRoleEmail(prev.role, fn, ln);
+      return {
+        ...prev,
+        [field]: val,
+        email: newEmail
+      };
+    });
+  };
+
   const handleCreateUser = async (e) => {
     e.preventDefault();
     try {
@@ -104,9 +163,9 @@ export default function Users() {
       setNewUser({
         firstName: '',
         lastName: '',
-        email: '',
+        email: generateRoleEmail('HR_MANAGER'),
         password: 'Password123!',
-        role: 'RECRUITER',
+        role: 'HR_MANAGER',
         department: 'Human Resources',
         phone: ''
       });
@@ -209,7 +268,7 @@ export default function Users() {
         </div>
 
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={handleOpenAddModal}
           className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-600/25 flex items-center gap-2 cursor-pointer transition-all self-start sm:self-auto"
         >
           <UserPlus className="w-4 h-4" />
@@ -257,13 +316,13 @@ export default function Users() {
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Super Admins</p>
+            <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Total Active Users</p>
             <p className="text-xl font-extrabold text-slate-900 mt-0.5">
-              {users.filter(u => u.role === 'SUPER_ADMIN').length}
+              {users.filter(u => u.isActive !== false).length}
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 font-bold flex items-center justify-center">
-            <Lock className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center">
+            <UserCheck className="w-5 h-5" />
           </div>
         </div>
       </div>
@@ -437,7 +496,7 @@ export default function Users() {
                     type="text"
                     required
                     value={newUser.firstName}
-                    onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })}
+                    onChange={(e) => handleNameInputChange('firstName', e.target.value)}
                     placeholder="Jane"
                     className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     style={{ color: '#0f172a' }}
@@ -451,7 +510,7 @@ export default function Users() {
                     type="text"
                     required
                     value={newUser.lastName}
-                    onChange={(e) => setNewUser({ ...newUser, lastName: e.target.value })}
+                    onChange={(e) => handleNameInputChange('lastName', e.target.value)}
                     placeholder="Doe"
                     className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     style={{ color: '#0f172a' }}
@@ -512,7 +571,7 @@ export default function Users() {
                 </label>
                 <select
                   value={newUser.role}
-                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                  onChange={(e) => handleRoleSelectChange(e.target.value)}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 cursor-pointer focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="HR_MANAGER">HR Manager</option>

@@ -15,7 +15,7 @@ export default function ScheduleInterviewModal({ candidate, isOpen, onClose, onC
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onConfirm(candidate.id, formData);
+    onConfirm(candidate._id || candidate.id || candidate.candidateId, formData);
     onClose();
   };
 

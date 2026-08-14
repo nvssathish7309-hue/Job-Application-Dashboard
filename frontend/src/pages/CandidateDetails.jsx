@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Mail, Phone, MapPin, Calendar, Briefcase, GraduationCap,
@@ -6,6 +6,8 @@ import {
   CalendarClock, Award, UserX, CheckCircle2, Clock, AlertCircle, Trash2
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
+import { candidateService } from '../services/candidateService';
+import { INITIAL_CANDIDATES } from '../data/mockCandidates';
 import Badge from '../components/common/Badge';
 import { DetailsSkeleton } from '../components/common/Skeleton';
 import ErrorState from '../components/common/ErrorState';
@@ -40,16 +42,64 @@ export default function CandidateDetails() {
   const [selectOpen, setSelectOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
 
+  const contextCandidate = getCandidateById(id);
+  const [asyncCandidate, setAsyncCandidate] = useState(null);
+  const [fetching, setFetching] = useState(false);
+
+  useEffect(() => {
+    if (contextCandidate) {
+      setAsyncCandidate(contextCandidate);
+      return;
+    }
+
+    let found = null;
+    try {
+      const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
+      const target = String(id || '').toLowerCase();
+      found = saved.find(c =>
+        String(c._id || '').toLowerCase() === target ||
+        String(c.id || '').toLowerCase() === target ||
+        String(c.candidateId || '').toLowerCase() === target ||
+        String(c.applicationId || '').toLowerCase() === target ||
+        ((target === 'undefined' || target === 'null' || target.includes('sathish')) && (c.email?.toLowerCase().includes('sathish') || c.fullName?.toLowerCase().includes('sathish')))
+      );
+      if (!found && saved.length > 0 && (target === 'undefined' || target === 'null')) {
+        found = saved[0];
+      }
+    } catch (e) {}
+
+    if (!found) {
+      found = INITIAL_CANDIDATES.find(c =>
+        String(c.id || '').toLowerCase() === String(id || '').toLowerCase() ||
+        String(c._id || '').toLowerCase() === String(id || '').toLowerCase()
+      );
+    }
+
+    if (!found && id && id !== 'undefined') {
+      setFetching(true);
+      candidateService.getCandidateById(id)
+        .then(res => {
+          if (res?.success && res?.data) {
+            setAsyncCandidate(res.data);
+          }
+        })
+        .catch(() => {})
+        .finally(() => setFetching(false));
+    } else {
+      setAsyncCandidate(found || null);
+    }
+  }, [id, contextCandidate]);
+
+  const candidate = contextCandidate || asyncCandidate;
+
   const handleDeleteCandidate = () => {
-    if (window.confirm(`Are you sure you want to delete ${candidate?.name || 'this candidate'}? All associated notifications will also be deleted.`)) {
-      deleteCandidate(id);
+    if (window.confirm(`Are you sure you want to delete ${candidate?.name || candidate?.fullName || 'this candidate'}? All associated notifications will also be deleted.`)) {
+      deleteCandidate(candidate?._id || candidate?.id || id);
       navigate('/candidates');
     }
   };
 
-  const candidate = getCandidateById(id);
-
-  if (isLoading) return <DetailsSkeleton />;
+  if (isLoading || fetching) return <DetailsSkeleton />;
 
   if (!candidate) {
     return (

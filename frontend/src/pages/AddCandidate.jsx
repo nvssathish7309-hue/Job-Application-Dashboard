@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   User, Mail, Phone, Briefcase, GraduationCap, Code2,
@@ -40,20 +40,7 @@ export default function AddCandidate() {
     skills: [], education: '', resumeFileName: '', resume: null
   });
 
-  // Auto pre-fill personal info from login details for candidates/users
-  useEffect(() => {
-    if (user) {
-      const defaultName = (user.firstName && user.lastName)
-        ? `${user.firstName} ${user.lastName}`
-        : (user.name || '');
-      setFormData(prev => ({
-        ...prev,
-        name: prev.name || defaultName,
-        email: prev.email || user.email || '',
-        phone: prev.phone || user.phone || ''
-      }));
-    }
-  }, [user]);
+
   const [errors, setErrors] = useState({});
   const [skillInput, setSkillInput] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);

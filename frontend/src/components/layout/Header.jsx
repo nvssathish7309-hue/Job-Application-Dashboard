@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Search, Plus, Menu, Bell, Loader2, AlertTriangle, X
+  Search, Plus, Menu, Bell, Loader2, AlertTriangle, X, Sun, Moon
 } from 'lucide-react';
 import { useCandidates } from '../../context/CandidateContext';
 import { useAuth } from '../../context/AuthContext';
@@ -58,6 +58,30 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
   }, [headerName]);
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
+
+  // Dark & Light Theme State System
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try {
+      const stored = localStorage.getItem('theme_mode');
+      if (stored) return stored === 'dark';
+      return document.documentElement.classList.contains('dark') ||
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    } catch (e) { return false; }
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme_mode', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme_mode', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(prev => !prev);
+  };
 
   // Filter out notifications associated with deleted candidates
   const validNotifications = useMemo(() => {
@@ -176,12 +200,12 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
               onClick={() => setShowNotifications(!showNotifications)}
               className={`p-2 rounded-xl border relative transition-all duration-300 ${
                 unreadNotifCount > 0
-                  ? 'notif-glow-active btn-moving-light border-blue-400 text-blue-600 bg-blue-50/60'
+                  ? 'notif-glow-active btn-moving-light border-blue-400 text-blue-600 bg-blue-50/60 shadow-md shadow-blue-500/20'
                   : 'text-slate-600 hover:bg-slate-100 border-slate-200'
               }`}
               title={unreadNotifCount > 0 ? `${unreadNotifCount} new notification(s)` : 'Notifications'}
             >
-              <Bell className="w-5 h-5" />
+              <Bell className={`w-5 h-5 transition-transform ${unreadNotifCount > 0 ? 'animate-bell-ring text-blue-600' : ''}`} />
               {unreadNotifCount > 0 && (
                 <>
                   <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-blue-600 ring-2 ring-white z-10" />
@@ -250,8 +274,26 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
                   )}
                 </div>
               </div>
-            )}
           </div>
+
+          {/* Dark & Light Theme Toggle Option (Near Notification Bell) */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className={`p-2 rounded-xl border transition-all duration-300 flex items-center justify-center cursor-pointer shadow-2xs active:scale-95 ${
+              isDarkMode
+                ? 'bg-slate-800 border-amber-500/50 text-amber-400 hover:bg-slate-700 hover:border-amber-400 shadow-amber-500/10'
+                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
+            }`}
+            title={isDarkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+            aria-label="Toggle Dark/Light Theme"
+          >
+            {isDarkMode ? (
+              <Sun className="w-5 h-5 text-amber-400 transition-transform duration-300 hover:rotate-45" />
+            ) : (
+              <Moon className="w-5 h-5 text-slate-600 hover:text-indigo-600 transition-transform duration-300 hover:-rotate-12" />
+            )}
+          </button>
 
             {/* Add Candidate CTA */}
             <Link

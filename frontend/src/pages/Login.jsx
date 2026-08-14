@@ -101,7 +101,6 @@ export default function Login() {
 
   const handleDemoLogin = (demoEmail) => {
     setMode('login');
-    setSwitchKey(prev => prev + 1);
     setEmail(demoEmail);
     setPassword(''); // Empty password so employee types their password
     setShowPassword(false);
@@ -280,10 +279,14 @@ export default function Login() {
                 <div className="login-input-wrap relative rounded-xl flex items-center">
                   <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-300/70 pointer-events-none z-10" />
                   <input
+                    id="email"
+                    name="username"
                     type="email"
+                    autoComplete="username email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onInput={(e) => setEmail(e.target.value)}
                     placeholder="candidate@mindmatrix.com"
                     className="login-input w-full pl-10 pr-4 py-2.5 rounded-xl text-white font-medium text-xs placeholder-white/30 transition-all"
                   />
@@ -305,10 +308,14 @@ export default function Login() {
                 <div className="login-input-wrap relative rounded-xl flex items-center">
                   <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-300/70 pointer-events-none z-10" />
                   <input
+                    id="password"
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onInput={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="login-input w-full pl-10 pr-10 py-2.5 rounded-xl text-white font-medium text-xs placeholder-white/30 transition-all"
                   />

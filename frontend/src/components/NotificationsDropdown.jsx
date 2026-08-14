@@ -11,12 +11,16 @@ export default function NotificationsDropdown() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+        className={`relative p-2.5 rounded-xl transition-all duration-300 ${
+          unreadCount > 0
+            ? 'bg-blue-50 text-blue-600 border border-blue-300 shadow-md shadow-blue-500/20 notif-glow-active'
+            : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-transparent'
+        }`}
         title="Notifications"
       >
-        <Bell className="w-5 h-5 stroke-[2.2]" />
+        <Bell className={`w-5 h-5 stroke-[2.2] transition-transform ${unreadCount > 0 ? 'animate-bell-ring text-blue-600' : ''}`} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 text-white font-extrabold text-[10px] flex items-center justify-center border-2 border-white animate-pulse">
+          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-blue-600 text-white font-extrabold text-[10px] flex items-center justify-center border-2 border-white animate-pulse z-10">
             {unreadCount}
           </span>
         )}

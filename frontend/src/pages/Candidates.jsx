@@ -303,7 +303,7 @@ export default function Candidates() {
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
                           <Link
-                            to={`/candidates/${c.id}`}
+                            to={`/candidates/${c._id || c.id || c.candidateId}`}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white font-semibold text-xs transition-all"
                           >
                             <Eye className="w-3.5 h-3.5" />
