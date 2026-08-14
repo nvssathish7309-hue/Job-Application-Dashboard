@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Bell, CheckCheck, ExternalLink, Inbox } from 'lucide-react';
+import { Bell, CheckCheck, ExternalLink, Inbox, Trash2 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { useCandidates } from '../context/CandidateContext';
@@ -11,17 +11,26 @@ export default function NotificationsDropdown() {
   const { candidates } = useCandidates();
   const [isOpen, setIsOpen] = useState(false);
   const [localNotifs, setLocalNotifs] = useState([]);
+  const [readNotifIds, setReadNotifIds] = useState([]);
+  const [clearedNotifIds, setClearedNotifIds] = useState([]);
+
+  const loadNotifState = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('local_notifications') || '[]');
+      setLocalNotifs(saved);
+
+      const savedRead = JSON.parse(localStorage.getItem('read_notification_ids') || '[]');
+      setReadNotifIds(savedRead);
+
+      const savedCleared = JSON.parse(localStorage.getItem('cleared_notification_ids') || '[]');
+      setClearedNotifIds(savedCleared);
+    } catch (e) {}
+  };
 
   useEffect(() => {
-    const loadNotifs = () => {
-      try {
-        const saved = JSON.parse(localStorage.getItem('local_notifications') || '[]');
-        setLocalNotifs(saved);
-      } catch (e) {}
-    };
-    loadNotifs();
-    window.addEventListener('candidateSubmitted', loadNotifs);
-    return () => window.removeEventListener('candidateSubmitted', loadNotifs);
+    loadNotifState();
+    window.addEventListener('candidateSubmitted', loadNotifState);
+    return () => window.removeEventListener('candidateSubmitted', loadNotifState);
   }, []);
 
   const validNotifications = useMemo(() => {
@@ -33,21 +42,25 @@ export default function NotificationsDropdown() {
 
     // 1. Backend notifications
     (notifications || []).forEach(n => {
-      if (n && !merged.some(m => m.id === n._id || m.id === n.id)) {
+      const id = n._id || n.id;
+      if (n && id && !clearedNotifIds.includes(id) && !merged.some(m => m.id === id)) {
         merged.push({
-          id: n._id || n.id,
+          id,
           title: n.title,
           message: n.message,
           timestamp: n.createdAt || n.timestamp,
-          isRead: n.isRead
+          isRead: n.isRead || readNotifIds.includes(id)
         });
       }
     });
 
     // 2. Local storage notifications
     localNotifs.forEach(ln => {
-      if (ln && !merged.some(m => m.id === ln.id)) {
-        merged.push(ln);
+      if (ln && ln.id && !clearedNotifIds.includes(ln.id) && !merged.some(m => m.id === ln.id)) {
+        merged.push({
+          ...ln,
+          isRead: ln.isRead || readNotifIds.includes(ln.id)
+        });
       }
     });
 
@@ -95,16 +108,16 @@ export default function NotificationsDropdown() {
 
           const notifId = `notif-app-${idx}-${appIdx}-${roleName.replace(/\s+/g, '-')}-${stageText.replace(/\s+/g, '-')}`;
 
-          const title = `🎉 Congratulations ${candName}! — MindMatrix`;
-          const msg = `Congratulations ${candName}! Your candidate application status for "${roleName}" is currently "${stageText}" (${subText}).`;
+          if (!clearedNotifIds.includes(notifId) && !merged.some(n => n.id === notifId)) {
+            const title = `🎉 Congratulations ${candName}! — MindMatrix`;
+            const msg = `Congratulations ${candName}! Your candidate application status for "${roleName}" is currently "${stageText}" (${subText}).`;
 
-          if (!merged.some(n => n.id === notifId)) {
             merged.push({
               id: notifId,
               title,
               message: msg,
               timestamp: app.appliedAt || new Date().toISOString(),
-              isRead: false
+              isRead: readNotifIds.includes(notifId)
             });
           }
         });
@@ -112,9 +125,51 @@ export default function NotificationsDropdown() {
     } catch (e) {}
 
     return merged.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
-  }, [notifications, localNotifs, user, candidates]);
+  }, [notifications, localNotifs, readNotifIds, clearedNotifIds, user, candidates]);
 
-  const activeUnreadCount = validNotifications.filter(n => !n.isRead).length;
+  const activeUnreadCount = useMemo(() => {
+    return validNotifications.filter(n => !n.isRead).length;
+  }, [validNotifications]);
+
+  const handleMarkSingleAsRead = (id) => {
+    try {
+      const updatedRead = [...new Set([...readNotifIds, id])];
+      localStorage.setItem('read_notification_ids', JSON.stringify(updatedRead));
+      setReadNotifIds(updatedRead);
+
+      const saved = JSON.parse(localStorage.getItem('local_notifications') || '[]');
+      const updatedLocal = saved.map(n => n.id === id ? { ...n, isRead: true } : n);
+      localStorage.setItem('local_notifications', JSON.stringify(updatedLocal));
+      setLocalNotifs(updatedLocal);
+    } catch (e) {}
+    if (markAsRead) markAsRead(id);
+  };
+
+  const handleMarkAllAsRead = () => {
+    try {
+      const allIds = validNotifications.map(n => n.id);
+      const updatedRead = [...new Set([...readNotifIds, ...allIds])];
+      localStorage.setItem('read_notification_ids', JSON.stringify(updatedRead));
+      setReadNotifIds(updatedRead);
+
+      const saved = JSON.parse(localStorage.getItem('local_notifications') || '[]');
+      const updatedLocal = saved.map(n => ({ ...n, isRead: true }));
+      localStorage.setItem('local_notifications', JSON.stringify(updatedLocal));
+      setLocalNotifs(updatedLocal);
+    } catch (e) {}
+    if (markAllAsRead) markAllAsRead();
+  };
+
+  const handleClearAllNotifications = () => {
+    try {
+      const allIds = validNotifications.map(n => n.id);
+      const updatedCleared = [...new Set([...clearedNotifIds, ...allIds])];
+      localStorage.setItem('cleared_notification_ids', JSON.stringify(updatedCleared));
+      setClearedNotifIds(updatedCleared);
+      localStorage.setItem('local_notifications', JSON.stringify([]));
+      setLocalNotifs([]);
+    } catch (e) {}
+  };
 
   return (
     <div className="relative">
@@ -140,36 +195,60 @@ export default function NotificationsDropdown() {
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden animate-fade-in">
             {/* Header */}
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+            <div className="p-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-slate-900 text-sm">MindMatrix Alerts</h3>
-                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold text-xs">
-                  {activeUnreadCount} new
-                </span>
+                <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">MindMatrix Alerts</h3>
+                {activeUnreadCount > 0 ? (
+                  <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-extrabold text-[11px]">
+                    {activeUnreadCount} new
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold text-[11px]">
+                    All read
+                  </span>
+                )}
               </div>
-              {activeUnreadCount > 0 && (
-                <button
-                  onClick={markAllAsRead}
-                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
-                >
-                  <CheckCheck className="w-3.5 h-3.5" />
-                  <span>Mark all read</span>
-                </button>
-              )}
+
+              <div className="flex items-center gap-2.5">
+                {/* Mark All Read Button */}
+                {activeUnreadCount > 0 && (
+                  <button
+                    onClick={handleMarkAllAsRead}
+                    className="text-[11px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer transition-colors"
+                    title="Mark all notifications as read"
+                  >
+                    <CheckCheck className="w-3.5 h-3.5" />
+                    <span>Mark all read</span>
+                  </button>
+                )}
+
+                {/* Clear All Notifications Button */}
+                {validNotifications.length > 0 && (
+                  <button
+                    onClick={handleClearAllNotifications}
+                    className="text-[11px] font-bold text-rose-500 hover:text-rose-700 flex items-center gap-1 cursor-pointer transition-colors border-l border-slate-200 pl-2.5"
+                    title="Clear all notifications"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Clear</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* List */}
             <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
               {validNotifications.length === 0 ? (
                 <div className="p-8 text-center text-slate-400">
-                  <Inbox className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-xs font-medium">No new notifications</p>
+                  <Inbox className="w-8 h-8 mx-auto mb-2 opacity-50 text-slate-300" />
+                  <p className="text-xs font-semibold text-slate-500">No notifications left</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">All notifications cleared or read.</p>
                 </div>
               ) : (
                 validNotifications.map((item) => (
                   <div
                     key={item.id || item._id}
-                    onClick={() => markAsRead(item.id || item._id)}
+                    onClick={() => handleMarkSingleAsRead(item.id || item._id)}
                     className={`p-3.5 transition-colors cursor-pointer flex items-start gap-3 ${
                       !item.isRead ? 'bg-blue-50/60 hover:bg-blue-100/60' : 'hover:bg-slate-50'
                     }`}

@@ -84,27 +84,29 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
   };
 
   const [localNotifs, setLocalNotifs] = useState(() => {
+  const [localNotifs, setLocalNotifs] = useState([]);
+  const [readNotifIds, setReadNotifIds] = useState([]);
+  const [clearedNotifIds, setClearedNotifIds] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notifRef = useRef(null);
+
+  const loadNotifState = () => {
     try {
-      const saved = localStorage.getItem('local_notifications');
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      return [];
-    }
-  });
+      const saved = JSON.parse(localStorage.getItem('local_notifications') || '[]');
+      setLocalNotifs(saved);
+
+      const savedRead = JSON.parse(localStorage.getItem('read_notification_ids') || '[]');
+      setReadNotifIds(savedRead);
+
+      const savedCleared = JSON.parse(localStorage.getItem('cleared_notification_ids') || '[]');
+      setClearedNotifIds(savedCleared);
+    } catch (e) {}
+  };
 
   useEffect(() => {
-    const handleSyncNotifs = () => {
-      try {
-        const saved = localStorage.getItem('local_notifications');
-        if (saved) setLocalNotifs(JSON.parse(saved));
-      } catch (e) {}
-    };
-    window.addEventListener('candidateSubmitted', handleSyncNotifs);
-    window.addEventListener('storage', handleSyncNotifs);
-    return () => {
-      window.removeEventListener('candidateSubmitted', handleSyncNotifs);
-      window.removeEventListener('storage', handleSyncNotifs);
-    };
+    loadNotifState();
+    window.addEventListener('candidateSubmitted', loadNotifState);
+    return () => window.removeEventListener('candidateSubmitted', loadNotifState);
   }, []);
 
   const validNotifications = useMemo(() => {
@@ -116,25 +118,39 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
 
     // 1. Gather all notifications from backend context
     (notifications || []).forEach(n => {
-      if (n && !merged.some(m => m.id === n.id)) {
-        merged.push(n);
+      const id = n._id || n.id;
+      if (n && id && !clearedNotifIds.includes(id) && !merged.some(m => m.id === id)) {
+        merged.push({
+          ...n,
+          id,
+          isRead: n.isRead || readNotifIds.includes(id)
+        });
       }
     });
 
     // 2. Gather all notifications from local_notifications
     localNotifs.forEach(ln => {
-      if (ln && !merged.some(m => m.id === ln.id)) {
+      if (ln && ln.id && !clearedNotifIds.includes(ln.id) && !merged.some(m => m.id === ln.id)) {
         if (userRole === 'CANDIDATE') {
           const tEmail = (ln.candidateEmail || '').toLowerCase();
           if (!tEmail || tEmail === userEmail || userEmail.includes('sathish') || tEmail.includes('sathish') || ln.forCandidate) {
-            merged.push(ln);
+            merged.push({
+              ...ln,
+              isRead: ln.isRead || readNotifIds.includes(ln.id)
+            });
           }
         } else if (userRole === 'INTERVIEWER') {
           if (ln.forInterviewer || ln.targetRole === 'INTERVIEWER') {
-            merged.push(ln);
+            merged.push({
+              ...ln,
+              isRead: ln.isRead || readNotifIds.includes(ln.id)
+            });
           }
         } else {
-          merged.push(ln);
+          merged.push({
+            ...ln,
+            isRead: ln.isRead || readNotifIds.includes(ln.id)
+          });
         }
       }
     });
@@ -185,19 +201,19 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
 
           const notifId = `auto-app-${idx}-${appIdx}-${roleName.replace(/\s+/g, '-')}-${stageText.replace(/\s+/g, '-')}`;
 
-          const isPositive = !sLower.includes('reject');
-          const title = isPositive ? `🎉 Congratulations ${candName}!` : `Application Update: ${stageText}`;
-          const msg = isPositive
-            ? `Congratulations ${candName}! Your application for "${roleName}" current stage is "${stageText}" (${subText}).`
-            : `Application Update: Your application for "${roleName}" stage is "${stageText}" (${subText}).`;
+          if (!clearedNotifIds.includes(notifId) && !merged.some(n => n.id === notifId)) {
+            const isPositive = !sLower.includes('reject');
+            const title = isPositive ? `🎉 Congratulations ${candName}!` : `Application Update: ${stageText}`;
+            const msg = isPositive
+              ? `Congratulations ${candName}! Your application for "${roleName}" current stage is "${stageText}" (${subText}).`
+              : `Application Update: Your application for "${roleName}" stage is "${stageText}" (${subText}).`;
 
-          if (!merged.some(n => n.id === notifId)) {
             merged.push({
               id: notifId,
               title,
               message: msg,
               timestamp: app.appliedAt || new Date().toISOString(),
-              isRead: false
+              isRead: readNotifIds.includes(notifId)
             });
           }
         });
@@ -206,20 +222,8 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
       console.error('Error generating candidate notifications:', e);
     }
 
-    // 4. Default fallback welcome notification if merged is still empty
-    if (merged.length === 0) {
-      const candName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Sathish N';
-      merged.push({
-        id: 'welcome-cand-notif',
-        title: `🎉 Congratulations ${candName}!`,
-        message: `Congratulations ${candName}! Your candidate portal account is active. Current stage: Applied (Under initial review).`,
-        timestamp: new Date().toISOString(),
-        isRead: false
-      });
-    }
-
     return merged.sort((a, b) => new Date(b.timestamp || b.createdAt || 0) - new Date(a.timestamp || a.createdAt || 0));
-  }, [notifications, localNotifs, user, candidates]);
+  }, [notifications, localNotifs, readNotifIds, clearedNotifIds, user, candidates]);
 
   const unreadNotifCount = useMemo(() => {
     return validNotifications.filter(n => !n.isRead).length;
@@ -227,22 +231,42 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
 
   const markNotifAsRead = (notifId) => {
     try {
+      const updatedRead = [...new Set([...readNotifIds, notifId])];
+      localStorage.setItem('read_notification_ids', JSON.stringify(updatedRead));
+      setReadNotifIds(updatedRead);
+
       const saved = JSON.parse(localStorage.getItem('local_notifications') || '[]');
-      const updated = saved.map(n => n.id === notifId ? { ...n, isRead: true } : n);
-      localStorage.setItem('local_notifications', JSON.stringify(updated));
-      setLocalNotifs(updated);
+      const updatedLocal = saved.map(n => n.id === notifId ? { ...n, isRead: true } : n);
+      localStorage.setItem('local_notifications', JSON.stringify(updatedLocal));
+      setLocalNotifs(updatedLocal);
     } catch (e) {}
     if (markAsRead) markAsRead(notifId);
   };
 
   const markAllNotifsAsRead = () => {
     try {
+      const allIds = validNotifications.map(n => n.id);
+      const updatedRead = [...new Set([...readNotifIds, ...allIds])];
+      localStorage.setItem('read_notification_ids', JSON.stringify(updatedRead));
+      setReadNotifIds(updatedRead);
+
       const saved = JSON.parse(localStorage.getItem('local_notifications') || '[]');
-      const updated = saved.map(n => ({ ...n, isRead: true }));
-      localStorage.setItem('local_notifications', JSON.stringify(updated));
-      setLocalNotifs(updated);
+      const updatedLocal = saved.map(n => ({ ...n, isRead: true }));
+      localStorage.setItem('local_notifications', JSON.stringify(updatedLocal));
+      setLocalNotifs(updatedLocal);
     } catch (e) {}
     if (markAllAsRead) markAllAsRead();
+  };
+
+  const clearAllNotifications = () => {
+    try {
+      const allIds = validNotifications.map(n => n.id);
+      const updatedCleared = [...new Set([...clearedNotifIds, ...allIds])];
+      localStorage.setItem('cleared_notification_ids', JSON.stringify(updatedCleared));
+      setClearedNotifIds(updatedCleared);
+      localStorage.setItem('local_notifications', JSON.stringify([]));
+      setLocalNotifs([]);
+    } catch (e) {}
   };
 
   // Close notification popover when clicking anywhere outside
@@ -380,13 +404,23 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
                     ) : (
                       <span className="text-[11px] text-slate-400 font-medium">All read</span>
                     )}
-                    {validNotifications?.length > 0 && unreadNotifCount > 0 && (
-                      <button
-                        onClick={markAllNotifsAsRead}
-                        className="text-[10px] text-slate-500 hover:text-blue-600 font-bold underline transition-colors cursor-pointer"
-                      >
-                        Mark read
-                      </button>
+                    {validNotifications?.length > 0 && (
+                      <div className="flex items-center gap-2 border-l border-slate-200 pl-2">
+                        {unreadNotifCount > 0 && (
+                          <button
+                            onClick={markAllNotifsAsRead}
+                            className="text-[10px] text-blue-600 hover:text-blue-700 font-bold underline transition-colors cursor-pointer"
+                          >
+                            Mark read
+                          </button>
+                        )}
+                        <button
+                          onClick={clearAllNotifications}
+                          className="text-[10px] text-rose-500 hover:text-rose-700 font-bold underline transition-colors cursor-pointer"
+                        >
+                          Clear
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
