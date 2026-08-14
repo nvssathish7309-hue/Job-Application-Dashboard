@@ -4,7 +4,7 @@ import { useCandidates } from '../context/CandidateContext';
 import { Download, BarChart2, PieChart as PieIcon, Users, TrendingUp, CheckCircle2, UserCheck, Calendar } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie } from 'recharts';
 
-function AnimatedCount({ value, duration = 1200 }) {
+function AnimatedCount({ value, duration = 1400 }) {
   const [displayValue, setDisplayValue] = useState(0);
 
   useEffect(() => {
@@ -25,7 +25,8 @@ function AnimatedCount({ value, duration = 1200 }) {
         setDisplayValue(target);
       }
     };
-    window.requestAnimationFrame(step);
+    const animId = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(animId);
   }, [value, duration]);
 
   return <span>{displayValue}</span>;
@@ -35,6 +36,7 @@ export default function Reports() {
   const { candidates } = useCandidates();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [chartProgress, setChartProgress] = useState(0);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -49,6 +51,28 @@ export default function Reports() {
     };
     fetchMetrics();
   }, []);
+
+  // Frame-by-frame bar chart rising growth animation on mount
+  useEffect(() => {
+    if (loading) return;
+    setChartProgress(0);
+    let startTime = null;
+    const duration = 1400;
+    const animate = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      setChartProgress(easeOut);
+      if (progress < 1) {
+        window.requestAnimationFrame(animate);
+      } else {
+        setChartProgress(1);
+      }
+    };
+    const animId = window.requestAnimationFrame(animate);
+    return () => window.cancelAnimationFrame(animId);
+  }, [loading]);
 
   const handleDownloadCSV = () => {
     reportService.downloadCSV();
@@ -71,13 +95,16 @@ export default function Reports() {
   const rejected = candidates?.filter(c => (c.status || c.stage) === 'Rejected').length || data?.metrics?.rejectedCount || 0;
   const newCount = candidates?.filter(c => (c.status || c.stage) === 'New' || (c.status || c.stage) === 'Applied').length || data?.metrics?.appliedCount || 0;
 
+  // Animated chart data rising frame by frame
   const chartData = [
-    { name: 'New', count: newCount, color: '#8b5cf6' },
-    { name: 'Shortlisted', count: shortlisted, color: '#3b82f6' },
-    { name: 'Interview', count: interview, color: '#f59e0b' },
-    { name: 'Selected', count: selected, color: '#10b981' },
-    { name: 'Rejected', count: rejected, color: '#ef4444' }
+    { name: 'New', count: Math.round(newCount * chartProgress), displayCount: newCount, color: '#8b5cf6' },
+    { name: 'Shortlisted', count: Math.round(shortlisted * chartProgress), displayCount: shortlisted, color: '#3b82f6' },
+    { name: 'Interview', count: Math.round(interview * chartProgress), displayCount: interview, color: '#f59e0b' },
+    { name: 'Selected', count: Math.round(selected * chartProgress), displayCount: selected, color: '#10b981' },
+    { name: 'Rejected', count: Math.round(rejected * chartProgress), displayCount: rejected, color: '#ef4444' }
   ];
+
+  const maxVal = Math.max(newCount, shortlisted, interview, selected, rejected, 4);
 
   return (
     <div className="space-y-6 animate-smooth-grow">
@@ -187,7 +214,7 @@ export default function Reports() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 15, right: 15, left: -20, bottom: 0 }}>
                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} fontWeight={600} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} allowDecimals={false} fontWeight={600} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} allowDecimals={false} domain={[0, maxVal]} fontWeight={600} />
                 <Tooltip 
                   cursor={{ fill: '#f1f5f9', radius: 8 }}
                   content={({ active, payload }) => {
@@ -196,7 +223,7 @@ export default function Reports() {
                       return (
                         <div className="bg-slate-900 text-white p-3 rounded-xl shadow-xl text-xs font-bold space-y-1">
                           <p className="text-slate-300 font-extrabold">{dataItem.name} Stage</p>
-                          <p className="text-base font-black text-blue-400">{dataItem.count} Candidates</p>
+                          <p className="text-base font-black text-blue-400">{dataItem.displayCount} Candidates</p>
                         </div>
                       );
                     }
@@ -207,8 +234,8 @@ export default function Reports() {
                   dataKey="count" 
                   radius={[10, 10, 0, 0]}
                   isAnimationActive={true}
-                  animationBegin={200}
-                  animationDuration={1600}
+                  animationBegin={0}
+                  animationDuration={1400}
                   animationEasing="ease-out"
                 >
                   {chartData.map((entry, index) => (
@@ -234,7 +261,7 @@ export default function Reports() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={chartData.filter(d => d.count > 0)}
+                  data={chartData.filter(d => d.displayCount > 0)}
                   dataKey="count"
                   nameKey="name"
                   cx="50%"
@@ -243,8 +270,8 @@ export default function Reports() {
                   innerRadius={52}
                   paddingAngle={5}
                   isAnimationActive={true}
-                  animationBegin={300}
-                  animationDuration={1800}
+                  animationBegin={0}
+                  animationDuration={1400}
                   animationEasing="ease-out"
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 >
@@ -259,7 +286,7 @@ export default function Reports() {
                       return (
                         <div className="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-xl">
                           <span>{d.name}: </span>
-                          <span className="text-purple-300 font-extrabold">{d.value}</span>
+                          <span className="text-purple-300 font-extrabold">{d.payload.displayCount}</span>
                         </div>
                       );
                     }
@@ -275,7 +302,7 @@ export default function Reports() {
             {chartData.map((item, idx) => (
               <div key={idx} className="flex items-center gap-1.5 text-[11px] font-extrabold text-slate-700 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg transition-transform hover:scale-105">
                 <span className="w-2.5 h-2.5 rounded-full inline-block shadow-2xs" style={{ backgroundColor: item.color }} />
-                <span>{item.name}: {item.count}</span>
+                <span>{item.name}: {item.displayCount}</span>
               </div>
             ))}
           </div>
