@@ -76,8 +76,12 @@ export default function Login() {
       }
     } else {
       // Registration Mode
-      if (!firstName || !lastName || !email || !password) {
-        setErrorMessage('Please complete all required fields (First name, Last name, Email, Password).');
+      if (!firstName || !lastName || !phone || !email || !password) {
+        setErrorMessage('Please complete all required fields (First name, Last name, Phone number, Email, Password).');
+        return;
+      }
+      if (phone.length < 10) {
+        setErrorMessage('Please enter a valid 10-digit phone number.');
         return;
       }
 
@@ -252,13 +256,14 @@ export default function Login() {
 
                   <div>
                     <label className="block text-[11px] font-bold text-blue-200 uppercase tracking-wider mb-1">
-                      Phone Number
+                      Phone Number *
                     </label>
                     <div className="login-input-wrap relative rounded-xl flex items-center">
                       <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/70 pointer-events-none z-10" />
                       <span className="absolute left-9 top-1/2 -translate-y-1/2 text-blue-300/80 text-xs font-bold pointer-events-none z-10 select-none">+91</span>
                       <input
                         type="tel"
+                        required
                         value={phone}
                         onChange={(e) => {
                           const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
@@ -266,8 +271,10 @@ export default function Login() {
                         }}
                         placeholder="9876543210"
                         maxLength={10}
+                        minLength={10}
                         inputMode="numeric"
                         pattern="[0-9]{10}"
+                        title="Please enter a valid 10-digit phone number"
                         className="login-input w-full pl-16 pr-3 py-2 rounded-xl text-white font-medium text-xs placeholder-white/30 transition-all"
                       />
                     </div>

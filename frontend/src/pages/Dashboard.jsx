@@ -1332,6 +1332,7 @@ export default function Dashboard() {
               </form>
             </div>
           </div>
+        )}
         {/* ── INTERVIEW DETAILS & GOOGLE MEET LINK MODAL (FOR CANDIDATE VIEW) ── */}
         {showInterviewModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
