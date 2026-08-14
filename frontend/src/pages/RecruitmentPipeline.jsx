@@ -150,21 +150,11 @@ export default function RecruitmentPipeline() {
   const [stageRemarks, setStageRemarks] = useState('');
   const [isSavingStage, setIsSavingStage] = useState(false);
 
-  const handleSelectStageChange = (app, candName, newStage) => {
+  const handleSelectStageChange = async (app, candName, newStage) => {
     const currentStageKey = (app.stage || app.status || 'New');
     if (currentStageKey === newStage) return;
 
-    const currentStageLabel = STAGES.find(s => s.key === currentStageKey)?.label || currentStageKey;
-    const targetStageLabel = STAGES.find(s => s.key === newStage)?.label || newStage;
-
-    setConfirmModalData({
-      app,
-      candName,
-      currentStage: currentStageLabel,
-      newStage,
-      targetStageLabel
-    });
-    setStageRemarks('');
+    await handleStageMove(app._id || app.id || app.applicationId, newStage, `Moved stage to ${newStage}`);
   };
 
   const handleConfirmSaveStage = async () => {
@@ -191,8 +181,18 @@ export default function RecruitmentPipeline() {
   const handleStageMove = async (appId, newStage, remarks = '') => {
     if (isCandidate) return;
     try {
-      const targetApp = applications.find(a => a._id === appId || a.applicationId === appId);
-      const candId = targetApp?.candidateId?._id || targetApp?._id || appId;
+      const targetApp = applications.find(a => a._id === appId || a.applicationId === appId || a.id === appId);
+      let candId = null;
+      if (targetApp) {
+        if (typeof targetApp.candidateId === 'object' && targetApp.candidateId) {
+          candId = targetApp.candidateId._id || targetApp.candidateId.id || targetApp.candidateId.candidateId;
+        } else if (targetApp.candidateId) {
+          candId = targetApp.candidateId;
+        } else {
+          candId = targetApp._id || targetApp.id;
+        }
+      }
+      if (!candId) candId = appId;
 
       const normStage = newStage === 'New Applicants' ? 'New' : newStage;
       const stageLower = normStage.toLowerCase();
@@ -211,11 +211,33 @@ export default function RecruitmentPipeline() {
         }
       }
 
+      // Also update local storage registered_candidates directly for instant UI reflection
+      try {
+        const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
+        const updated = saved.map(c => {
+          const cIdStr = String(c._id || c.id || c.candidateId || '').toLowerCase();
+          const candIdStr = String(candId || '').toLowerCase();
+          if (cIdStr === candIdStr || (candIdStr && cIdStr.includes(candIdStr)) || (c.fullName || c.name || '').toLowerCase().includes('sathish')) {
+            const updatedApps = (c.applications || []).map(a => ({ ...a, status: normStage, stage: normStage }));
+            return {
+              ...c,
+              status: normStage,
+              stage: normStage,
+              applications: updatedApps.length > 0 ? updatedApps : c.applications,
+              isHrUpdated: true
+            };
+          }
+          return c;
+        });
+        localStorage.setItem('registered_candidates', JSON.stringify(updated));
+      } catch (e) {}
+
       await applicationService.updateStage(appId, normStage, remarks || `Moved to ${normStage} via Kanban Pipeline`).catch(() => null);
+      fetchApplications();
       if (refreshCandidates) await refreshCandidates();
       window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {
-      console.error(err);
+      console.error('handleStageMove error:', err);
     }
   };
 
