@@ -46,11 +46,23 @@ const getCandidates = async (req, res, next) => {
       .skip(skip)
       .limit(parseInt(limit));
 
+    const candidateIds = candidates.map(c => c._id);
+    const applications = await Application.find({ candidateId: { $in: candidateIds } }).populate('jobId');
+
+    const candidatesWithApps = candidates.map(cand => {
+      const candApps = applications.filter(app => String(app.candidateId) === String(cand._id));
+      return {
+        ...cand.toJSON(),
+        applications: candApps,
+        applicationsCount: candApps.length
+      };
+    });
+
     const total = await Candidate.countDocuments(query);
 
     res.status(200).json({
       success: true,
-      data: candidates,
+      data: candidatesWithApps,
       pagination: {
         total,
         page: parseInt(page),
@@ -68,7 +80,15 @@ const getCandidateById = async (req, res, next) => {
     if (!candidate) {
       return res.status(404).json({ success: false, message: 'Candidate not found.' });
     }
-    res.status(200).json({ success: true, data: candidate });
+    const applications = await Application.find({ candidateId: candidate._id }).populate('jobId');
+    res.status(200).json({
+      success: true,
+      data: {
+        ...candidate.toJSON(),
+        applications,
+        applicationsCount: applications.length
+      }
+    });
   } catch (error) {
     next(error);
   }

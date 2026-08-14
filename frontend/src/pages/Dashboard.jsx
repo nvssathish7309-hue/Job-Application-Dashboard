@@ -437,8 +437,40 @@ export default function Dashboard() {
 
     try {
       const existing = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
-      const updated = [newCandidateRecord, ...existing.filter(c => !(c.email?.toLowerCase() === candEmail.toLowerCase() && (c.role || '').toLowerCase() === candRole.toLowerCase()))];
-      localStorage.setItem('registered_candidates', JSON.stringify(updated));
+      const existingCand = existing.find(c => c.email?.toLowerCase() === candEmail.toLowerCase());
+
+      const newApp = {
+        _id: newCandidateRecord.applicationId,
+        applicationId: newCandidateRecord.applicationId,
+        jobTitle: candRole,
+        role: candRole,
+        status: 'Applied',
+        stage: 'New',
+        appliedAt: newCandidateRecord.createdAt
+      };
+
+      if (!existingCand) {
+        const mergedCand = {
+          ...newCandidateRecord,
+          applications: [newApp]
+        };
+        localStorage.setItem('registered_candidates', JSON.stringify([mergedCand, ...existing]));
+      } else {
+        const currentApps = existingCand.applications || [];
+        if (!currentApps.some(a => a.role === candRole || a.jobTitle === candRole)) {
+          currentApps.push(newApp);
+        }
+        const updatedCand = {
+          ...existingCand,
+          fullName: candName,
+          name: candName,
+          phone: candPhone,
+          role: candRole,
+          applications: currentApps
+        };
+        const updatedList = [updatedCand, ...existing.filter(c => c.email?.toLowerCase() !== candEmail.toLowerCase())];
+        localStorage.setItem('registered_candidates', JSON.stringify(updatedList));
+      }
     } catch (err) {}
 
     try {

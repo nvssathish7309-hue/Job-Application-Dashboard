@@ -62,7 +62,12 @@ export default function Login() {
         if (res?.success) {
           navigate(from, { replace: true });
         } else {
-          setErrorMessage(res?.message || 'Invalid credentials. Please check your email and password.');
+          const isTeamEmail = ['admin@mindmatrix.com', 'hr@mindmatrix.com', 'recruiter@mindmatrix.com', 'interviewer@mindmatrix.com'].includes(email.toLowerCase());
+          setErrorMessage(
+            isTeamEmail
+              ? `Invalid credentials for ${email}. Default demo password is Sathish@29`
+              : `Invalid credentials. If you haven't registered your candidate account password yet, please click "Candidate Sign Up" above.`
+          );
         }
       } catch (err) {
         setErrorMessage(err.response?.data?.message || err.message || 'Failed to communicate with authentication server.');

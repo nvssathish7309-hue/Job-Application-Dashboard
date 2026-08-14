@@ -80,28 +80,55 @@ export const CandidateProvider = ({ children }) => {
 
       let apiCands = (candRes && candRes.success && candRes.data) ? candRes.data : [];
 
-      let combined = [];
+      let rawList = [];
       if (apiCands.length === 0) {
-        combined = [...localCands];
-        INITIAL_CANDIDATES.forEach(mc => {
-          const mcEmail = (mc.email || '').toLowerCase();
-          const mcRole = (mc.role || '').toLowerCase();
-          if (!combined.some(c => (c.id && c.id === mc.id) || (c.email && mc.email && c.email.toLowerCase() === mcEmail && (c.role || '').toLowerCase() === mcRole))) {
-            combined.push(mc);
-          }
-        });
+        rawList = [...localCands, ...INITIAL_CANDIDATES];
       } else {
-        combined = [...apiCands];
-        localCands.forEach(lc => {
-          const lcId = String(lc._id || lc.id || '');
-          const lcEmail = (lc.email || '').toLowerCase();
-          const lcRole = (lc.role || '').toLowerCase();
-          if (!combined.some(c => (c._id && String(c._id) === lcId) || (c.id && String(c.id) === lcId) || (c.email && lcEmail && c.email.toLowerCase() === lcEmail && (c.role || '').toLowerCase() === lcRole))) {
-            combined.push(lc);
-          }
-        });
+        rawList = [...apiCands, ...localCands];
       }
 
+      // Single candidate profile per email address with merged applications list
+      const candidateMap = new Map();
+
+      rawList.forEach(item => {
+        if (!item || !item.email) return;
+        const emailKey = item.email.toLowerCase().trim();
+        const existing = candidateMap.get(emailKey);
+
+        const appObj = {
+          _id: item.applicationId || item._id || item.id || `app-${Date.now()}`,
+          applicationId: item.applicationId || `APP-${Math.floor(1000 + Math.random() * 9000)}`,
+          role: item.role || item.title || 'Software Engineer',
+          jobTitle: item.role || item.title || 'Software Engineer',
+          status: item.status || item.stage || 'Applied',
+          stage: item.stage || item.status || 'Applied',
+          source: item.source || 'Website',
+          appliedAt: item.appliedAt || item.appliedDate || item.createdAt || new Date().toISOString()
+        };
+
+        if (!existing) {
+          candidateMap.set(emailKey, {
+            ...item,
+            applications: item.applications && item.applications.length > 0 ? item.applications : [appObj],
+            applicationsCount: item.applicationsCount || (item.applications?.length) || 1
+          });
+        } else {
+          // Merge existing candidate profile with latest info
+          const currentApps = existing.applications || [];
+          const appExists = currentApps.some(a => (a._id && a._id === appObj._id) || (a.role && a.role === appObj.role));
+          if (!appExists) {
+            currentApps.push(appObj);
+          }
+          candidateMap.set(emailKey, {
+            ...existing,
+            ...item, // Latest application updates profile details (skills, experience, etc.)
+            applications: currentApps,
+            applicationsCount: currentApps.length
+          });
+        }
+      });
+
+      const combined = Array.from(candidateMap.values());
       const activeCandidates = combined.filter(c => !isCandidateDeleted(c, deletedList));
       setCandidates(activeCandidates);
 

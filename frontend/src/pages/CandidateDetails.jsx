@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Mail, Phone, MapPin, Calendar, Briefcase, GraduationCap,
@@ -91,6 +91,23 @@ export default function CandidateDetails() {
   }, [id, contextCandidate]);
 
   const candidate = contextCandidate || asyncCandidate;
+
+  const candidateApplications = useMemo(() => {
+    if (!candidate) return [];
+    if (candidate.applications && candidate.applications.length > 0) {
+      return candidate.applications;
+    }
+    return [{
+      _id: candidate._id || candidate.id,
+      applicationId: candidate.applicationId || 'APP-0001',
+      jobTitle: candidate.role || 'Position Applied',
+      role: candidate.role || 'Position Applied',
+      status: candidate.status || 'Applied',
+      stage: candidate.stage || candidate.status || 'Applied',
+      source: candidate.source || 'Candidate Portal',
+      appliedAt: candidate.appliedDate || candidate.createdAt || new Date().toISOString()
+    }];
+  }, [candidate]);
 
   const handleDeleteCandidate = () => {
     if (window.confirm(`Are you sure you want to delete ${candidate?.name || candidate?.fullName || 'this candidate'}? All associated notifications will also be deleted.`)) {
@@ -241,6 +258,45 @@ export default function CandidateDetails() {
 
         {/* Left Column */}
         <div className="lg:col-span-2 space-y-5">
+
+          {/* Submitted Job Applications List */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-blue-600" />
+                <span>Submitted Job Applications ({candidateApplications.length})</span>
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-extrabold border border-blue-200">
+                Single Candidate Profile
+              </span>
+            </div>
+
+            <div className="space-y-2.5">
+              {candidateApplications.map((app, idx) => (
+                <div key={app._id || app.applicationId || idx} className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-blue-300 transition-all">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-extrabold text-slate-900 text-xs sm:text-sm">
+                        {app.jobTitle || app.role || candidate.role}
+                      </h3>
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
+                        {app.applicationId || `APP-00${idx + 1}`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500 font-semibold mt-1">
+                      <span>Applied: {app.appliedAt ? (typeof app.appliedAt === 'string' && app.appliedAt.includes('T') ? app.appliedAt.split('T')[0] : app.appliedAt) : 'Recent'}</span>
+                      <span>•</span>
+                      <span>Source: {app.source || 'Candidate Portal'}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge status={app.stage || app.status || 'Applied'} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Skills */}
           <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">

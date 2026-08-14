@@ -278,9 +278,16 @@ export default function Candidates() {
                             {initials}
                           </div>
                           <div className="min-w-0">
-                            <Link to={`/candidates/${candidateId}`} className="font-semibold text-slate-900 hover:text-blue-600 transition-colors truncate block">
-                              {candidateName}
-                            </Link>
+                            <div className="flex items-center gap-2">
+                              <Link to={`/candidates/${candidateId}`} className="font-semibold text-slate-900 hover:text-blue-600 transition-colors truncate block">
+                                {candidateName}
+                              </Link>
+                              {(c.applications?.length > 1 || c.applicationsCount > 1) && (
+                                <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-extrabold text-[10px] border border-blue-200 shrink-0">
+                                  {c.applications?.length || c.applicationsCount} Applications
+                                </span>
+                              )}
+                            </div>
                             <p className="text-[11px] text-slate-400 truncate">{c.email}</p>
                           </div>
                         </div>
