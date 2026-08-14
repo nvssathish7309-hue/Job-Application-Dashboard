@@ -243,12 +243,13 @@ export default function Users() {
     setCopyFeedback(u._id);
     setTimeout(() => setCopyFeedback(false), 2000);
   };
-
   const filteredUsers = users.filter(u => {
     const fullName = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
     const query = searchQuery.toLowerCase();
     const matchesSearch = fullName.includes(query) || u.email?.toLowerCase().includes(query) || u.role?.toLowerCase().includes(query);
-    const matchesRole = roleFilter === 'ALL' || u.role === roleFilter;
+    const matchesRole = roleFilter === 'ALL'
+      ? u.role !== 'CANDIDATE'
+      : u.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
@@ -316,9 +317,9 @@ export default function Users() {
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Total Active Users</p>
+            <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Total Active Team Users</p>
             <p className="text-xl font-extrabold text-slate-900 mt-0.5">
-              {users.filter(u => u.isActive !== false).length}
+              {users.filter(u => u.role !== 'CANDIDATE' && u.isActive !== false).length}
             </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center">
@@ -344,22 +345,31 @@ export default function Users() {
 
         {/* Role Filters */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
-          {['ALL', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'SUPER_ADMIN'].map(role => (
+          {[
+            { id: 'ALL', label: 'All Team Members' },
+            { id: 'HR_MANAGER', label: 'HR Manager' },
+            { id: 'RECRUITER', label: 'Recruiter' },
+            { id: 'INTERVIEWER', label: 'Interviewer' },
+            { id: 'SUPER_ADMIN', label: 'Super Admin' },
+            { id: 'CANDIDATE', label: 'Candidates (Portal)' }
+          ].map(roleItem => (
             <button
-              key={role}
-              onClick={() => setRoleFilter(role)}
+              key={roleItem.id}
+              onClick={() => setRoleFilter(roleItem.id)}
               className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
-                roleFilter === role
+                roleFilter === roleItem.id
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
-              {role === 'ALL' ? 'All Roles' : role.replace('_', ' ')}
+              {roleItem.label}
             </button>
           ))}
         </div>
 
       </div>
+
+
 
       {/* Table Container */}
       {loading ? (

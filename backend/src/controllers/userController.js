@@ -3,7 +3,14 @@ const { createAuditLog } = require('../services/auditService');
 
 const getUsers = async (req, res, next) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    const { role, excludeCandidates } = req.query;
+    let filter = {};
+    if (role) {
+      filter.role = role;
+    } else if (excludeCandidates === 'true') {
+      filter.role = { $ne: 'CANDIDATE' };
+    }
+    const users = await User.find(filter).select('-password').sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: users });
   } catch (error) {
     next(error);
