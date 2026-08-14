@@ -145,17 +145,24 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
         );
 
         candidateRecords.forEach(c => {
+          const candName = c.fullName || c.name || user?.firstName || 'Sathish N';
           const apps = c.applications && c.applications.length > 0 ? c.applications : [c];
           apps.forEach(app => {
             const roleName = app.role || c.role || 'Position';
             const currentStage = app.stage || app.status || c.stage || c.status || 'Applied';
             const notifId = `auto-app-${c._id || c.id || 'c'}-${roleName.replace(/\s+/g, '-')}-${currentStage}`;
 
+            const isPositive = ['shortlisted', 'interview', 'selected', 'offer', 'screening'].some(s => currentStage.toLowerCase().includes(s));
+            const title = isPositive ? `🎉 Congratulations ${candName}!` : `Application Update: ${currentStage}`;
+            const msg = isPositive
+              ? `Congratulations ${candName}! Your application for "${roleName}" is currently in "${currentStage}" stage.`
+              : `Application Update: Your application for "${roleName}" status is "${currentStage}".`;
+
             if (!merged.some(n => n.id === notifId || n.message?.includes(roleName))) {
               merged.push({
                 id: notifId,
-                title: `Application Status: ${currentStage}`,
-                message: `Your application for "${roleName}" status is currently "${currentStage}".`,
+                title,
+                message: msg,
                 timestamp: app.appliedAt || new Date().toISOString(),
                 isRead: false
               });

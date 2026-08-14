@@ -257,23 +257,32 @@ export const CandidateProvider = ({ children }) => {
       const target = (candidates || []).find(c => isMatchCandidate(c, id));
       const candEmail = target?.email || 'nvssathish7309@gmail.com';
       const candRole = target?.role || 'Position Applied';
-      const candName = target?.fullName || target?.name || 'Applicant';
+      const candName = target?.fullName || target?.name || 'Candidate';
 
       const existingNotifs = JSON.parse(localStorage.getItem('local_notifications') || '[]');
+
+      const isPositive = ['shortlisted', 'interview', 'selected', 'offer', 'screening'].some(s => newStage.toLowerCase().includes(s));
+      const notifTitle = isPositive 
+        ? `🎉 Congratulations ${candName}!`
+        : `Application Update for ${candName}`;
+      
+      const notifMessage = isPositive
+        ? `Congratulations ${candName}! Your application status for "${candRole}" has been updated to "${newStage}"${remarks ? `. Notes: ${remarks}` : '.'}`
+        : `Application Update: Your application status for "${candRole}" is "${newStage}"${remarks ? `. Notes: ${remarks}` : '.'}`;
 
       // 1. Candidate Notification
       const candidateNotif = {
         id: `cand-notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
         forCandidate: true,
-        title: `Status Updated: ${newStage}`,
-        message: `Your application for "${candRole}" was updated to "${newStage}"${remarks ? `. Notes: ${remarks}` : '.'}`,
+        title: notifTitle,
+        message: notifMessage,
         timestamp: new Date().toISOString(),
         candidateEmail: candEmail.toLowerCase(),
         candidateName: candName,
         isRead: false
       };
 
-      // 2. Interviewer Notification (Notify Interviewer when stage is updated or interview scheduled)
+      // 2. Interviewer Notification
       const interviewerNotif = {
         id: `int-notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
         forInterviewer: true,
