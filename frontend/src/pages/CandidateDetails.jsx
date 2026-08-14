@@ -190,10 +190,13 @@ export default function CandidateDetails() {
   } catch (e) {}
 
   const candInterviewer = interviewObj.interviewerName || interviewObj.interviewer;
-  if (candInterviewer && !candInterviewer.toLowerCase().includes('santhosh') && !candInterviewer.toLowerCase().includes('tirumal')) {
+  if (candInterviewer && 
+      !candInterviewer.toLowerCase().startsWith('interviewer') && 
+      !candInterviewer.toLowerCase().includes('santhosh') && 
+      !candInterviewer.toLowerCase().includes('tirumal')) {
     interviewerName = candInterviewer;
   }
-  if (!interviewerName) interviewerName = 'Interviewer I (Engineering)';
+  if (!interviewerName) interviewerName = 'Interviewer 1234 (Engineering)';
   const meetingLink = interviewObj.meetingLink || 'https://meet.google.com/xyz-abc-123';
   const feedback = candidate.interviewFeedback || [];
   const candNameClean = (candidate?.name || candidate?.fullName || 'Candidate').replace(/\s+/g, '_');

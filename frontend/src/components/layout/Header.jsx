@@ -219,7 +219,7 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
           return (userEmail && cEmail === userEmail) || cName.includes(userFirstName) || cName.includes('sathish') || userEmail.includes('sathish');
         });
 
-        const candName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : (candidateRecords[0]?.fullName || candidateRecords[0]?.name || 'Sathish N');
+        const candName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : (candidateRecords[0]?.fullName || candidateRecords[0]?.name || 'Candidate C');
 
         candidateRecords.forEach((c, idx) => {
           const apps = c.applications && c.applications.length > 0 ? c.applications : [c];

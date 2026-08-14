@@ -371,12 +371,12 @@ export default function Dashboard() {
 
     const defaultName = (user?.firstName && user?.lastName)
       ? `${user.firstName} ${user.lastName}`
-      : (user?.name || savedProfile?.name || 'Sathish N');
+      : (user?.name || savedProfile?.name || 'Candidate C');
 
     setApplyForm({
       fullName: defaultName,
-      email: user?.email || savedProfile?.email || 'nvssathish7309@gmail.com',
-      phone: user?.phone || savedProfile?.phone || '+91 6380887476',
+      email: user?.email || savedProfile?.email || 'candidate@example.com',
+      phone: user?.phone || savedProfile?.phone || '+91 9876543210',
       resume: null
     });
   };
@@ -405,8 +405,8 @@ export default function Dashboard() {
       return;
     }
     const candRole = selectedJobToApply?.title || 'Senior Frontend Engineer';
-    const candName = applyForm.fullName || (user?.firstName ? `${user.firstName} ${user.lastName || ''}` : 'Sathish N');
-    const candEmail = applyForm.email || user?.email || 'nvssathish7309@gmail.com';
+    const candName = applyForm.fullName || (user?.firstName ? `${user.firstName} ${user.lastName || ''}` : 'Candidate C');
+    const candEmail = applyForm.email || user?.email || 'candidate@example.com';
     const candPhone = applyForm.phone || user?.phone || '+91 6380887476';
 
     const newCandidateRecord = {
@@ -795,10 +795,13 @@ export default function Dashboard() {
 
     const firstCand = userApplications[0] || myApplications[0] || null;
     const customIntName = firstCand?.interview?.interviewerName || firstCand?.interviewDetails?.interviewerName;
-    if (customIntName && !customIntName.toLowerCase().includes('santhosh') && !customIntName.toLowerCase().includes('tirumal')) {
+    if (customIntName && 
+        !customIntName.toLowerCase().startsWith('interviewer') && 
+        !customIntName.toLowerCase().includes('santhosh') && 
+        !customIntName.toLowerCase().includes('tirumal')) {
       activeInterviewerName = customIntName;
     }
-    if (!activeInterviewerName) activeInterviewerName = 'Interviewer I (Engineering)';
+    if (!activeInterviewerName) activeInterviewerName = 'Interviewer 1234 (Engineering)';
 
     return (
       <div className="space-y-6 animate-fade-in">
@@ -1055,7 +1058,7 @@ export default function Dashboard() {
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Sathish N"
+                        placeholder="e.g. Candidate Name"
                         value={applyForm.fullName}
                         onChange={(e) => setApplyForm({ ...applyForm, fullName: e.target.value })}
                         className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-bold placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
@@ -1071,7 +1074,7 @@ export default function Dashboard() {
                         <input
                           type="email"
                           required
-                          placeholder="sathish@example.com"
+                          placeholder="candidate@example.com"
                           value={applyForm.email}
                           onChange={(e) => setApplyForm({ ...applyForm, email: e.target.value })}
                           className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-bold placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"

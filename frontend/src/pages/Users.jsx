@@ -233,9 +233,29 @@ export default function Users() {
         try {
           const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
           const userIdx = savedUsers.findIndex(u => (u._id || u.email) === (editModalUser._id || editModalUser.email));
+          const updatedUserObj = { ...savedUsers[userIdx], ...res.data, firstName: editFirstName, lastName: editLastName, name: fullName, department: editDepartment, phone: editPhone };
           if (userIdx !== -1) {
-            savedUsers[userIdx] = { ...savedUsers[userIdx], ...res.data, firstName: editFirstName, lastName: editLastName, department: editDepartment, phone: editPhone };
+            savedUsers[userIdx] = updatedUserObj;
             localStorage.setItem('users', JSON.stringify(savedUsers));
+          }
+
+          // If updated user is an Interviewer, sync interviewerName on candidate records!
+          if ((editModalUser.role || '').toUpperCase() === 'INTERVIEWER' || (editModalUser.email || '').toLowerCase().includes('interviewer')) {
+            const newInterviewerDisplayName = `${fullName}${editDepartment ? ` (${editDepartment})` : ''}`;
+            const registeredCands = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
+            const updatedCands = registeredCands.map(c => {
+              if (c.interview || c.interviewDetails) {
+                const intObj = c.interview || c.interviewDetails || {};
+                return {
+                  ...c,
+                  interview: { ...intObj, interviewerName: newInterviewerDisplayName },
+                  interviewDetails: { ...intObj, interviewerName: newInterviewerDisplayName }
+                };
+              }
+              return c;
+            });
+            localStorage.setItem('registered_candidates', JSON.stringify(updatedCands));
+            window.dispatchEvent(new CustomEvent('candidateSubmitted'));
           }
         } catch (e) {}
 

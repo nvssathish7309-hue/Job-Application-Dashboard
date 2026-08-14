@@ -64,7 +64,7 @@ export default function SettingsPage() {
 
     const userName = (user?.firstName && user?.lastName)
       ? `${user.firstName} ${user.lastName}`
-      : (user?.name || (user?.email ? user.email.split('@')[0] : 'Sathish N'));
+      : (user?.name || (user?.email ? user.email.split('@')[0] : 'Candidate C'));
 
     const userTitle = user?.department || (
       user?.role === 'SUPER_ADMIN' ? 'Super Admin' :
@@ -94,14 +94,14 @@ export default function SettingsPage() {
       : (user?.name || '');
 
     return {
-      name: saved?.name || defaultName || 'Sathish N',
-      email: saved?.email || user?.email || 'nvssathish7309@gmail.com',
-      phone: saved?.phone || user?.phone || '+91 6380887476',
+      name: saved?.name || defaultName || 'Candidate C',
+      email: saved?.email || user?.email || 'candidate@example.com',
+      phone: saved?.phone || user?.phone || '+91 9876543210',
       role: saved?.role || 'Frontend Developer',
       experience: saved?.experience || '3 Years',
       skills: saved?.skills || ['React.js', 'JavaScript', 'Tailwind CSS', 'Node.js'],
       education: saved?.education || 'B.Tech Computer Science, IIT Delhi (2026)',
-      resumeFileName: saved?.resumeFileName || 'Sathish_Resume_2026.pdf',
+      resumeFileName: saved?.resumeFileName || 'Candidate_Resume_2026.pdf',
       resume: null
     };
   };

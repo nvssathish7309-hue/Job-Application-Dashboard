@@ -161,7 +161,7 @@ export default function PublicCareers() {
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Sathish N"
+                        placeholder="e.g. Candidate Name"
                         value={applicantForm.fullName}
                         onChange={(e) => setApplicantForm({ ...applicantForm, fullName: e.target.value })}
                         className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -177,7 +177,7 @@ export default function PublicCareers() {
                         <input
                           type="email"
                           required
-                          placeholder="sathish@example.com"
+                          placeholder="candidate@example.com"
                           value={applicantForm.email}
                           onChange={(e) => setApplicantForm({ ...applicantForm, email: e.target.value })}
                           className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
