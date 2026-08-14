@@ -258,13 +258,20 @@ export const CandidateProvider = ({ children }) => {
       const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
       const updated = saved.map(c => {
         if (isMatchCandidate(c, id)) {
-          return { ...c, status: 'Shortlisted', stage: 'Shortlisted', isHrUpdated: true };
+          const updatedApps = (c.applications || []).map(a => ({ ...a, status: 'Shortlisted', stage: 'Shortlisted' }));
+          return { ...c, status: 'Shortlisted', stage: 'Shortlisted', applications: updatedApps.length > 0 ? updatedApps : c.applications, isHrUpdated: true };
         }
         return c;
       });
       localStorage.setItem('registered_candidates', JSON.stringify(updated));
     } catch (e) {}
-    setCandidates(prev => prev.map(c => isMatchCandidate(c, id) ? { ...c, status: 'Shortlisted', stage: 'Shortlisted', isHrUpdated: true } : c));
+    setCandidates(prev => prev.map(c => {
+      if (isMatchCandidate(c, id)) {
+        const updatedApps = (c.applications || []).map(a => ({ ...a, status: 'Shortlisted', stage: 'Shortlisted' }));
+        return { ...c, status: 'Shortlisted', stage: 'Shortlisted', applications: updatedApps.length > 0 ? updatedApps : c.applications, isHrUpdated: true };
+      }
+      return c;
+    }));
     await fetchCandidateData();
     window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     return res || { success: true };
@@ -277,13 +284,20 @@ export const CandidateProvider = ({ children }) => {
         const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
         const updated = saved.map(c => {
           if (isMatchCandidate(c, id)) {
-            return { ...c, status: 'Interview', stage: 'Interview', isHrUpdated: true, interview: data };
+            const updatedApps = (c.applications || []).map(a => ({ ...a, status: 'Interview', stage: 'Interview' }));
+            return { ...c, status: 'Interview', stage: 'Interview', applications: updatedApps.length > 0 ? updatedApps : c.applications, isHrUpdated: true, interview: data };
           }
           return c;
         });
         localStorage.setItem('registered_candidates', JSON.stringify(updated));
       } catch (e) {}
-      setCandidates(prev => prev.map(c => isMatchCandidate(c, id) ? { ...c, status: 'Interview', stage: 'Interview', isHrUpdated: true, interview: data } : c));
+      setCandidates(prev => prev.map(c => {
+        if (isMatchCandidate(c, id)) {
+          const updatedApps = (c.applications || []).map(a => ({ ...a, status: 'Interview', stage: 'Interview' }));
+          return { ...c, status: 'Interview', stage: 'Interview', applications: updatedApps.length > 0 ? updatedApps : c.applications, isHrUpdated: true, interview: data };
+        }
+        return c;
+      }));
       await fetchCandidateData();
       window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {
@@ -298,13 +312,20 @@ export const CandidateProvider = ({ children }) => {
         const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
         const updated = saved.map(c => {
           if (isMatchCandidate(c, id)) {
-            return { ...c, status: 'Selected', stage: 'Selected', isHrUpdated: true };
+            const updatedApps = (c.applications || []).map(a => ({ ...a, status: 'Selected', stage: 'Selected' }));
+            return { ...c, status: 'Selected', stage: 'Selected', applications: updatedApps.length > 0 ? updatedApps : c.applications, isHrUpdated: true };
           }
           return c;
         });
         localStorage.setItem('registered_candidates', JSON.stringify(updated));
       } catch (e) {}
-      setCandidates(prev => prev.map(c => isMatchCandidate(c, id) ? { ...c, status: 'Selected', stage: 'Selected', isHrUpdated: true } : c));
+      setCandidates(prev => prev.map(c => {
+        if (isMatchCandidate(c, id)) {
+          const updatedApps = (c.applications || []).map(a => ({ ...a, status: 'Selected', stage: 'Selected' }));
+          return { ...c, status: 'Selected', stage: 'Selected', applications: updatedApps.length > 0 ? updatedApps : c.applications, isHrUpdated: true };
+        }
+        return c;
+      }));
       await fetchCandidateData();
       window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {
@@ -318,13 +339,20 @@ export const CandidateProvider = ({ children }) => {
       const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
       const updated = saved.map(c => {
         if (isMatchCandidate(c, id)) {
-          return { ...c, status: 'Rejected', stage: 'Rejected', isHrUpdated: true };
+          const updatedApps = (c.applications || []).map(a => ({ ...a, status: 'Rejected', stage: 'Rejected' }));
+          return { ...c, status: 'Rejected', stage: 'Rejected', applications: updatedApps.length > 0 ? updatedApps : c.applications, isHrUpdated: true };
         }
         return c;
       });
       localStorage.setItem('registered_candidates', JSON.stringify(updated));
     } catch (e) {}
-    setCandidates(prev => prev.map(c => isMatchCandidate(c, id) ? { ...c, status: 'Rejected', stage: 'Rejected', isHrUpdated: true } : c));
+    setCandidates(prev => prev.map(c => {
+      if (isMatchCandidate(c, id)) {
+        const updatedApps = (c.applications || []).map(a => ({ ...a, status: 'Rejected', stage: 'Rejected' }));
+        return { ...c, status: 'Rejected', stage: 'Rejected', applications: updatedApps.length > 0 ? updatedApps : c.applications, isHrUpdated: true };
+      }
+      return c;
+    }));
     await fetchCandidateData();
     window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     return res || { success: true };

@@ -97,27 +97,53 @@ export default function RecruitmentPipeline() {
   }, [refreshCandidates]);
 
   const applications = useMemo(() => {
-    return (candidates || []).map((c, idx) => {
-      const rawStage = c.stage || c.status || 'New';
-
-      return {
-        _id: c._id || c.id || `app-${idx}`,
-        applicationId: c.applicationId || (typeof c.candidateId === 'string' ? c.candidateId.replace('CAN', 'APP') : `APP-00${idx + 1}`),
-        candidateId: {
-          _id: c._id || c.id,
-          fullName: c.fullName || c.name || 'Candidate',
-          name: c.fullName || c.name || 'Candidate',
-          email: c.email,
-          phone: c.phone,
-          role: c.role || 'Software Engineer',
-          experience: c.experience || 'Fresher'
-        },
-        stage: rawStage,
-        status: rawStage,
-        source: c.source || 'Candidate Portal',
-        appliedAt: c.createdAt || c.appliedDate || new Date().toISOString()
-      };
+    const list = [];
+    (candidates || []).forEach((c, cIdx) => {
+      if (c.applications && c.applications.length > 0) {
+        c.applications.forEach((app, aIdx) => {
+          const appStage = app.stage || app.status || c.stage || c.status || 'New';
+          list.push({
+            _id: app._id || app.applicationId || `app-${cIdx}-${aIdx}`,
+            applicationId: app.applicationId || `APP-${Math.floor(1000 + Math.random() * 9000)}`,
+            candidateId: {
+              _id: c._id || c.id,
+              fullName: c.fullName || c.name || 'Candidate',
+              name: c.fullName || c.name || 'Candidate',
+              email: c.email,
+              phone: c.phone,
+              role: app.jobTitle || app.role || c.role || 'Software Engineer',
+              experience: c.experience || 'Fresher'
+            },
+            jobTitle: app.jobTitle || app.role || c.role || 'Software Engineer',
+            stage: appStage,
+            status: appStage,
+            source: app.source || c.source || 'Candidate Portal',
+            appliedAt: app.appliedAt || c.createdAt || c.appliedDate || new Date().toISOString()
+          });
+        });
+      } else {
+        const rawStage = c.stage || c.status || 'New';
+        list.push({
+          _id: c._id || c.id || `app-${cIdx}`,
+          applicationId: c.applicationId || (typeof c.candidateId === 'string' ? c.candidateId.replace('CAN', 'APP') : `APP-00${cIdx + 1}`),
+          candidateId: {
+            _id: c._id || c.id,
+            fullName: c.fullName || c.name || 'Candidate',
+            name: c.fullName || c.name || 'Candidate',
+            email: c.email,
+            phone: c.phone,
+            role: c.role || 'Software Engineer',
+            experience: c.experience || 'Fresher'
+          },
+          jobTitle: c.role || 'Software Engineer',
+          stage: rawStage,
+          status: rawStage,
+          source: c.source || 'Candidate Portal',
+          appliedAt: c.createdAt || c.appliedDate || new Date().toISOString()
+        });
+      }
     });
+    return list;
   }, [candidates]);
 
   const [confirmModalData, setConfirmModalData] = useState(null);
