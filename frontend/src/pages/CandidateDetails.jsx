@@ -180,6 +180,7 @@ export default function CandidateDetails() {
     } catch (e) {}
   }
   if (!interviewerName) interviewerName = 'Tirumal M (Engineering Lead)';
+  const meetingLink = interviewObj.meetingLink || 'https://meet.google.com/xyz-abc-123';
   const feedback = candidate.interviewFeedback || [];
   const candNameClean = (candidate?.name || candidate?.fullName || 'Candidate').replace(/\s+/g, '_');
   const resumeFileName = typeof candidate?.resume === 'object' && candidate?.resume?.fileName
