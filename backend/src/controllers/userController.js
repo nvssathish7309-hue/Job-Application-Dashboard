@@ -167,11 +167,32 @@ const updateUser = async (req, res, next) => {
   }
 };
 
+const deleteUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+    await User.findByIdAndDelete(req.params.id);
+    await createAuditLog({
+      req,
+      action: 'DELETE_USER',
+      entity: 'User',
+      entityId: req.params.id,
+      description: `${req.user.role} deleted team member ${user.email}`
+    });
+    res.status(200).json({ success: true, message: 'User deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUsers,
   createUser,
   updateUser,
   updateUserRole,
   toggleUserStatus,
-  updateUserPassword
+  updateUserPassword,
+  deleteUser
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { userService } from '../services/userService';
 import { useAuth } from '../context/AuthContext';
-import { UserPlus, Shield, CheckCircle, XCircle, UserCheck, Search, Key, Lock, Copy, Check, Filter, Eye, EyeOff, Edit3 } from 'lucide-react';
+import { UserPlus, Shield, CheckCircle, XCircle, UserCheck, Search, Key, Lock, Copy, Check, Filter, Eye, EyeOff, Edit3, Trash2 } from 'lucide-react';
 
 const ROLE_OPTIONS = [
   { value: 'SUPER_ADMIN', label: 'Super Admin', color: 'bg-purple-100 text-purple-700 border-purple-200' },
@@ -85,6 +85,46 @@ export default function Users() {
       }
     } catch (err) {
       alert('Failed to update user status');
+    }
+  };
+
+  const handleDeleteUser = async (id, email) => {
+    if (email === 'admin@mindmatrix.com' || email === currentUser?.email) {
+      alert('Super Admin main account cannot be deleted.');
+      return;
+    }
+    if (!window.confirm(`Are you sure you want to permanently delete ${email}?`)) return;
+    try {
+      await userService.deleteUser(id).catch(() => null);
+      const updatedUsers = users.filter(u => u._id !== id);
+      setUsers(updatedUsers);
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      window.dispatchEvent(new CustomEvent('teamMembersUpdated', { detail: updatedUsers }));
+      alert(`User ${email} deleted successfully.`);
+    } catch (e) {
+      alert('Failed to delete user.');
+    }
+  };
+
+  const handleClearDemoMembers = async () => {
+    if (!window.confirm('Are you sure you want to remove all demo team members and candidates?')) return;
+    try {
+      const demoEmails = ['hr@mindmatrix.com', 'recruiter@mindmatrix.com', 'interviewer@mindmatrix.com', 'candidate@mindmatrix.com'];
+      for (const u of users) {
+        if (demoEmails.includes(u.email?.toLowerCase())) {
+          await userService.deleteUser(u._id).catch(() => null);
+        }
+      }
+      const remaining = users.filter(u => !demoEmails.includes(u.email?.toLowerCase()));
+      setUsers(remaining);
+      localStorage.setItem('users', JSON.stringify(remaining));
+      localStorage.removeItem('registered_candidates');
+      localStorage.removeItem('deleted_candidate_ids');
+      window.dispatchEvent(new CustomEvent('teamMembersUpdated', { detail: remaining }));
+      window.dispatchEvent(new CustomEvent('candidateSubmitted'));
+      alert('Demo team access members and candidates removed successfully.');
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -306,13 +346,25 @@ export default function Users() {
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAddModal}
-          className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-600/25 flex items-center gap-2 cursor-pointer transition-all self-start sm:self-auto"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>+ Grant Team Access / Create Account</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          {isAdmin && (
+            <button
+              onClick={handleClearDemoMembers}
+              className="px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-xs rounded-xl border border-rose-200 shadow-xs flex items-center gap-1.5 cursor-pointer transition-all"
+              title="Remove sample demo team members and candidates"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+              <span>Remove Demo Members &amp; Candidates</span>
+            </button>
+          )}
+          <button
+            onClick={handleOpenAddModal}
+            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-600/25 flex items-center gap-2 cursor-pointer transition-all"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>+ Grant Team Access / Create Account</span>
+          </button>
+        </div>
       </div>
 
       {/* Team Role Overview Cards */}
@@ -502,12 +554,23 @@ export default function Users() {
                         onClick={() => handleToggleStatus(u._id)}
                         className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-colors cursor-pointer ${
                           u.isActive 
-                            ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200' 
+                            ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200' 
                             : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
                         }`}
                       >
                         {u.isActive ? 'Deactivate' : 'Enable'}
                       </button>
+
+                      {isAdmin && u.email !== 'admin@mindmatrix.com' && u.email !== currentUser?.email && (
+                        <button
+                          onClick={() => handleDeleteUser(u._id, u.email)}
+                          className="px-2.5 py-1.5 rounded-xl font-extrabold text-xs bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-700 border border-rose-200 transition-all cursor-pointer flex items-center gap-1"
+                          title="Delete team member permanently"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Delete</span>
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

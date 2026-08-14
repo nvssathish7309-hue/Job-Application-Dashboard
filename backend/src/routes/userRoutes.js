@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getUsers, createUser, updateUser, updateUserRole, toggleUserStatus, updateUserPassword } = require('../controllers/userController');
+const { getUsers, createUser, updateUser, updateUserRole, toggleUserStatus, updateUserPassword, deleteUser } = require('../controllers/userController');
 const { requireAuth } = require('../middleware/auth');
 const { requireRole } = require('../middleware/rbac');
 
@@ -12,5 +12,6 @@ router.put('/:id', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER
 router.put('/:id/role', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), updateUserRole);
 router.put('/:id/password', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), updateUserPassword);
 router.patch('/:id/toggle-status', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), toggleUserStatus);
+router.delete('/:id', requireRole(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER']), deleteUser);
 
 module.exports = router;
