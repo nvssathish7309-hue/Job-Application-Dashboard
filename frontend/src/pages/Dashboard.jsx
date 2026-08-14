@@ -298,13 +298,24 @@ export default function Dashboard() {
     statusFilter: 'All'
   });
 
+  const [, setTeamUpdateTick] = useState(0);
+
   useEffect(() => {
     const handleGlobalCandidateSubmit = () => {
       if (refreshCandidates) refreshCandidates();
       fetchMyApplications();
     };
+    const handleTeamUpdate = () => {
+      setTeamUpdateTick(t => t + 1);
+    };
     window.addEventListener('candidateSubmitted', handleGlobalCandidateSubmit);
-    return () => window.removeEventListener('candidateSubmitted', handleGlobalCandidateSubmit);
+    window.addEventListener('teamMembersUpdated', handleTeamUpdate);
+    window.addEventListener('userProfileUpdated', handleTeamUpdate);
+    return () => {
+      window.removeEventListener('candidateSubmitted', handleGlobalCandidateSubmit);
+      window.removeEventListener('teamMembersUpdated', handleTeamUpdate);
+      window.removeEventListener('userProfileUpdated', handleTeamUpdate);
+    };
   }, [refreshCandidates]);
 
   useEffect(() => {
@@ -768,7 +779,7 @@ export default function Dashboard() {
       }
     }
 
-    let activeInterviewerName = 'Tirumal M (Engineering Lead)';
+    let activeInterviewerName = 'Santhosh N (Engineering)';
     try {
       const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
       const interviewerUser = savedUsers.find(u =>
@@ -777,7 +788,7 @@ export default function Dashboard() {
       );
       if (interviewerUser) {
         const iName = interviewerUser.name || `${interviewerUser.firstName || ''} ${interviewerUser.lastName || ''}`.trim();
-        const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : ' (Engineering Lead)';
+        const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : ' (Engineering)';
         if (iName) activeInterviewerName = `${iName}${iDept}`;
       }
     } catch (e) {}

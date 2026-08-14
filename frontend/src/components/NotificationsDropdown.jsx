@@ -178,7 +178,7 @@ export default function NotificationsDropdown() {
                     if (iUser) iName = iUser.name || `${iUser.firstName || ''} ${iUser.lastName || ''}`.trim();
                   } catch (e) {}
                 }
-                if (!iName) iName = 'Tirumal M';
+                if (!iName) iName = 'Santhosh N';
 
                 merged.push({
                   id: reminder10MinId,

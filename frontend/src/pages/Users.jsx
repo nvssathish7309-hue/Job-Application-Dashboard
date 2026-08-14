@@ -49,7 +49,11 @@ export default function Users() {
   const fetchUsers = async () => {
     try {
       const res = await userService.getUsers();
-      if (res.success) setUsers(res.data || []);
+      if (res.success && res.data) {
+        setUsers(res.data);
+        localStorage.setItem('users', JSON.stringify(res.data));
+        window.dispatchEvent(new CustomEvent('teamMembersUpdated', { detail: res.data }));
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -213,17 +217,19 @@ export default function Users() {
           email: res.data.email || editModalUser.email,
           title: res.data.department || editDepartment || 'Senior HR Manager'
         };
-        localStorage.setItem('hrProfile', JSON.stringify(updatedProfile));
-
-        // If updated user is current logged in user, update AuthContext
-        if (currentUser && (currentUser._id === editModalUser._id || currentUser.email === editModalUser.email)) {
-          if (updateCurrentUser) {
-            updateCurrentUser(res.data);
+        // Update local users array in localStorage
+        try {
+          const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+          const userIdx = savedUsers.findIndex(u => (u._id || u.email) === (editModalUser._id || editModalUser.email));
+          if (userIdx !== -1) {
+            savedUsers[userIdx] = { ...savedUsers[userIdx], ...res.data, firstName: editFirstName, lastName: editLastName, department: editDepartment, phone: editPhone };
+            localStorage.setItem('users', JSON.stringify(savedUsers));
           }
-        }
+        } catch (e) {}
 
-        // Dispatch global custom event for live component auto-update
+        // Dispatch global custom events for live component auto-update
         window.dispatchEvent(new CustomEvent('userProfileUpdated', { detail: updatedProfile }));
+        window.dispatchEvent(new CustomEvent('teamMembersUpdated'));
 
         setEditModalUser(null);
         fetchUsers();

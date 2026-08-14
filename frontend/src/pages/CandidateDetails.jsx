@@ -41,6 +41,17 @@ export default function CandidateDetails() {
   const [shortlistOpen, setShortlistOpen] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [, setTeamUpdateTick] = useState(0);
+
+  useEffect(() => {
+    const handleTeamUpdate = () => setTeamUpdateTick(t => t + 1);
+    window.addEventListener('teamMembersUpdated', handleTeamUpdate);
+    window.addEventListener('userProfileUpdated', handleTeamUpdate);
+    return () => {
+      window.removeEventListener('teamMembersUpdated', handleTeamUpdate);
+      window.removeEventListener('userProfileUpdated', handleTeamUpdate);
+    };
+  }, []);
 
   const contextCandidate = getCandidateById(id);
   const [asyncCandidate, setAsyncCandidate] = useState(null);
@@ -174,12 +185,12 @@ export default function CandidateDetails() {
       );
       if (interviewerUser) {
         const iName = interviewerUser.name || `${interviewerUser.firstName || ''} ${interviewerUser.lastName || ''}`.trim();
-        const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : ' (Engineering Lead)';
+        const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : ' (Engineering)';
         if (iName) interviewerName = `${iName}${iDept}`;
       }
     } catch (e) {}
   }
-  if (!interviewerName) interviewerName = 'Tirumal M (Engineering Lead)';
+  if (!interviewerName) interviewerName = 'Santhosh N (Engineering)';
   const meetingLink = interviewObj.meetingLink || 'https://meet.google.com/xyz-abc-123';
   const feedback = candidate.interviewFeedback || [];
   const candNameClean = (candidate?.name || candidate?.fullName || 'Candidate').replace(/\s+/g, '_');
