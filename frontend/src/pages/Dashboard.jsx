@@ -782,7 +782,7 @@ export default function Dashboard() {
       }
     } catch (e) {}
 
-    const firstCand = candidateRecords[0];
+    const firstCand = userApplications[0] || myApplications[0] || null;
     if (firstCand?.interview?.interviewerName) {
       activeInterviewerName = firstCand.interview.interviewerName;
     } else if (firstCand?.interviewDetails?.interviewerName) {
