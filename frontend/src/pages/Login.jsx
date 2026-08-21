@@ -111,8 +111,9 @@ export default function Login() {
   const handleDemoLogin = (demoEmail) => {
     setMode('login');
     setEmail(demoEmail);
-    setPassword(''); // Empty password so employee types their password
-    setShowPassword(false);
+    const demoPassword = demoEmail === 'candidate@mindmatrix.com' ? 'Password123!' : 'Sathish@29';
+    setPassword(demoPassword);
+    setShowPassword(true);
     setErrorMessage('');
     setIsExistingAccount(false);
   };
