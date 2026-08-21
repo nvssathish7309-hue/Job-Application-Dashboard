@@ -68,7 +68,7 @@ const dbPromise = connectDB()
 
 // Database readiness check middleware to avoid proxy 502 connection drops
 app.use(async (req, res, next) => {
-  if (req.path === '/api/health') return next();
+  if (req.path === '/' || req.path === '/api/health') return next();
   if (dbReady) return next();
   if (dbError) {
     return res.status(500).json({ success: false, message: 'Database startup failed', error: dbError.message });
@@ -87,6 +87,26 @@ app.use(async (req, res, next) => {
 
 // Serve Uploaded Resumes statically
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Root Landing API Route
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: '🚀 Recruitment Backend API Service is Active & Running!',
+    status: 'Healthy',
+    timestamp: new Date(),
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      candidates: '/api/candidates',
+      jobs: '/api/jobs',
+      applications: '/api/applications',
+      interviews: '/api/interviews',
+      notifications: '/api/notifications',
+      reports: '/api/reports'
+    }
+  });
+});
 
 // Health Check API
 app.get('/api/health', (req, res) => {
