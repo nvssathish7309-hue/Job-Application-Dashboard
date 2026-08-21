@@ -39,10 +39,10 @@ You can log in manually or click the **One-Click Demo Account Badges** on the lo
 
 | Role | Email | Password | Allowed Access |
 | :--- | :--- | :--- | :--- |
-| **Super Admin** | `admin@company.com` | `Password123!` | Full System, User Management, Audit Logs, Settings |
-| **HR Manager** | `hr@company.com` | `Password123!` | Dashboard, Candidates, Jobs, Pipeline, Reports |
-| **Recruiter** | `recruiter@company.com` | `Password123!` | Dashboard, Candidates, Jobs, Schedule Interviews |
-| **Interviewer** | `interviewer@company.com` | `Password123!` | Assigned Interviews, Candidate Evaluation & Feedback |
+| **Super Admin** | `admin@mindmatrix.com` | `Sathish@29` | Full System, User Management, Audit Logs, Settings |
+| **HR Manager** | `hr@mindmatrix.com` | `HrManager@2026` | Dashboard, Candidates, Jobs, Pipeline, Reports |
+| **Recruiter** | `recruiter@mindmatrix.com` | `Recruiter@2026` | Dashboard, Candidates, Jobs, Schedule Interviews |
+| **Interviewer** | `interviewer@mindmatrix.com` | `Interviewer@2026` | Assigned Interviews, Candidate Evaluation & Feedback |
 
 ---
 

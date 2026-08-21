@@ -62,11 +62,10 @@ export default function Login() {
         if (res?.success) {
           navigate(from, { replace: true });
         } else {
-          const isTeamEmail = ['admin@mindmatrix.com', 'hr@mindmatrix.com', 'recruiter@mindmatrix.com', 'interviewer@mindmatrix.com'].includes(email.toLowerCase());
           setErrorMessage(
-            isTeamEmail
-              ? `Invalid credentials for ${email}. Default demo password is Sathish@29`
-              : `Invalid credentials. If you haven't registered your candidate account password yet, please click "Candidate Sign Up" above.`
+            email.toLowerCase() === 'admin@mindmatrix.com'
+              ? `Invalid credentials for Super Admin account.`
+              : `Invalid email or password. Please check your credentials.`
           );
         }
       } catch (err) {
@@ -111,8 +110,14 @@ export default function Login() {
   const handleDemoLogin = (demoEmail) => {
     setMode('login');
     setEmail(demoEmail);
-    const demoPassword = demoEmail === 'candidate@mindmatrix.com' ? 'Password123!' : 'Sathish@29';
-    setPassword(demoPassword);
+    const demoPasswords = {
+      'admin@mindmatrix.com': 'Sathish@29',
+      'hr@mindmatrix.com': 'HrManager@2026',
+      'recruiter@mindmatrix.com': 'Recruiter@2026',
+      'interviewer@mindmatrix.com': 'Interviewer@2026',
+      'candidate@mindmatrix.com': 'Password123!'
+    };
+    setPassword(demoPasswords[demoEmail] || '');
     setShowPassword(true);
     setErrorMessage('');
     setIsExistingAccount(false);

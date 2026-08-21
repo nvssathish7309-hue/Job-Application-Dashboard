@@ -39,7 +39,7 @@ const runSeedLogic = async () => {
     firstName: 'Sarah',
     lastName: 'Jenkins',
     email: 'hr@mindmatrix.com',
-    password: 'Sathish@29',
+    password: 'HrManager@2026',
     role: 'HR_MANAGER',
     department: 'Human Resources',
     phone: '+1 800-555-0122'
@@ -49,7 +49,7 @@ const runSeedLogic = async () => {
     firstName: 'Alex',
     lastName: 'Rivera',
     email: 'recruiter@mindmatrix.com',
-    password: 'Sathish@29',
+    password: 'Recruiter@2026',
     role: 'RECRUITER',
     department: 'Talent Acquisition',
     phone: '+1 800-555-0144'
@@ -59,7 +59,7 @@ const runSeedLogic = async () => {
     firstName: 'David',
     lastName: 'Chen',
     email: 'interviewer@mindmatrix.com',
-    password: 'Sathish@29',
+    password: 'Interviewer@2026',
     role: 'INTERVIEWER',
     department: 'Engineering',
     phone: '+1 800-555-0166'
