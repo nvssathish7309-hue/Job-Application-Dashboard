@@ -105,3 +105,28 @@ npm run dev
 ```
 
 Open `http://localhost:5173` in your browser.
+
+---
+
+## 🌐 Production Deployment Guide
+
+When deploying the frontend and backend to cloud platforms (e.g., Render, Vercel, Netlify, Railway):
+
+### 1. Backend Deployment (Render / Railway / Heroku)
+- **Environment Variables**:
+  - `PORT`: `5000` (or auto-assigned by host)
+  - `MONGODB_URI`: Your MongoDB Atlas URI (or leave blank to use auto-seeded `MongoMemoryServer`)
+  - `CLIENT_URL`: `https://your-frontend-domain.vercel.app` (your deployed frontend URL to allow CORS)
+  - `JWT_SECRET`: A secure random secret string
+
+### 2. Frontend Deployment (Vercel / Netlify)
+- **Build Settings**:
+  - **Base Directory**: `frontend`
+  - **Build Command**: `npm run build`
+  - **Output Directory**: `dist`
+- **Environment Variable**:
+  - `VITE_API_URL`: Set this to your deployed backend URL: `https://your-backend-url.onrender.com/api`
+
+> [!TIP]
+> After setting `VITE_API_URL` in your frontend host, redeploy the frontend so Vite bakes the backend URL into the production build!
+
