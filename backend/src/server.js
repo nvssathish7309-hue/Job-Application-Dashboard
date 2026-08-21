@@ -113,16 +113,33 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, status: 'Healthy', timestamp: new Date() });
 });
 
-// API Routes Mounting
+// API Routes Mounting (supports both /api/ prefix and direct path aliases)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/users', userRoutes);
+app.use('/users', userRoutes);
+
 app.use('/api/candidates', candidateRoutes);
+app.use('/candidates', candidateRoutes);
+
 app.use('/api/jobs', jobRoutes);
+app.use('/jobs', jobRoutes);
+
 app.use('/api/applications', applicationRoutes);
+app.use('/applications', applicationRoutes);
+
 app.use('/api/interviews', interviewRoutes);
+app.use('/interviews', interviewRoutes);
+
 app.use('/api/notifications', notificationRoutes);
+app.use('/notifications', notificationRoutes);
+
 app.use('/api/audit-logs', auditRoutes);
+app.use('/audit-logs', auditRoutes);
+
 app.use('/api/reports', reportRoutes);
+app.use('/reports', reportRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);

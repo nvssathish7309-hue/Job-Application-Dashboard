@@ -2,9 +2,14 @@ import axios from 'axios';
 
 const DEFAULT_PROD_BACKEND = 'https://job-application-dashboard-backend.onrender.com/api';
 let rawBaseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? DEFAULT_PROD_BACKEND : '/api');
-if (rawBaseUrl.endsWith('/') && rawBaseUrl.length > 1) {
+
+if (rawBaseUrl.endsWith('/')) {
   rawBaseUrl = rawBaseUrl.slice(0, -1);
 }
+if (rawBaseUrl.startsWith('http') && !rawBaseUrl.endsWith('/api')) {
+  rawBaseUrl = `${rawBaseUrl}/api`;
+}
+
 const API_BASE_URL = rawBaseUrl;
 
 const api = axios.create({
