@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-let rawBaseUrl = import.meta.env.VITE_API_URL || '/api';
+const DEFAULT_PROD_BACKEND = 'https://job-application-dashboard-backend.onrender.com/api';
+let rawBaseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? DEFAULT_PROD_BACKEND : '/api');
 if (rawBaseUrl.endsWith('/') && rawBaseUrl.length > 1) {
   rawBaseUrl = rawBaseUrl.slice(0, -1);
 }
