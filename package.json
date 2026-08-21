@@ -7,8 +7,12 @@
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "seed": "cd backend && npm run seed",
+    "start": "node serve-frontend.js",
     "build": "cd frontend && npm install --include=dev && npm run build",
     "postbuild": "node -e \"const fs=require('fs'); fs.cpSync('frontend/dist', 'dist', {recursive: true}); if (fs.existsSync('frontend/public/_redirects')) fs.copyFileSync('frontend/public/_redirects', 'dist/_redirects');\""
+  },
+  "dependencies": {
+    "express": "^4.21.2"
   },
   "devDependencies": {
     "concurrently": "^10.0.4"
