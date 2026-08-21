@@ -19,8 +19,12 @@ export const AuthProvider = ({ children }) => {
           setUser(res.data);
           localStorage.setItem('user', JSON.stringify(res.data));
         } catch (err) {
-          console.error('Session expired:', err);
-          logout();
+          if (err.response && err.response.status === 401) {
+            console.warn('Session expired or invalid token (401)');
+            logout();
+          } else {
+            console.warn('Unable to verify user session due to network/server error:', err.message);
+          }
         }
       }
       setLoading(false);

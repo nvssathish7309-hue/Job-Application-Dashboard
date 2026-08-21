@@ -40,6 +40,41 @@ app.use('/api/auth/login', authLimiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+let dbReady = false;
+let dbError = null;
+
+const dbPromise = connectDB()
+  .then((success) => {
+    if (success !== false) {
+      dbReady = true;
+    } else {
+      dbError = new Error('Database connection returned false status');
+    }
+  })
+  .catch((err) => {
+    dbError = err;
+    console.error('Database connection error:', err);
+  });
+
+// Database readiness check middleware to avoid proxy 502 connection drops
+app.use(async (req, res, next) => {
+  if (req.path === '/api/health') return next();
+  if (dbReady) return next();
+  if (dbError) {
+    return res.status(500).json({ success: false, message: 'Database startup failed', error: dbError.message });
+  }
+  try {
+    await Promise.race([
+      dbPromise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Database initialization timeout')), 10000))
+    ]);
+    dbReady = true;
+    next();
+  } catch (err) {
+    res.status(503).json({ success: false, message: 'Database initialization in progress, please retry shortly' });
+  }
+});
+
 // Serve Uploaded Resumes statically
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -64,11 +99,8 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-// Connect DB and Start Server
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`==================================================`);
-    console.log(`🚀 Recruitment Backend API running on port ${PORT}`);
-    console.log(`==================================================`);
-  });
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`==================================================`);
+  console.log(`🚀 Recruitment Backend API running on http://localhost:${PORT}`);
+  console.log(`==================================================`);
 });
