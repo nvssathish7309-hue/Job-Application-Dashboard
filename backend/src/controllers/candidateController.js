@@ -78,11 +78,33 @@ const getCandidates = async (req, res, next) => {
       };
     });
 
-    const total = await Candidate.countDocuments(query);
+    const uniqueCandidates = [];
+    const seenCandEmails = new Set();
+    const seenCandNames = new Set();
+    const duplicateCandIdsToDelete = [];
+
+    candidatesWithApps.forEach(cand => {
+      const emailKey = (cand.email || '').toLowerCase().trim();
+      const nameKey = (cand.fullName || cand.name || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+      if ((emailKey && seenCandEmails.has(emailKey)) || (nameKey && seenCandNames.has(nameKey))) {
+        duplicateCandIdsToDelete.push(cand._id);
+      } else {
+        if (emailKey) seenCandEmails.add(emailKey);
+        if (nameKey) seenCandNames.add(nameKey);
+        uniqueCandidates.push(cand);
+      }
+    });
+
+    if (duplicateCandIdsToDelete.length > 0) {
+      Candidate.deleteMany({ _id: { $in: duplicateCandIdsToDelete } }).catch(() => {});
+    }
+
+    const total = uniqueCandidates.length;
 
     res.status(200).json({
       success: true,
-      data: candidatesWithApps,
+      data: uniqueCandidates,
       pagination: {
         total,
         page: parseInt(page),

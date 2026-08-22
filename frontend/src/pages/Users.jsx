@@ -50,9 +50,25 @@ export default function Users() {
     try {
       const res = await userService.getUsers();
       if (res.success && res.data) {
-        setUsers(res.data);
-        localStorage.setItem('users', JSON.stringify(res.data));
-        window.dispatchEvent(new CustomEvent('teamMembersUpdated', { detail: res.data }));
+        const uniqueUsers = [];
+        const seenEmails = new Set();
+        const seenNames = new Set();
+
+        res.data.forEach(u => {
+          const emailKey = (u.email || '').toLowerCase().trim();
+          const fullNameKey = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase().replace(/\s+/g, ' ').trim();
+
+          if (emailKey && seenEmails.has(emailKey)) return;
+          if (fullNameKey && fullNameKey !== 'user' && seenNames.has(fullNameKey)) return;
+
+          if (emailKey) seenEmails.add(emailKey);
+          if (fullNameKey && fullNameKey !== 'user') seenNames.add(fullNameKey);
+          uniqueUsers.push(u);
+        });
+
+        setUsers(uniqueUsers);
+        localStorage.setItem('users', JSON.stringify(uniqueUsers));
+        window.dispatchEvent(new CustomEvent('teamMembersUpdated', { detail: uniqueUsers }));
       }
     } catch (err) {
       console.error(err);
@@ -321,14 +337,28 @@ export default function Users() {
     setCopyFeedback(u._id);
     setTimeout(() => setCopyFeedback(false), 2000);
   };
+  const seenFilteredEmails = new Set();
+  const seenFilteredNames = new Set();
   const filteredUsers = users.filter(u => {
-    const fullName = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+    const emailKey = (u.email || '').toLowerCase().trim();
+    const fullNameRaw = `${u.firstName || ''} ${u.lastName || ''}`.trim();
+    const fullNameKey = fullNameRaw.toLowerCase().replace(/\s+/g, ' ');
+
+    if (emailKey && seenFilteredEmails.has(emailKey)) return false;
+    if (fullNameKey && fullNameKey !== 'user' && seenFilteredNames.has(fullNameKey)) return false;
+
     const query = searchQuery.toLowerCase();
-    const matchesSearch = fullName.includes(query) || u.email?.toLowerCase().includes(query) || u.role?.toLowerCase().includes(query);
+    const matchesSearch = !query || fullNameKey.includes(query) || emailKey.includes(query) || u.role?.toLowerCase().includes(query);
     const matchesRole = roleFilter === 'ALL'
       ? u.role !== 'CANDIDATE'
       : u.role === roleFilter;
-    return matchesSearch && matchesRole;
+
+    if (matchesSearch && matchesRole) {
+      if (emailKey) seenFilteredEmails.add(emailKey);
+      if (fullNameKey && fullNameKey !== 'user') seenFilteredNames.add(fullNameKey);
+      return true;
+    }
+    return false;
   });
 
   return (

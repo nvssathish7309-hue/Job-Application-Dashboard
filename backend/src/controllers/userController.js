@@ -11,7 +11,30 @@ const getUsers = async (req, res, next) => {
       filter.role = { $ne: 'CANDIDATE' };
     }
     const users = await User.find(filter).select('-password').sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: users });
+
+    const uniqueUsers = [];
+    const seenEmails = new Set();
+    const seenNames = new Set();
+    const duplicateIdsToDelete = [];
+
+    users.forEach(u => {
+      const emailKey = (u.email || '').toLowerCase().trim();
+      const fullNameKey = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase().replace(/\s+/g, ' ').trim();
+
+      if ((emailKey && seenEmails.has(emailKey)) || (fullNameKey && fullNameKey !== 'super admin' && seenNames.has(fullNameKey))) {
+        duplicateIdsToDelete.push(u._id);
+      } else {
+        if (emailKey) seenEmails.add(emailKey);
+        if (fullNameKey && fullNameKey !== 'super admin') seenNames.add(fullNameKey);
+        uniqueUsers.push(u);
+      }
+    });
+
+    if (duplicateIdsToDelete.length > 0) {
+      User.deleteMany({ _id: { $in: duplicateIdsToDelete } }).catch(() => {});
+    }
+
+    res.status(200).json({ success: true, data: uniqueUsers });
   } catch (error) {
     next(error);
   }

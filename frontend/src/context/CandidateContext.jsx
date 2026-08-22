@@ -80,13 +80,27 @@ export const CandidateProvider = ({ children }) => {
         rawList = [...apiCands, ...localCands];
       }
 
-      // Single candidate profile per email address with merged applications list
+      // Single candidate profile per unique candidate name or email address with merged applications list
       const candidateMap = new Map();
+      const seenNames = new Map();
 
       rawList.forEach(item => {
-        if (!item || !item.email) return;
-        const emailKey = item.email.toLowerCase().trim();
-        const existing = candidateMap.get(emailKey);
+        if (!item) return;
+        const nameStr = (item.fullName || item.name || '').trim();
+        const emailStr = (item.email || '').trim();
+        if (!nameStr && !emailStr) return;
+
+        const nameKey = nameStr.toLowerCase().replace(/\s+/g, ' ');
+        const emailKey = emailStr ? emailStr.toLowerCase() : `name-${nameKey}`;
+
+        let mapKey = emailKey;
+        if (nameKey && seenNames.has(nameKey)) {
+          mapKey = seenNames.get(nameKey);
+        } else if (nameKey) {
+          seenNames.set(nameKey, mapKey);
+        }
+
+        const existing = candidateMap.get(mapKey);
 
         const appObj = {
           _id: item.applicationId || item._id || item.id || `app-${Date.now()}`,
@@ -100,21 +114,25 @@ export const CandidateProvider = ({ children }) => {
         };
 
         if (!existing) {
-          candidateMap.set(emailKey, {
+          candidateMap.set(mapKey, {
             ...item,
+            fullName: nameStr || item.fullName || item.name || 'Candidate User',
+            name: nameStr || item.name || item.fullName || 'Candidate User',
             applications: item.applications && item.applications.length > 0 ? item.applications : [appObj],
             applicationsCount: item.applicationsCount || (item.applications?.length) || 1
           });
         } else {
-          // Merge existing candidate profile with latest info
+          // Merge existing candidate profile with latest info without duplicate candidate names
           const currentApps = existing.applications || [];
           const appExists = currentApps.some(a => (a._id && a._id === appObj._id) || (a.role && a.role === appObj.role));
           if (!appExists) {
             currentApps.push(appObj);
           }
-          candidateMap.set(emailKey, {
+          candidateMap.set(mapKey, {
             ...existing,
-            ...item, // Latest application updates profile details (skills, experience, etc.)
+            ...item,
+            fullName: existing.fullName || nameStr,
+            name: existing.name || nameStr,
             applications: currentApps,
             applicationsCount: currentApps.length
           });

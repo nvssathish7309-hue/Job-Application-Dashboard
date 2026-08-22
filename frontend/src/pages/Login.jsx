@@ -311,7 +311,7 @@ export default function Login() {
                     Password *
                   </label>
                   {mode === 'login' && (
-                    <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('For demo accounts, default password is Password123!'); }} className="text-xs font-bold text-blue-300 hover:text-sky-200 transition-colors">
+                    <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('Passwords for HR Manager, Recruiter, and Interviewer accounts are assigned by Super Admin and HR Manager only. Please contact your Super Admin or HR Manager to obtain or reset your password.'); }} className="text-xs font-bold text-blue-300 hover:text-sky-200 transition-colors">
                       Forgot password?
                     </a>
                   )}
@@ -365,8 +365,9 @@ export default function Login() {
             {/* Admin & Team Quick Login Email Selectors */}
             {mode === 'login' && (
               <div className="mt-6 pt-6 border-t border-white/15">
-                <div className="text-[11px] font-bold text-blue-300/70 uppercase tracking-wider mb-3">
+                <div className="text-[11px] font-bold text-blue-300/70 uppercase tracking-wider mb-3 flex items-center justify-between">
                   <span>Admin &amp; Team Accounts:</span>
+                  <span className="text-[9.5px] font-medium text-sky-300/60 lowercase italic tracking-normal">(Passwords given by Admin &amp; HR)</span>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-2 text-xs">
