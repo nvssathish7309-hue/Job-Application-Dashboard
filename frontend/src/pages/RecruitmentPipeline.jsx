@@ -350,8 +350,8 @@ export default function RecruitmentPipeline() {
   const openCount = Object.values(expandedStages).filter(Boolean).length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-smooth-grow">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in-up">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Recruitment Pipeline

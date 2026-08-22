@@ -181,10 +181,10 @@ export default function AuditLogs() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-smooth-grow">
       
       {/* Page Header & Action Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fade-in-up">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
             <History className="w-7 h-7 text-blue-600" />

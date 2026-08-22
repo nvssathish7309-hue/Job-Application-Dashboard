@@ -121,10 +121,10 @@ export default function Candidates() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 animate-smooth-grow">
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in-up">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Candidates

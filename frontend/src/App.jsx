@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { CandidateProvider } from './context/CandidateContext';
@@ -26,13 +26,17 @@ import Settings from './pages/Settings';
 import PublicCareers from './pages/PublicCareers';
 
 function MainLayout() {
+  const location = useLocation();
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
       <div className="flex flex-1">
         <Sidebar />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-          <Outlet />
+          <div key={location.pathname} className="animate-smooth-grow">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
