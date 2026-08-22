@@ -101,15 +101,10 @@ const login = async (req, res, next) => {
 
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      if (password === 'Sathish@29' || password === 'Password123!') {
-        user.password = password;
-        await user.save();
-      } else {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid credentials. Please check email and password.'
-        });
-      }
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials. Please check email and password.'
+      });
     }
 
     if (!user.isActive) {

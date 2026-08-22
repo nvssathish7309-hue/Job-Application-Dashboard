@@ -40,7 +40,7 @@ export default function Users() {
     firstName: '',
     lastName: '',
     email: '',
-    password: 'Password123!',
+    password: '',
     role: 'RECRUITER',
     department: 'Human Resources',
     phone: ''
@@ -173,7 +173,7 @@ export default function Users() {
       firstName: '',
       lastName: '',
       email: generateRoleEmail(defaultRole),
-      password: 'Password123!',
+      password: '',
       role: defaultRole,
       department: 'Human Resources',
       phone: ''
@@ -224,7 +224,7 @@ export default function Users() {
         firstName: '',
         lastName: '',
         email: generateRoleEmail('HR_MANAGER'),
-        password: 'Password123!',
+        password: '',
         role: 'HR_MANAGER',
         department: 'Human Resources',
         phone: ''
@@ -684,7 +684,7 @@ export default function Users() {
                     required
                     value={newUser.password}
                     onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                    placeholder="Password123!"
+                    placeholder="Set password assigned by Admin / HR"
                     className="w-full bg-transparent text-sm font-extrabold text-slate-900 placeholder:text-slate-400 border-0 outline-none focus:outline-none focus:ring-0 pr-2"
                     style={{ color: '#0f172a', opacity: 1 }}
                   />
