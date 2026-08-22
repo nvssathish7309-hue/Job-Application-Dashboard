@@ -32,7 +32,7 @@ const runSeedLogic = async () => {
     password: 'Sathish@29',
     role: 'SUPER_ADMIN',
     department: 'Executive',
-    phone: '+1 800-555-0199'
+    phone: '9876543210'
   });
 
   const hrUser = await User.create({
@@ -42,7 +42,7 @@ const runSeedLogic = async () => {
     password: 'HrManager@2026',
     role: 'HR_MANAGER',
     department: 'Human Resources',
-    phone: '+1 800-555-0122'
+    phone: '9876543211'
   });
 
   const recruiterUser = await User.create({
@@ -52,7 +52,7 @@ const runSeedLogic = async () => {
     password: 'Recruiter@2026',
     role: 'RECRUITER',
     department: 'Talent Acquisition',
-    phone: '+1 800-555-0144'
+    phone: '9876543212'
   });
 
   const interviewerUser = await User.create({
@@ -62,7 +62,7 @@ const runSeedLogic = async () => {
     password: 'Interviewer@2026',
     role: 'INTERVIEWER',
     department: 'Engineering',
-    phone: '+1 800-555-0166'
+    phone: '9876543213'
   });
 
   const candidateUser1 = await User.create({
@@ -72,18 +72,17 @@ const runSeedLogic = async () => {
     password: 'Password123!',
     role: 'CANDIDATE',
     department: 'Applicant Portal',
-    phone: '+1 800-555-0188'
+    phone: '9876543214'
   });
 
   console.log('Seeding jobs...');
   const job1 = await Job.create({
     jobId: 'JOB-0001',
-    title: 'Senior Frontend Engineer',
-    department: 'Engineering',
-    description: 'Lead frontend development using React, TypeScript, and Tailwind CSS to build high performance recruitment tools.',
-    requirements: '5+ years React experience, CSS architecture, web performance optimization.',
-    skills: ['React', 'TypeScript', 'Tailwind CSS', 'Next.js', 'REST APIs'],
-    experience: '5+ years',
+    title: 'Senior Frontend Developer',
+    description: 'We are seeking an experienced React.js Developer to build performant, highly accessible web applications using modern UI patterns.',
+    requirements: '3+ years React.js, TypeScript, Tailwind CSS, State Management, REST APIs.',
+    skills: ['React', 'TypeScript', 'Tailwind CSS', 'Redux', 'REST API', 'Jest'],
+    experience: '3+ years',
     employmentType: 'Full-time',
     location: 'Bangalore, India',
     workMode: 'Hybrid',
@@ -95,8 +94,7 @@ const runSeedLogic = async () => {
 
   const job2 = await Job.create({
     jobId: 'JOB-0002',
-    title: 'Backend Node.js Architect',
-    department: 'Engineering',
+    title: 'Backend Systems Engineer',
     description: 'Design scalable microservices, REST APIs, and database schemas with MongoDB and Redis.',
     requirements: '4+ years Node.js, Express, MongoDB, microservices, AWS.',
     skills: ['Node.js', 'Express', 'MongoDB', 'Redis', 'Docker', 'JWT'],
@@ -116,7 +114,7 @@ const runSeedLogic = async () => {
       candidateId: 'CAN-0001',
       fullName: 'Jane Doe',
       email: 'candidate@mindmatrix.com',
-      phone: '+1 800-555-0188',
+      phone: '9876543214',
       role: 'Software Engineer',
       skills: ['React', 'Node.js', 'JavaScript', 'MongoDB', 'HTML5', 'CSS3'],
       education: 'B.Tech in Computer Science',
@@ -129,7 +127,7 @@ const runSeedLogic = async () => {
       candidateId: 'CAN-0002',
       fullName: 'Rahul Sharma',
       email: 'rahul.sharma@example.com',
-      phone: '+91 9812345678',
+      phone: '9812345678',
       role: 'Software Engineer',
       skills: ['Java', 'Spring Boot', 'SQL', 'Microservices', 'Git'],
       education: 'B.E. Information Technology',
@@ -142,7 +140,7 @@ const runSeedLogic = async () => {
       candidateId: 'CAN-0003',
       fullName: 'Ananya Patel',
       email: 'ananya.patel@example.com',
-      phone: '+91 9823456789',
+      phone: '9823456789',
       role: 'AI Engineer',
       skills: ['Python', 'TensorFlow', 'PyTorch', 'Machine Learning', 'NLP'],
       education: 'M.Tech in Artificial Intelligence',
@@ -155,7 +153,7 @@ const runSeedLogic = async () => {
       candidateId: 'CAN-0004',
       fullName: 'Vikram Sengupta',
       email: 'vikram.s@example.com',
-      phone: '+91 9834567890',
+      phone: '9834567890',
       role: 'Software Engineer',
       skills: ['React', 'TypeScript', 'Redux', 'Tailwind CSS', 'Jest'],
       education: 'B.Tech Computer Science',
@@ -168,7 +166,7 @@ const runSeedLogic = async () => {
       candidateId: 'CAN-0005',
       fullName: 'Neha Kulkarni',
       email: 'neha.kulkarni@example.com',
-      phone: '+91 9845678901',
+      phone: '9845678901',
       role: 'Product Manager',
       skills: ['Product Strategy', 'Agile', 'Roadmapping', 'User Research'],
       education: 'MBA in General Management',
@@ -181,7 +179,7 @@ const runSeedLogic = async () => {
       candidateId: 'CAN-0006',
       fullName: 'Siddharth Rao',
       email: 'siddharth.rao@example.com',
-      phone: '+91 9856789012',
+      phone: '9856789012',
       role: 'Data Scientist',
       skills: ['Python', 'SQL', 'Pandas', 'Scikit-learn', 'Tableau'],
       education: 'B.Sc Statistics',
@@ -194,7 +192,7 @@ const runSeedLogic = async () => {
       candidateId: 'CAN-0007',
       fullName: 'Meera Deshmukh',
       email: 'meera.d@example.com',
-      phone: '+91 9867890123',
+      phone: '9867890123',
       role: 'Frontend Developer',
       skills: ['HTML5', 'CSS3', 'JavaScript', 'Vue.js', 'Tailwind'],
       education: 'B.CA',
@@ -207,7 +205,7 @@ const runSeedLogic = async () => {
       candidateId: 'CAN-0008',
       fullName: 'Arjun Verma',
       email: 'arjun.verma@example.com',
-      phone: '+91 9878901234',
+      phone: '9878901234',
       role: 'AI Engineer',
       skills: ['Python', 'PyTorch', 'FastAPI', 'Docker', 'OpenCV'],
       education: 'M.S. Data Science',

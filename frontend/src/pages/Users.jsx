@@ -205,6 +205,12 @@ export default function Users() {
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
+    let digits = (newUser.phone || '').replace(/\D/g, '');
+    if (digits.length !== 10) {
+      alert('Phone Number must be exactly 10 digits.');
+      return;
+    }
+
     try {
       const res = await userService.createUser(newUser);
       if (res.success && res.data) {
@@ -725,6 +731,25 @@ export default function Users() {
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Phone Number (Ph. No) <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="e.g. 9876543210"
+                  maxLength={10}
+                  minLength={10}
+                  inputMode="numeric"
+                  pattern="[0-9]{10}"
+                  value={newUser.phone}
+                  onChange={(e) => setNewUser({ ...newUser, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  style={{ color: '#0f172a' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Department
                 </label>
                 <input
@@ -836,8 +861,12 @@ export default function Users() {
                   type="tel"
                   required
                   placeholder="e.g. 9876543210"
+                  maxLength={10}
+                  minLength={10}
+                  inputMode="numeric"
+                  pattern="[0-9]{10}"
                   value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
+                  onChange={(e) => setEditPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   style={{ color: '#0f172a' }}
                 />

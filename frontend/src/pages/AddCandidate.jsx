@@ -62,14 +62,8 @@ export default function AddCandidate() {
   };
 
   const handlePhoneChange = (e) => {
-    let input = e.target.value;
-    let digits = input.replace(/\D/g, '');
-    if (digits.startsWith('91')) {
-      digits = digits.slice(2);
-    }
-    const trimmedDigits = digits.slice(0, 10);
-    const formatted = trimmedDigits ? `+91 ${trimmedDigits}` : '';
-    set('phone', formatted);
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+    set('phone', digits);
   };
 
   const removeSkill = (skill) => set('skills', formData.skills.filter(s => s !== skill));
@@ -202,10 +196,13 @@ export default function AddCandidate() {
                 <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="tel"
-                  placeholder="+91 9876543210"
+                  placeholder="e.g. 9876543210"
                   value={formData.phone}
                   onChange={handlePhoneChange}
-                  maxLength={15}
+                  maxLength={10}
+                  minLength={10}
+                  inputMode="numeric"
+                  pattern="[0-9]{10}"
                   className={`${inputClass('phone')} pl-9`}
                 />
               </div>

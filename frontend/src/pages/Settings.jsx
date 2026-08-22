@@ -138,14 +138,14 @@ export default function SettingsPage() {
   };
 
   const handleCandidatePhoneChange = (e) => {
-    let input = e.target.value;
-    let digits = input.replace(/\D/g, '');
-    if (digits.startsWith('91')) {
-      digits = digits.slice(2);
-    }
-    const trimmedDigits = digits.slice(0, 10);
-    const formatted = trimmedDigits ? `+91 ${trimmedDigits}` : '';
-    handleCandidateInputChange('phone', formatted);
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+    handleCandidateInputChange('phone', digits);
+  };
+
+  const handleHrPhoneChange = (e) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+    handleProfileInputChange('phone', digits);
+    if (hrPhoneError) setHrPhoneError('');
   };
 
   const handleAddCandidateSkill = () => {
@@ -223,27 +223,11 @@ export default function SettingsPage() {
     setIsProfileEdited(true); // Blue Save HR Profile button
   };
 
-  const handleHrPhoneChange = (e) => {
-    let input = e.target.value;
-    let digits = input.replace(/\D/g, '');
-    if (digits.startsWith('91')) {
-      digits = digits.slice(2);
-    }
-    const trimmedDigits = digits.slice(0, 10);
-    const formatted = trimmedDigits ? `+91 ${trimmedDigits}` : '';
-    handleProfileInputChange('phone', formatted);
-    if (hrPhoneError) setHrPhoneError('');
-  };
-
   const handleSaveProfile = (e) => {
     e.preventDefault();
 
     let digits = (profileForm.phone || '').replace(/\D/g, '');
-    if (digits.startsWith('91')) {
-      digits = digits.slice(2);
-    }
-
-    if (!profileForm.phone || digits.length !== 10) {
+    if (digits.length !== 10) {
       setHrPhoneError('Phone number must be exactly 10 digits.');
       return;
     }
