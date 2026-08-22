@@ -77,7 +77,7 @@ export default function CandidateDetails() {
       if (!found && saved.length > 0 && (target === 'undefined' || target === 'null')) {
         found = saved[0];
       }
-    } catch (e) {}
+    } catch (e) { }
 
     if (!found) {
       found = INITIAL_CANDIDATES.find(c =>
@@ -94,7 +94,7 @@ export default function CandidateDetails() {
             setAsyncCandidate(res.data);
           }
         })
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => setFetching(false));
     } else {
       setAsyncCandidate(found || null);
@@ -187,13 +187,13 @@ export default function CandidateDetails() {
       const iDept = interviewerUser.department ? ` (${interviewerUser.department})` : '';
       if (iName) interviewerName = `${iName}${iDept}`;
     }
-  } catch (e) {}
+  } catch (e) { }
 
   const candInterviewer = interviewObj.interviewerName || interviewObj.interviewer;
-  if (candInterviewer && 
-      !candInterviewer.toLowerCase().startsWith('interviewer') && 
-      !candInterviewer.toLowerCase().includes('santhosh') && 
-      !candInterviewer.toLowerCase().includes('tirumal')) {
+  if (candInterviewer &&
+    !candInterviewer.toLowerCase().startsWith('interviewer') &&
+    !candInterviewer.toLowerCase().includes('santhosh') &&
+    !candInterviewer.toLowerCase().includes('tirumal')) {
     interviewerName = candInterviewer;
   }
   if (!interviewerName) interviewerName = 'Interviewer 1234 (Engineering)';
@@ -203,8 +203,8 @@ export default function CandidateDetails() {
   const resumeFileName = typeof candidate?.resume === 'object' && candidate?.resume?.fileName
     ? candidate.resume.fileName
     : typeof candidate?.resume === 'string' && candidate.resume.length > 0
-    ? candidate.resume
-    : `${candNameClean}_Resume.pdf`;
+      ? candidate.resume
+      : `${candNameClean}_Resume.pdf`;
 
   const resumeFileSize = typeof candidate?.resume === 'object' && candidate?.resume?.fileSize
     ? candidate.resume.fileSize
@@ -213,8 +213,8 @@ export default function CandidateDetails() {
   const resumeUrl = typeof candidate?.resume === 'object' && candidate?.resume?.url
     ? candidate.resume.url
     : typeof candidate?.resume === 'string' && candidate.resume.startsWith('http')
-    ? candidate.resume
-    : '#';
+      ? candidate.resume
+      : '#';
 
   const handleViewResume = () => {
     if (resumeUrl && resumeUrl !== '#') {

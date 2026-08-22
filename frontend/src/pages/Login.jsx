@@ -110,15 +110,8 @@ export default function Login() {
   const handleDemoLogin = (demoEmail) => {
     setMode('login');
     setEmail(demoEmail);
-    const demoPasswords = {
-      'admin@mindmatrix.com': 'Sathish@29',
-      'hr@mindmatrix.com': 'HrManager@2026',
-      'recruiter@mindmatrix.com': 'Recruiter@2026',
-      'interviewer@mindmatrix.com': 'Interviewer@2026',
-      'candidate@mindmatrix.com': 'Password123!'
-    };
-    setPassword(demoPasswords[demoEmail] || '');
-    setShowPassword(true);
+    setPassword('');
+    setShowPassword(false);
     setErrorMessage('');
     setIsExistingAccount(false);
   };
@@ -329,7 +322,7 @@ export default function Login() {
                     id="password"
                     name="password"
                     type={showPassword ? 'text' : 'password'}
-                    autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                    autoComplete="off"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
