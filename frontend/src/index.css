@@ -1073,3 +1073,81 @@ html.dark .border-slate-100 {
 .delay-300 { animation-delay: 300ms; }
 .delay-375 { animation-delay: 375ms; }
 .delay-450 { animation-delay: 450ms; }
+
+/* ── ENHANCED ANIMATIONS FOR DASHBOARD & HIRING PIPELINE OVERVIEW ── */
+@keyframes barGrowHorizontal {
+  0% {
+    transform: scaleX(0);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes barGrowVertical {
+  0% {
+    transform: scaleY(0);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes donutRotateEntry {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) rotate(-90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes funnelExpandCenter {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.15) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1) translateY(0);
+  }
+}
+
+@keyframes pulseGlowRing {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+.animate-bar-grow-x {
+  transform-origin: left center;
+  animation: barGrowHorizontal 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-bar-grow-y {
+  transform-origin: bottom center;
+  animation: barGrowVertical 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-donut-rotate {
+  transform-origin: center center;
+  animation: donutRotateEntry 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-funnel-expand {
+  transform-origin: center center;
+  animation: funnelExpandCenter 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-pulse-ring {
+  animation: pulseGlowRing 2.5s infinite;
+}
