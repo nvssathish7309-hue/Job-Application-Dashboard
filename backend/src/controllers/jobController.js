@@ -4,8 +4,15 @@ const { createAuditLog } = require('../services/auditService');
 
 const getJobs = async (req, res, next) => {
   try {
+    const existingCount = await Job.countDocuments().catch(() => 0);
+    if (existingCount === 0) {
+      const { runSeedLogic } = require('../utils/seed');
+      await runSeedLogic().catch(e => console.warn('Auto-seed error:', e.message));
+    }
+
     const { status, department, search } = req.query;
     const query = {};
+
 
     if (status && status !== 'All') query.status = status;
     if (department && department !== 'All') query.department = department;

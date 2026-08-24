@@ -60,7 +60,6 @@ export const CandidateProvider = ({ children }) => {
   };
 
   const fetchCandidateData = useCallback(async () => {
-    if (!isAuthenticated) return;
     setIsLoading(true);
     setIsError(false);
 
@@ -73,14 +72,26 @@ export const CandidateProvider = ({ children }) => {
         reportService.getDashboardMetrics().catch(() => null)
       ]);
 
-      let apiCands = (candRes && candRes.success && candRes.data) ? candRes.data : [];
+      let apiCands = (candRes && candRes.success && Array.isArray(candRes.data)) ? candRes.data : [];
 
-      let rawList = [];
-      if (apiCands.length === 0) {
-        rawList = [...localCands, ...INITIAL_CANDIDATES];
-      } else {
-        rawList = [...apiCands, ...localCands];
-      }
+      let rawList = [...apiCands, ...localCands];
+
+      // Always preserve initial candidates so data is never lost or blank on re-opening
+      INITIAL_CANDIDATES.forEach(mc => {
+        if (!mc) return;
+        const mcEmail = (mc.email || '').toLowerCase();
+        const mcName = (mc.fullName || mc.name || '').toLowerCase();
+        const exists = rawList.some(item => {
+          if (!item) return false;
+          const iEmail = (item.email || '').toLowerCase();
+          const iName = (item.fullName || item.name || '').toLowerCase();
+          return (mcEmail && iEmail === mcEmail) || (mcName && iName === mcName);
+        });
+        if (!exists) {
+          rawList.push(mc);
+        }
+      });
+
 
       // Single candidate profile per unique candidate name or email address with merged applications list
       const candidateMap = new Map();
@@ -161,7 +172,8 @@ export const CandidateProvider = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated]);
+  }, []);
+
 
   const computedMetrics = useMemo(() => {
     const totalCandidates = candidates.length;

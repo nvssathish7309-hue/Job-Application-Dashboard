@@ -30,9 +30,16 @@ const findCandidateByIdOrCustomId = async (idParam) => {
 
 const getCandidates = async (req, res, next) => {
   try {
+    const existingCount = await Candidate.countDocuments().catch(() => 0);
+    if (existingCount === 0) {
+      const { runSeedLogic } = require('../utils/seed');
+      await runSeedLogic().catch(e => console.warn('Auto-seed error:', e.message));
+    }
+
     const { search, role, status, experience, sortBy = 'createdAt', order = 'desc', page = 1, limit = 50 } = req.query;
 
     const query = {};
+
 
     if (search) {
       const safeSearch = escapeRegex(search);
