@@ -44,17 +44,18 @@ export const CandidateProvider = ({ children }) => {
   const isCandidateDeleted = (c, deletedList) => {
     if (!c || !deletedList || deletedList.length === 0) return false;
     const cid = String(c._id || c.id || c.candidateId || '').toLowerCase();
-    if (!cid) return false;
+    const cEmail = String(c.email || '').toLowerCase();
 
     return deletedList.some(d => {
       if (!d) return false;
       if (typeof d === 'string') {
         const strD = d.toLowerCase();
-        return cid === strD;
+        return (cid && cid === strD) || (cEmail && cEmail === strD);
       }
       if (typeof d === 'object') {
         const dId = String(d.id || d._id || d.candidateId || '').toLowerCase();
-        return dId && cid === dId;
+        const dEmail = String(d.email || '').toLowerCase();
+        return (dId && cid && cid === dId) || (cEmail && dEmail && cEmail === dEmail);
       }
       return false;
     });
@@ -165,7 +166,28 @@ export const CandidateProvider = ({ children }) => {
 
       const combined = Array.from(candidateMap.values());
       const activeCandidates = combined.filter(c => !isCandidateDeleted(c, deletedList));
-      const trashedList = combined.filter(c => isCandidateDeleted(c, deletedList));
+
+      const trashedFromActive = combined.filter(c => isCandidateDeleted(c, deletedList));
+      const trashedFromStorage = (deletedList || [])
+        .map(d => (typeof d === 'object' && d.candidate ? d.candidate : d))
+        .filter(d => typeof d === 'object' && (d.name || d.fullName));
+
+      const trashedMap = new Map();
+      [...trashedFromActive, ...trashedFromStorage].forEach(tc => {
+        if (!tc) return;
+        const key = String(tc._id || tc.id || tc.candidateId || tc.email || '').toLowerCase();
+        if (key && !trashedMap.has(key)) {
+          trashedMap.set(key, {
+            ...tc,
+            name: tc.fullName || tc.name || 'Candidate',
+            role: tc.role || 'Applicant',
+            status: tc.status || 'Deleted',
+            trashedAt: tc.trashedAt || 'Recently'
+          });
+        }
+      });
+      const trashedList = Array.from(trashedMap.values());
+
       setCandidates(activeCandidates);
       setTrashedCandidates(trashedList);
 
@@ -181,7 +203,26 @@ export const CandidateProvider = ({ children }) => {
         }
       });
       const activeCandidates = combined.filter(c => !isCandidateDeleted(c, deletedList));
-      const trashedList = combined.filter(c => isCandidateDeleted(c, deletedList));
+      const trashedFromStorage = (deletedList || [])
+        .map(d => (typeof d === 'object' && d.candidate ? d.candidate : d))
+        .filter(d => typeof d === 'object' && (d.name || d.fullName));
+
+      const trashedMap = new Map();
+      [...trashedFromStorage].forEach(tc => {
+        if (!tc) return;
+        const key = String(tc._id || tc.id || tc.candidateId || tc.email || '').toLowerCase();
+        if (key && !trashedMap.has(key)) {
+          trashedMap.set(key, {
+            ...tc,
+            name: tc.fullName || tc.name || 'Candidate',
+            role: tc.role || 'Applicant',
+            status: tc.status || 'Deleted',
+            trashedAt: tc.trashedAt || 'Recently'
+          });
+        }
+      });
+      const trashedList = Array.from(trashedMap.values());
+
       setCandidates(activeCandidates);
       setTrashedCandidates(trashedList);
     } finally {
@@ -279,6 +320,19 @@ export const CandidateProvider = ({ children }) => {
       const candIdStr = String(id || targetCand?._id || targetCand?.id || '');
       const candEmailStr = (targetCand?.email || '').toLowerCase();
       const candRoleStr = (targetCand?.role || '').toLowerCase();
+      const timestampStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+      const fullCandidateObj = targetCand ? {
+        ...targetCand,
+        trashedAt: timestampStr
+      } : {
+        _id: id,
+        id: id,
+        email: candEmailStr,
+        role: candRoleStr,
+        name: 'Deleted Candidate',
+        trashedAt: timestampStr
+      };
 
       try {
         const deleted = getDeletedCandidateEntries();
@@ -286,7 +340,8 @@ export const CandidateProvider = ({ children }) => {
           id: candIdStr,
           _id: targetCand?._id || targetCand?.id || id,
           email: candEmailStr,
-          role: candRoleStr
+          role: candRoleStr,
+          candidate: fullCandidateObj
         });
         localStorage.setItem('deleted_candidate_ids', JSON.stringify(deleted));
       } catch (e) {}
@@ -302,7 +357,9 @@ export const CandidateProvider = ({ children }) => {
       } catch (e) {}
 
       setCandidates(prev => prev.filter(c => !isMatchCandidate(c, id)));
+      setTrashedCandidates(prev => [...prev, fullCandidateObj]);
 
+      await fetchCandidateData();
       window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {
       console.error('deleteCandidate error:', err);
@@ -550,6 +607,15 @@ export const CandidateProvider = ({ children }) => {
       });
 
       localStorage.setItem('deleted_candidate_ids', JSON.stringify(updatedDeleted));
+
+      if (target) {
+        const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
+        if (!saved.some(c => isMatchCandidate(c, id))) {
+          saved.push(target);
+          localStorage.setItem('registered_candidates', JSON.stringify(saved));
+        }
+      }
+
       await fetchCandidateData();
       window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {

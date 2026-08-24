@@ -330,11 +330,11 @@ export default function Candidates() {
                           <button
                             onClick={() => {
                               if (window.confirm(`Move ${candidateName} to trash?`)) {
-                                deleteCandidate(candidateId);
+                                deleteCandidate(candidateId || c._id || c.id || c.email);
                               }
                             }}
                             className="p-1.5 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition-all cursor-pointer shadow-2xs"
-                            title={`Delete ${candidateName}`}
+                            title={`Move ${candidateName} to trash`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -459,11 +459,11 @@ export default function Candidates() {
                     <button
                       onClick={() => {
                         if (window.confirm(`Move ${candidateName} to trash?`)) {
-                          deleteCandidate(candidateId);
+                          deleteCandidate(candidateId || c._id || c.id || c.email);
                         }
                       }}
                       className="p-2 rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition-all cursor-pointer shrink-0"
-                      title={`Delete ${candidateName}`}
+                      title={`Move ${candidateName} to trash`}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
