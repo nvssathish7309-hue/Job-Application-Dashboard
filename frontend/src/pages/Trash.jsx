@@ -7,19 +7,21 @@ import { useCandidates } from '../context/CandidateContext';
 import Badge from '../components/common/Badge';
 
 export default function Trash() {
-  const { trashedCandidates, restoreCandidate, permanentlyDeleteCandidate, emptyTrash } = useCandidates();
+  const { trashedCandidates = [], restoreCandidate, permanentlyDeleteCandidate, emptyTrash } = useCandidates();
   const [search, setSearch] = useState('');
   const [confirmEmptyOpen, setConfirmEmptyOpen] = useState(false);
 
+  const trashedList = trashedCandidates || [];
+
   const filtered = useMemo(() => {
-    if (!search.trim()) return trashedCandidates;
+    if (!search.trim()) return trashedList;
     const q = search.toLowerCase();
-    return trashedCandidates.filter(c =>
-      c.name.toLowerCase().includes(q) ||
-      c.role.toLowerCase().includes(q) ||
-      c.email.toLowerCase().includes(q)
+    return trashedList.filter(c =>
+      (c.name || c.fullName || '').toLowerCase().includes(q) ||
+      (c.role || '').toLowerCase().includes(q) ||
+      (c.email || '').toLowerCase().includes(q)
     );
-  }, [trashedCandidates, search]);
+  }, [trashedList, search]);
 
   const handleRestore = (candidate) => {
     restoreCandidate(candidate.id);
@@ -55,9 +57,9 @@ export default function Trash() {
           <div>
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
               Trash & Recycle Bin
-              {trashedCandidates.length > 0 && (
+              {trashedList.length > 0 && (
                 <span className="px-2.5 py-0.5 text-xs font-bold bg-rose-100 text-rose-700 rounded-full">
-                  {trashedCandidates.length} Item{trashedCandidates.length > 1 ? 's' : ''}
+                  {trashedList.length} Item{trashedList.length > 1 ? 's' : ''}
                 </span>
               )}
             </h1>
@@ -67,7 +69,7 @@ export default function Trash() {
           </div>
         </div>
 
-        {trashedCandidates.length > 0 && (
+        {trashedList.length > 0 && (
           <button
             onClick={() => setConfirmEmptyOpen(true)}
             className="self-start sm:self-auto px-4 py-2.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-semibold text-xs rounded-xl shadow-sm shadow-rose-600/20 transition-all flex items-center gap-2 cursor-pointer"
@@ -79,7 +81,7 @@ export default function Trash() {
       </div>
 
       {/* Search Bar */}
-      {trashedCandidates.length > 0 && (
+      {trashedList.length > 0 && (
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -94,7 +96,7 @@ export default function Trash() {
 
       {/* Trash Table / List */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-        {trashedCandidates.length === 0 ? (
+        {trashedList.length === 0 ? (
           <div className="py-16 text-center px-4">
             <div className="w-16 h-16 bg-slate-100 rounded-2xl text-slate-400 flex items-center justify-center mx-auto mb-4 border border-slate-200">
               <Trash2 className="w-8 h-8 text-slate-400" />
@@ -197,7 +199,7 @@ export default function Trash() {
               </div>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed bg-rose-50/60 border border-rose-100 p-3 rounded-xl">
-              All {trashedCandidates.length} candidate(s) in the trash will be permanently removed from your system, including all their application data.
+              All {trashedList.length} candidate(s) in the trash will be permanently removed from your system, including all their application data.
             </p>
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
               <button

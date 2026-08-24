@@ -11,6 +11,7 @@ const CandidateContext = createContext();
 export const CandidateProvider = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const [candidates, setCandidates] = useState([]);
+  const [trashedCandidates, setTrashedCandidates] = useState([]);
   const [metrics, setMetrics] = useState({
     totalCandidates: 0,
     shortlistedCount: 0,
@@ -164,7 +165,9 @@ export const CandidateProvider = ({ children }) => {
 
       const combined = Array.from(candidateMap.values());
       const activeCandidates = combined.filter(c => !isCandidateDeleted(c, deletedList));
+      const trashedList = combined.filter(c => isCandidateDeleted(c, deletedList));
       setCandidates(activeCandidates);
+      setTrashedCandidates(trashedList);
 
       if (metricRes && metricRes.success && metricRes.data) {
         setMetrics(metricRes.data.metrics || {});
@@ -178,7 +181,9 @@ export const CandidateProvider = ({ children }) => {
         }
       });
       const activeCandidates = combined.filter(c => !isCandidateDeleted(c, deletedList));
+      const trashedList = combined.filter(c => isCandidateDeleted(c, deletedList));
       setCandidates(activeCandidates);
+      setTrashedCandidates(trashedList);
     } finally {
       setIsLoading(false);
     }
@@ -528,6 +533,72 @@ export const CandidateProvider = ({ children }) => {
     }
   };
 
+  const restoreCandidate = async (id) => {
+    try {
+      const deletedList = getDeletedCandidateEntries();
+      const target = (trashedCandidates || []).find(c => isMatchCandidate(c, id));
+      const tid = String(id || target?._id || target?.id || '').toLowerCase();
+      const temail = (target?.email || '').toLowerCase();
+
+      const updatedDeleted = deletedList.filter(d => {
+        if (!d) return false;
+        const dId = String(typeof d === 'string' ? d : d.id || d._id || d.candidateId || '').toLowerCase();
+        const dEmail = String(typeof d === 'object' ? d.email || '' : '').toLowerCase();
+        if (tid && (dId === tid || tid.includes(dId) || dId.includes(tid))) return false;
+        if (temail && dEmail && dEmail === temail) return false;
+        return true;
+      });
+
+      localStorage.setItem('deleted_candidate_ids', JSON.stringify(updatedDeleted));
+      await fetchCandidateData();
+      window.dispatchEvent(new CustomEvent('candidateSubmitted'));
+    } catch (err) {
+      console.error('restoreCandidate error:', err);
+    }
+  };
+
+  const permanentlyDeleteCandidate = async (id) => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
+      const updated = saved.filter(c => !isMatchCandidate(c, id));
+      localStorage.setItem('registered_candidates', JSON.stringify(updated));
+
+      const deletedList = getDeletedCandidateEntries();
+      const target = (trashedCandidates || []).find(c => isMatchCandidate(c, id));
+      const tid = String(id || target?._id || target?.id || '').toLowerCase();
+      const temail = (target?.email || '').toLowerCase();
+
+      const updatedDeleted = deletedList.filter(d => {
+        if (!d) return false;
+        const dId = String(typeof d === 'string' ? d : d.id || d._id || d.candidateId || '').toLowerCase();
+        const dEmail = String(typeof d === 'object' ? d.email || '' : '').toLowerCase();
+        if (tid && (dId === tid || tid.includes(dId) || dId.includes(tid))) return false;
+        if (temail && dEmail && dEmail === temail) return false;
+        return true;
+      });
+      localStorage.setItem('deleted_candidate_ids', JSON.stringify(updatedDeleted));
+
+      if (id && typeof id === 'string' && !id.startsWith('synthetic') && !id.startsWith('cand-')) {
+        await candidateService.deleteCandidate(id).catch(() => null);
+      }
+
+      await fetchCandidateData();
+      window.dispatchEvent(new CustomEvent('candidateSubmitted'));
+    } catch (err) {
+      console.error('permanentlyDeleteCandidate error:', err);
+    }
+  };
+
+  const emptyTrash = async () => {
+    try {
+      localStorage.setItem('deleted_candidate_ids', JSON.stringify([]));
+      await fetchCandidateData();
+      window.dispatchEvent(new CustomEvent('candidateSubmitted'));
+    } catch (err) {
+      console.error('emptyTrash error:', err);
+    }
+  };
+
   const resetToDefaultData = async () => {
     try {
       localStorage.removeItem('registered_candidates');
@@ -550,6 +621,7 @@ export const CandidateProvider = ({ children }) => {
   return (
     <CandidateContext.Provider value={{
       candidates,
+      trashedCandidates,
       metrics: computedMetrics,
       isLoading,
       isError,
@@ -559,6 +631,9 @@ export const CandidateProvider = ({ children }) => {
       addCandidate,
       updateCandidate,
       deleteCandidate,
+      restoreCandidate,
+      permanentlyDeleteCandidate,
+      emptyTrash,
       shortlistCandidate,
       scheduleInterview,
       selectCandidate,
