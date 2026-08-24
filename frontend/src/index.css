@@ -1228,4 +1228,60 @@ html.dark .border-slate-100 {
 .animate-orbit-counter {
   animation: orbit-spin-counter 22s linear infinite;
 }
+
+/* ── Gradient Glow Border — Hidden by default, Appears + Spins on Focus ── */
+.input-spin-border {
+  position: relative;
+  border-radius: 1rem;
+  padding: 2px;
+  overflow: hidden;
+  background: transparent;
+  /* No glow at rest */
+  box-shadow: none;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Outer glow appears on focus */
+.input-spin-border:focus-within {
+  box-shadow:
+    0 0 14px 3px rgba(236, 72, 153, 0.45),
+    0 0 24px 6px rgba(168, 85, 247, 0.30),
+    0 0 20px 4px rgba(6, 182, 212, 0.35);
+}
+
+/* Gradient layer — invisible until focused */
+.input-spin-border::before {
+  content: '';
+  position: absolute;
+  inset: -120%;
+  background: conic-gradient(
+    from 200deg,
+    #ec4899,   /* pink        */
+    #a855f7,   /* purple      */
+    #6366f1,   /* indigo      */
+    #3b82f6,   /* blue        */
+    #06b6d4,   /* cyan        */
+    #ec4899    /* back → pink */
+  );
+  opacity: 0;                          /* hidden at rest */
+  transition: opacity 0.3s ease;
+  animation: input-border-spin 2s linear infinite paused;
+  z-index: 0;
+}
+
+/* On focus: reveal border + start spinning */
+.input-spin-border:focus-within::before {
+  opacity: 1;
+  animation-play-state: running;
+}
+
+/* Inner content sits above the gradient layer */
+.input-spin-border > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes input-border-spin {
+  to { transform: rotate(360deg); }
+}
 

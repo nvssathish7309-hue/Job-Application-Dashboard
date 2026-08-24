@@ -345,18 +345,18 @@ export default function Login() {
         </div>
 
         {/* ── RIGHT FORM PANEL (SLATE & FROSTED GLASS) ── */}
-        <div className="lg:col-span-6 bg-slate-950/60 p-6 sm:p-10 lg:p-12 flex flex-col justify-center relative">
+        <div className="lg:col-span-6 bg-transparent p-6 sm:p-10 lg:p-12 flex flex-col justify-center relative">
 
           <div className="w-full max-w-md mx-auto space-y-6">
 
             {/* Portal Tab Switcher (Recruiter Portal / Candidate Sign-In) */}
-            <div className="bg-slate-900/90 border border-slate-800 p-1.5 rounded-2xl flex items-center shadow-inner relative">
+            <div className="bg-white/5 border border-white/10 p-1.5 rounded-2xl flex items-center shadow-inner relative backdrop-blur-xl">
               <button
                 type="button"
                 onClick={() => handlePortalSwitch('recruiter')}
                 className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer relative z-10 flex items-center justify-center gap-2 ${activePortalTab === 'recruiter'
-                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-md shadow-teal-500/30'
+                  : 'text-slate-300 hover:text-white'
                   }`}
               >
                 <Shield className="w-3.5 h-3.5" />
@@ -367,8 +367,8 @@ export default function Login() {
                 type="button"
                 onClick={() => handlePortalSwitch('candidate')}
                 className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer relative z-10 flex items-center justify-center gap-2 ${activePortalTab === 'candidate'
-                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-md shadow-teal-500/30'
+                  : 'text-slate-300 hover:text-white'
                   }`}
               >
                 <User className="w-3.5 h-3.5" />
@@ -377,7 +377,7 @@ export default function Login() {
             </div>
 
             {/* Form Card Container */}
-            <div key={switchKey} className="bg-slate-900/80 border border-slate-800/90 p-5 sm:p-7 rounded-3xl shadow-xl backdrop-blur-xl relative">
+            <div key={switchKey} className="bg-white/5 border border-white/10 p-5 sm:p-7 rounded-3xl shadow-xl backdrop-blur-xl relative">
 
               {/* Form Title & Secondary Mode Toggle */}
               <div className="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
@@ -385,17 +385,17 @@ export default function Login() {
                   <h2 className="text-lg font-extrabold text-white">
                     {mode === 'register' ? 'Candidate Registration' : activePortalTab === 'recruiter' ? 'Team Access' : 'Candidate Portal'}
                   </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-white/80 mt-0.5">
                     {mode === 'register' ? 'Create your applicant profile' : 'Sign in to access your dashboard'}
                   </p>
                 </div>
 
                 {activePortalTab === 'candidate' && (
-                  <div className="flex bg-slate-800/60 p-1 rounded-xl border border-slate-700/50 text-[11px]">
+                  <div className="flex bg-white/10 p-1 rounded-xl border border-white/10 text-[11px] backdrop-blur-sm">
                     <button
                       type="button"
                       onClick={() => handleModeSwitch('login')}
-                      className={`px-2.5 py-1 font-bold rounded-lg transition-all ${mode === 'login' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                      className={`px-2.5 py-1 font-bold rounded-lg transition-all ${mode === 'login' ? 'bg-cyan-500 text-white shadow-sm shadow-cyan-500/30' : 'text-slate-300 hover:text-white'
                         }`}
                     >
                       Sign In
@@ -403,7 +403,7 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={() => handleModeSwitch('register')}
-                      className={`px-2.5 py-1 font-bold rounded-lg transition-all ${mode === 'register' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                      className={`px-2.5 py-1 font-bold rounded-lg transition-all ${mode === 'register' ? 'bg-cyan-500 text-white shadow-sm shadow-cyan-500/30' : 'text-slate-300 hover:text-white'
                         }`}
                     >
                       Sign Up
@@ -444,42 +444,48 @@ export default function Login() {
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">First Name *</label>
-                        <input
-                          type="text"
-                          required
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                          placeholder="Jane"
-                          className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 px-3.5 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
-                        />
+                        <label className="block text-[11px] font-extrabold text-white uppercase tracking-wider mb-1.5">First Name *</label>
+                        <div className="input-spin-border">
+                          <input
+                            type="text"
+                            required
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            placeholder="Jane"
+                            className="w-full bg-[#EEF5FF] border-0 outline-none px-3.5 py-3 rounded-[14px] text-slate-900 font-semibold text-xs placeholder-slate-400 transition-all shadow-sm"
+                          />
+                        </div>
                       </div>
                       <div>
-                        <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">Last Name *</label>
-                        <input
-                          type="text"
-                          required
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          placeholder="Doe"
-                          className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 px-3.5 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
-                        />
+                        <label className="block text-[11px] font-extrabold text-white uppercase tracking-wider mb-1.5">Last Name *</label>
+                        <div className="input-spin-border">
+                          <input
+                            type="text"
+                            required
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            placeholder="Doe"
+                            className="w-full bg-[#EEF5FF] border-0 outline-none px-3.5 py-3 rounded-[14px] text-slate-900 font-semibold text-xs placeholder-slate-400 transition-all shadow-sm"
+                          />
+                        </div>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">Phone Number *</label>
-                      <div className="relative flex items-center">
-                        <span className="absolute left-3.5 text-slate-500 text-xs font-bold pointer-events-none z-10">+91</span>
-                        <input
-                          type="tel"
-                          required
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                          placeholder="9876543210"
-                          maxLength={10}
-                          className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-12 pr-3.5 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
-                        />
+                      <label className="block text-[11px] font-extrabold text-white uppercase tracking-wider mb-1.5">Phone Number *</label>
+                    <div className="input-spin-border">
+                        <div className="relative flex items-center">
+                          <span className="absolute left-3.5 text-slate-500 text-xs font-bold pointer-events-none z-10">+91</span>
+                          <input
+                            type="tel"
+                            required
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                            placeholder="9876543210"
+                            maxLength={10}
+                            className="w-full bg-[#EEF5FF] border-0 outline-none pl-12 pr-3.5 py-3 rounded-[14px] text-slate-900 font-semibold text-xs placeholder-slate-400 transition-all shadow-sm"
+                          />
+                        </div>
                       </div>
                     </div>
                   </>
@@ -487,52 +493,55 @@ export default function Login() {
 
                 {/* Email Field */}
                 <div className="w-full">
-                  <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">Email Address *</label>
-                  <div className="relative w-full flex items-center">
-                    <Mail className="w-4 h-4 absolute left-4 text-slate-500 pointer-events-none z-10" />
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder={activePortalTab === 'recruiter' ? 'teamaccess@mindmatrix.com' : 'candidate@example.com'}
-                      className="login-input-bar w-full h-12 bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-11 pr-14 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm box-border appearance-none"
-                    />
-
+                  <label className="block text-[11px] font-extrabold text-white uppercase tracking-wider mb-1.5">Email Address *</label>
+                  <div className="input-spin-border">
+                    <div className="relative w-full flex items-center">
+                      <Mail className="w-4 h-4 absolute left-4 text-slate-500 pointer-events-none z-10" />
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={activePortalTab === 'recruiter' ? 'teamaccess@mindmatrix.com' : 'candidate@example.com'}
+                        className="login-input-bar w-full h-12 bg-[#EEF5FF] border-0 outline-none pl-11 pr-14 py-3 rounded-[14px] text-slate-900 font-semibold text-xs placeholder-slate-400 transition-all shadow-sm box-border appearance-none"
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* Password Field */}
                 <div className="w-full">
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider">Password *</label>
+                    <label className="block text-[11px] font-extrabold text-white uppercase tracking-wider">Password *</label>
                     {mode === 'login' && (
                       <button
                         type="button"
                         onClick={() => alert('Passwords for HR Manager, Recruiter, and Interviewer accounts are assigned by Super Admin. Please contact your Super Admin to obtain or reset your credentials.')}
-                        className="text-[11px] text-purple-400 hover:text-purple-300 font-bold transition-colors pr-2"
+                        className="text-[11px] text-cyan-400 hover:text-cyan-300 font-bold transition-colors pr-2"
                       >
                         Forgot?
                       </button>
                     )}
                   </div>
-                  <div className="relative w-full flex items-center">
-                    <Lock className="w-4 h-4 absolute left-4 text-slate-500 pointer-events-none z-10" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="login-input-bar w-full h-12 bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-11 pr-14 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm box-border appearance-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-6 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer z-10 flex items-center justify-center p-1 rounded-full hover:bg-blue-100/50"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                  <div className="input-spin-border">
+                    <div className="relative w-full flex items-center">
+                      <Lock className="w-4 h-4 absolute left-4 text-slate-500 pointer-events-none z-10" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="login-input-bar w-full h-12 bg-[#EEF5FF] border-0 outline-none pl-11 pr-14 py-3 rounded-[14px] text-slate-900 font-semibold text-xs placeholder-slate-400 transition-all shadow-sm box-border appearance-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-6 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer z-10 flex items-center justify-center p-1 rounded-full hover:bg-blue-100/50"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -544,7 +553,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-purple-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.98]"
+                  className="w-full py-3 px-4 bg-gradient-to-r from-teal-500 via-cyan-500 to-teal-500 hover:from-teal-400 hover:to-cyan-400 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-teal-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.98]"
                 >
                   {isLoading ? (
                     <>
@@ -565,7 +574,7 @@ export default function Login() {
 
             {/* Quick-Select Team Access Tray (Bottom Card) */}
             {mode === 'login' && activePortalTab === 'recruiter' && (
-              <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl shadow-lg backdrop-blur-md">
+              <div className="bg-white/5 border border-white/10 p-4 rounded-2xl shadow-lg backdrop-blur-xl">
                 <div className="flex items-center justify-between mb-3 text-[11px]">
                   <span className="font-extrabold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     <Shield className="w-3.5 h-3.5 text-purple-400" />
@@ -578,9 +587,9 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('admin@mindmatrix.com')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${email === 'admin@mindmatrix.com'
-                      ? 'bg-purple-950/60 border-purple-500 ring-1 ring-purple-500'
-                      : 'bg-slate-950/60 border-slate-800 hover:border-purple-500/50 hover:bg-slate-800/50'
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer backdrop-blur-sm ${email === 'admin@mindmatrix.com'
+                      ? 'bg-purple-500/20 border-purple-500 ring-1 ring-purple-500'
+                      : 'bg-white/5 border-white/10 hover:border-purple-500/50 hover:bg-purple-500/10'
                       }`}
                   >
                     <div className="min-w-0">
@@ -592,9 +601,9 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('hr@mindmatrix.com')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${email === 'hr@mindmatrix.com'
-                      ? 'bg-blue-950/60 border-blue-500 ring-1 ring-blue-500'
-                      : 'bg-slate-950/60 border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/50'
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer backdrop-blur-sm ${email === 'hr@mindmatrix.com'
+                      ? 'bg-blue-500/20 border-blue-500 ring-1 ring-blue-500'
+                      : 'bg-white/5 border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10'
                       }`}
                   >
                     <div className="min-w-0">
@@ -606,9 +615,9 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('recruiter@mindmatrix.com')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${email === 'recruiter@mindmatrix.com'
-                      ? 'bg-emerald-950/60 border-emerald-500 ring-1 ring-emerald-500'
-                      : 'bg-slate-950/60 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/50'
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer backdrop-blur-sm ${email === 'recruiter@mindmatrix.com'
+                      ? 'bg-emerald-500/20 border-emerald-500 ring-1 ring-emerald-500'
+                      : 'bg-white/5 border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500/10'
                       }`}
                   >
                     <div className="min-w-0">
@@ -620,9 +629,9 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('interviewer@mindmatrix.com')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${email === 'interviewer@mindmatrix.com'
-                      ? 'bg-amber-950/60 border-amber-500 ring-1 ring-amber-500'
-                      : 'bg-slate-950/60 border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/50'
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer backdrop-blur-sm ${email === 'interviewer@mindmatrix.com'
+                      ? 'bg-amber-500/20 border-amber-500 ring-1 ring-amber-500'
+                      : 'bg-white/5 border-white/10 hover:border-amber-500/50 hover:bg-amber-500/10'
                       }`}
                   >
                     <div className="min-w-0">
