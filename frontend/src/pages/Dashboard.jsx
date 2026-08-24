@@ -552,10 +552,14 @@ export default function Dashboard() {
     setLoadingMyApps(true);
     try {
       const searchEmail = (user.email || '').toLowerCase();
+      if (!searchEmail) {
+        setMyApplications([]);
+        return;
+      }
 
       const matchedInState = (candidates || []).filter(c => {
         const cEmail = (c.email || '').toLowerCase();
-        return cEmail && searchEmail && cEmail === searchEmail;
+        return cEmail && cEmail === searchEmail;
       });
 
       let localReg = [];
@@ -563,18 +567,61 @@ export default function Dashboard() {
         const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
         localReg = saved.filter(c => {
           const cEmail = (c.email || '').toLowerCase();
-          return cEmail && searchEmail && cEmail === searchEmail;
+          return cEmail && cEmail === searchEmail;
         });
       } catch (e) {}
 
+      const allApps = [];
+      const seenAppRoles = new Set();
 
-      const allApps = [...matchedInState];
+      // Extract and flatten applications from candidate objects in state
+      matchedInState.forEach(c => {
+        const apps = c.applications && c.applications.length > 0 ? c.applications : [c];
+        apps.forEach(a => {
+          const roleStr = (a.role || a.jobTitle || c.role || '').trim();
+          const roleKey = roleStr.toLowerCase();
+          if (roleKey && !seenAppRoles.has(roleKey)) {
+            seenAppRoles.add(roleKey);
+            allApps.push({
+              _id: a._id || a.applicationId || `app-${Date.now()}`,
+              applicationId: a.applicationId || c.applicationId || 'APP-0001',
+              role: roleStr,
+              jobTitle: roleStr,
+              status: a.status || a.stage || c.status || 'Applied',
+              stage: a.stage || a.status || c.stage || 'Applied',
+              source: a.source || c.source || 'Candidate Portal',
+              appliedAt: a.appliedAt || c.createdAt || new Date().toISOString(),
+              fullName: c.fullName || c.name || user?.firstName,
+              email: c.email || user?.email,
+              phone: c.phone
+            });
+          }
+        });
+      });
+
+      // Extract and flatten applications from local storage candidates
       localReg.forEach(lr => {
-        const lrRole = (lr.role || '').toLowerCase();
-        const lrId = String(lr._id || lr.id || '');
-        if (!allApps.some(a => String(a._id || a.id || '') === lrId || (a.role || '').toLowerCase() === lrRole)) {
-          allApps.push(lr);
-        }
+        const apps = lr.applications && lr.applications.length > 0 ? lr.applications : [lr];
+        apps.forEach(a => {
+          const roleStr = (a.role || a.jobTitle || lr.role || '').trim();
+          const roleKey = roleStr.toLowerCase();
+          if (roleKey && !seenAppRoles.has(roleKey)) {
+            seenAppRoles.add(roleKey);
+            allApps.push({
+              _id: a._id || a.applicationId || `app-${Date.now()}`,
+              applicationId: a.applicationId || lr.applicationId || 'APP-0001',
+              role: roleStr,
+              jobTitle: roleStr,
+              status: a.status || a.stage || lr.status || 'Applied',
+              stage: a.stage || a.status || lr.stage || 'Applied',
+              source: a.source || lr.source || 'Candidate Portal',
+              appliedAt: a.appliedAt || lr.createdAt || new Date().toISOString(),
+              fullName: lr.fullName || lr.name || user?.firstName,
+              email: lr.email || user?.email,
+              phone: lr.phone
+            });
+          }
+        });
       });
 
       let deletedList = [];
@@ -583,15 +630,11 @@ export default function Dashboard() {
       } catch (e) {}
 
       const activeApps = allApps.filter(a => {
-        const aId = String(a._id || a.id || a.candidateId || '').toLowerCase();
         const aRole = (a.role || '').toLowerCase();
         return !deletedList.some(d => {
           if (!d) return false;
-          if (typeof d === 'string') return aId === d.toLowerCase() || d.toLowerCase().includes(aId);
-          const dId = String(d.id || d._id || '').toLowerCase();
-          const dRole = (d.role || '').toLowerCase();
-          if (dId && aId && (aId === dId || dId.includes(aId))) return true;
-          if (dRole && aRole && dRole === aRole) return true;
+          if (typeof d === 'string') return d.toLowerCase() === aRole;
+          if (typeof d === 'object' && (d.role || '').toLowerCase() === aRole) return true;
           return false;
         });
       });
@@ -603,6 +646,13 @@ export default function Dashboard() {
       setLoadingMyApps(false);
     }
   };
+
+  useEffect(() => {
+    if (user?.email) {
+      fetchMyApplications();
+    }
+  }, [user?.email, candidates]);
+
 
   const handleOpenMyAppsModal = () => {
     setShowMyAppsModal(true);
@@ -971,16 +1021,11 @@ export default function Dashboard() {
               {publicJobs.map((job) => {
                 const jobTitleLower = (job.title || '').toLowerCase().trim();
 
-                const specificApp = (candidates || []).find(c => {
-                  if (!c.email || !candidateEmail) return false;
-                  const isUser = c.email.toLowerCase() === candidateEmail;
-                  if (!isUser) return false;
-                  const cRole = (c.role || '').toLowerCase().trim();
-                  return cRole === jobTitleLower || cRole.includes(jobTitleLower) || jobTitleLower.includes(cRole);
-                }) || (myApplications || []).find(a => {
-                  const aRole = (a.role || '').toLowerCase().trim();
+                const specificApp = candidateApps.find(a => {
+                  const aRole = (a.role || a.jobTitle || '').toLowerCase().trim();
                   return aRole === jobTitleLower || aRole.includes(jobTitleLower) || jobTitleLower.includes(aRole);
                 });
+
 
 
                 const specificStage = (specificApp?.stage || specificApp?.status || '').toLowerCase();
