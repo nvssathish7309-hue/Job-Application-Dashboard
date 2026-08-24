@@ -23,6 +23,7 @@ import Users from './pages/Users';
 import AuditLogs from './pages/AuditLogs';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import Trash from './pages/Trash';
 import PublicCareers from './pages/PublicCareers';
 
 function MainLayout() {
@@ -148,6 +149,7 @@ export default function App() {
                 />
 
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/trash" element={<Trash />} />
               </Route>
 
               {/* Default Redirect */}

@@ -31,8 +31,26 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isExistingAccount, setIsExistingAccount] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [logoBubbles, setLogoBubbles] = useState([]);
 
   const from = location.state?.from?.pathname || '/dashboard';
+
+  // Spawn floating logo bubbles on logo click
+  const handleLogoBubble = () => {
+    const count = 6 + Math.floor(Math.random() * 4); // 6-9 bubbles per click
+    const newBubbles = Array.from({ length: count }, (_, i) => ({
+      id: Date.now() + i,
+      size: 28 + Math.floor(Math.random() * 28),       // 28-56px
+      x: (Math.random() - 0.5) * 200,                  // spread left/right
+      duration: 1.0 + Math.random() * 0.6,             // 1.0-1.6s float
+      delay: i * 60,                                   // stagger ms
+    }));
+    setLogoBubbles(prev => [...prev, ...newBubbles]);
+    // Clean up after longest animation finishes
+    setTimeout(() => {
+      setLogoBubbles(prev => prev.filter(b => !newBubbles.find(n => n.id === b.id)));
+    }, 2200);
+  };
 
   const handlePortalSwitch = (portal) => {
     setActivePortalTab(portal);
@@ -254,8 +272,32 @@ export default function Login() {
             <div className="w-56 h-56 rounded-full border border-purple-500/20 animate-pulse absolute" />
             <div className="w-72 h-72 rounded-full border border-blue-500/10 absolute" />
 
+            {/* Floating Logo Bubbles — z-[5] keeps them BEHIND the logo (z-10) */}
+            {logoBubbles.map(bubble => (
+              <div
+                key={bubble.id}
+                className="logo-bubble absolute pointer-events-none"
+                style={{
+                  width: bubble.size,
+                  height: bubble.size,
+                  '--bx': `${bubble.x}px`,
+                  animationDuration: `${bubble.duration}s`,
+                  animationDelay: `${bubble.delay}ms`,
+                  zIndex: 5,
+                }}
+              >
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 opacity-80 blur-[1px]" />
+                <div className="absolute inset-[2px] rounded-full bg-white flex items-center justify-center">
+                  <MindMatrixIcon style={{ width: bubble.size * 0.45, height: bubble.size * 0.32 }} />
+                </div>
+              </div>
+            ))}
+
             {/* Central MindMatrix Logo Node with Multi-Color Neon Glowing Light Border */}
-            <div className="relative z-10 w-24 h-24 rounded-full p-1 flex items-center justify-center animate-bounce-slow shadow-[0_0_35px_rgba(168,85,247,0.8),0_0_70px_rgba(59,130,246,0.5)]">
+            <div
+              className="relative z-10 w-24 h-24 rounded-full p-1 flex items-center justify-center animate-bounce-slow shadow-[0_0_35px_rgba(168,85,247,0.8),0_0_70px_rgba(59,130,246,0.5)] cursor-pointer select-none"
+              onClick={handleLogoBubble}
+            >
               {/* Glowing Rotating Multi-Color Gradient Ring */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-sky-400 via-pink-500 to-indigo-500 animate-spin-slow opacity-90 blur-[2px]" />
               <div className="absolute inset-[2px] rounded-full bg-white" />
@@ -268,7 +310,7 @@ export default function Login() {
 
             {/* 360-Degree Smooth Revolving Orbital Ring Container */}
             <div className="absolute w-[260px] sm:w-[280px] h-[260px] sm:h-[280px] rounded-full border border-purple-500/15 animate-orbit pointer-events-none flex items-center justify-center">
-              
+
               {/* Card 1: Top Position (0deg) */}
               <div className="absolute -top-5 left-1/2 -translate-x-1/2 pointer-events-auto">
                 <div className="animate-orbit-counter">
@@ -473,7 +515,7 @@ export default function Login() {
 
                     <div>
                       <label className="block text-[11px] font-extrabold text-white uppercase tracking-wider mb-1.5">Phone Number *</label>
-                    <div className="input-spin-border">
+                      <div className="input-spin-border">
                         <div className="relative flex items-center">
                           <span className="absolute left-3.5 text-slate-500 text-xs font-bold pointer-events-none z-10">+91</span>
                           <input

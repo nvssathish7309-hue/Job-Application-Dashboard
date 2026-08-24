@@ -10,6 +10,7 @@ import {
   UserCheck, 
   History, 
   Settings,
+  Trash2,
   ChevronRight,
   ChevronLeft
 } from 'lucide-react';
@@ -36,7 +37,8 @@ export default function Sidebar() {
         { label: 'User Management', path: '/users', icon: UserCheck, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
         { label: 'Audit Logs', path: '/audit-logs', icon: History, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
         { label: 'Reports & Analytics', path: '/reports', icon: BarChart3, roles: ['SUPER_ADMIN', 'HR_MANAGER'] },
-        { label: 'Settings', path: '/settings', icon: Settings, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'CANDIDATE'] }
+        { label: 'Settings', path: '/settings', icon: Settings, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'CANDIDATE'] },
+        { label: 'Trash', path: '/trash', icon: Trash2, roles: ['SUPER_ADMIN', 'HR_MANAGER', 'RECRUITER', 'INTERVIEWER', 'CANDIDATE'] }
       ]
     }
   ];
