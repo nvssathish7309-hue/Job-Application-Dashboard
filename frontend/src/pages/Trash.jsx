@@ -24,12 +24,15 @@ export default function Trash() {
   }, [trashedList, search]);
 
   const handleRestore = (candidate) => {
-    restoreCandidate(candidate.id);
+    const cid = candidate._id || candidate.id || candidate.candidateId || candidate.email;
+    restoreCandidate(cid);
   };
 
   const handlePermanentDelete = (candidate) => {
-    if (window.confirm(`Permanently delete ${candidate.name}? This action cannot be undone.`)) {
-      permanentlyDeleteCandidate(candidate.id);
+    const cid = candidate._id || candidate.id || candidate.candidateId || candidate.email;
+    const name = candidate.fullName || candidate.name || 'this candidate';
+    if (window.confirm(`Permanently delete ${name}? This action cannot be undone.`)) {
+      permanentlyDeleteCandidate(cid);
     }
   };
 

@@ -592,16 +592,16 @@ export const CandidateProvider = ({ children }) => {
 
   const restoreCandidate = async (id) => {
     try {
-      const deletedList = getDeletedCandidateEntries();
       const target = (trashedCandidates || []).find(c => isMatchCandidate(c, id));
-      const tid = String(id || target?._id || target?.id || '').toLowerCase();
+      const tid = String(id || target?._id || target?.id || target?.candidateId || '').toLowerCase();
       const temail = (target?.email || '').toLowerCase();
 
+      const deletedList = getDeletedCandidateEntries();
       const updatedDeleted = deletedList.filter(d => {
         if (!d) return false;
         const dId = String(typeof d === 'string' ? d : d.id || d._id || d.candidateId || '').toLowerCase();
-        const dEmail = String(typeof d === 'object' ? d.email || '' : '').toLowerCase();
-        if (tid && (dId === tid || tid.includes(dId) || dId.includes(tid))) return false;
+        const dEmail = String(typeof d === 'object' ? d.email || (d.candidate && d.candidate.email) || '' : '').toLowerCase();
+        if (tid && dId && (dId === tid || tid.includes(dId) || dId.includes(tid))) return false;
         if (temail && dEmail && dEmail === temail) return false;
         return true;
       });
@@ -616,6 +616,7 @@ export const CandidateProvider = ({ children }) => {
         }
       }
 
+      setTrashedCandidates(prev => prev.filter(c => !isMatchCandidate(c, id)));
       await fetchCandidateData();
       window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {
@@ -625,20 +626,20 @@ export const CandidateProvider = ({ children }) => {
 
   const permanentlyDeleteCandidate = async (id) => {
     try {
+      const target = (trashedCandidates || []).find(c => isMatchCandidate(c, id));
+      const tid = String(id || target?._id || target?.id || target?.candidateId || '').toLowerCase();
+      const temail = (target?.email || '').toLowerCase();
+
       const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
       const updated = saved.filter(c => !isMatchCandidate(c, id));
       localStorage.setItem('registered_candidates', JSON.stringify(updated));
 
       const deletedList = getDeletedCandidateEntries();
-      const target = (trashedCandidates || []).find(c => isMatchCandidate(c, id));
-      const tid = String(id || target?._id || target?.id || '').toLowerCase();
-      const temail = (target?.email || '').toLowerCase();
-
       const updatedDeleted = deletedList.filter(d => {
         if (!d) return false;
         const dId = String(typeof d === 'string' ? d : d.id || d._id || d.candidateId || '').toLowerCase();
-        const dEmail = String(typeof d === 'object' ? d.email || '' : '').toLowerCase();
-        if (tid && (dId === tid || tid.includes(dId) || dId.includes(tid))) return false;
+        const dEmail = String(typeof d === 'object' ? d.email || (d.candidate && d.candidate.email) || '' : '').toLowerCase();
+        if (tid && dId && (dId === tid || tid.includes(dId) || dId.includes(tid))) return false;
         if (temail && dEmail && dEmail === temail) return false;
         return true;
       });
@@ -648,6 +649,7 @@ export const CandidateProvider = ({ children }) => {
         await candidateService.deleteCandidate(id).catch(() => null);
       }
 
+      setTrashedCandidates(prev => prev.filter(c => !isMatchCandidate(c, id)));
       await fetchCandidateData();
       window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {
@@ -658,6 +660,7 @@ export const CandidateProvider = ({ children }) => {
   const emptyTrash = async () => {
     try {
       localStorage.setItem('deleted_candidate_ids', JSON.stringify([]));
+      setTrashedCandidates([]);
       await fetchCandidateData();
       window.dispatchEvent(new CustomEvent('candidateSubmitted'));
     } catch (err) {
