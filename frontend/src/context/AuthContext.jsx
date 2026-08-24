@@ -54,6 +54,25 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
+  const socialLogin = (userData) => {
+    const fakeToken = 'mock_sso_token_' + Date.now();
+    const userObj = {
+      _id: 'sso-' + Date.now(),
+      firstName: userData.firstName || 'Social',
+      lastName: userData.lastName || 'User',
+      email: (userData.email || '').toLowerCase().trim(),
+      role: userData.role || 'CANDIDATE',
+      department: userData.role === 'CANDIDATE' ? 'Applicant Portal' : 'Recruiting Team',
+      avatar: userData.avatar || '',
+      provider: userData.provider || 'google'
+    };
+    setToken(fakeToken);
+    setUser(userObj);
+    localStorage.setItem('token', fakeToken);
+    localStorage.setItem('user', JSON.stringify(userObj));
+    return { success: true, data: { token: fakeToken, user: userObj } };
+  };
+
   const updateCurrentUser = (updatedData) => {
     setUser(prev => {
       const newUser = { ...prev, ...updatedData };
@@ -76,7 +95,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, register, login, logout, updateCurrentUser, hasRole, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, loading, register, login, socialLogin, logout, updateCurrentUser, hasRole, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   );

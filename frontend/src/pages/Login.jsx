@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, Lock, Mail, User, Phone, ArrowRight, UserPlus, LogIn, CheckCircle2, ShieldCheck, Zap, Users, Shield } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User, Phone, ArrowRight, UserPlus, LogIn, CheckCircle2, ShieldCheck, Zap, Users, Shield, X, Check } from 'lucide-react';
 import MindMatrixLogo from '../components/MindMatrixLogo';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, register } = useAuth();
+  const { login, register, socialLogin } = useAuth();
 
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [activePortalTab, setActivePortalTab] = useState('recruiter'); // 'recruiter' | 'candidate'
@@ -19,6 +19,11 @@ export default function Login() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
+
+  // SSO Modal State
+  const [ssoModalProvider, setSsoModalProvider] = useState(null); // null | 'google' | 'linkedin'
+  const [customSsoEmail, setCustomSsoEmail] = useState('');
+  const [selectedSsoOption, setSelectedSsoOption] = useState('default'); // 'default' | 'user' | 'custom'
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -122,6 +127,45 @@ export default function Login() {
     setShowPassword(false);
     setErrorMessage('');
     setIsExistingAccount(false);
+  };
+
+  const handleOpenSsoModal = (provider) => {
+    setSsoModalProvider(provider);
+    setSelectedSsoOption('default');
+    setCustomSsoEmail('');
+  };
+
+  const handleExecuteSsoLogin = (targetEmail, targetName) => {
+    let finalEmail = targetEmail;
+    let finalName = targetName;
+
+    if (selectedSsoOption === 'custom') {
+      if (!customSsoEmail || !customSsoEmail.includes('@')) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+      finalEmail = customSsoEmail;
+      finalName = customSsoEmail.split('@')[0];
+    }
+
+    setIsLoading(true);
+    const nameParts = (finalName || 'User').split(' ');
+
+    setTimeout(() => {
+      socialLogin({
+        email: finalEmail,
+        firstName: nameParts[0] || 'Social',
+        lastName: nameParts.slice(1).join(' ') || 'User',
+        role: activePortalTab === 'recruiter' ? 'RECRUITER' : 'CANDIDATE',
+        provider: ssoModalProvider,
+        avatar: ssoModalProvider === 'google'
+          ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120'
+          : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=120'
+      });
+      setIsLoading(false);
+      setSsoModalProvider(null);
+      navigate(from, { replace: true });
+    }, 600);
   };
 
   return (
@@ -438,27 +482,27 @@ export default function Login() {
                   <div className="grid grid-cols-2 gap-2.5">
                     <button
                       type="button"
-                      onClick={() => alert('SSO with Google is configured for enterprise domains.')}
-                      className="flex items-center justify-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-xl text-xs font-bold text-slate-300 transition-all cursor-pointer"
+                      onClick={() => handleOpenSsoModal('google')}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-purple-500/40 rounded-xl text-xs font-bold text-slate-200 transition-all cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                     >
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24">
                         <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z" />
                         <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
                         <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z" />
                         <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 22.3 12 23z" />
                       </svg>
-                      <span>Google</span>
+                      <span>Sign in with Google</span>
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => alert('SSO with LinkedIn is configured for enterprise domains.')}
-                      className="flex items-center justify-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-xl text-xs font-bold text-slate-300 transition-all cursor-pointer"
+                      onClick={() => handleOpenSsoModal('linkedin')}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/40 rounded-xl text-xs font-bold text-slate-200 transition-all cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                     >
-                      <svg className="w-3.5 h-3.5 text-[#0A66C2]" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-[#0A66C2]" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
                       </svg>
-                      <span>LinkedIn</span>
+                      <span>Sign in with LinkedIn</span>
                     </button>
                   </div>
                 </div>
@@ -549,7 +593,139 @@ export default function Login() {
         </div>
 
       </div>
+
+      {/* ── INTERACTIVE GOOGLE / LINKEDIN OAUTH POPUP MODAL ── */}
+      {ssoModalProvider && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden p-6 sm:p-8 relative">
+            
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setSsoModalProvider(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition-all cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Provider Header Logo & Title */}
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700/80 flex items-center justify-center mx-auto mb-3 shadow-lg">
+                {ssoModalProvider === 'google' ? (
+                  <svg className="w-7 h-7" viewBox="0 0 24 24">
+                    <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z" />
+                    <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
+                    <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z" />
+                    <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 22.3 12 23z" />
+                  </svg>
+                ) : (
+                  <svg className="w-7 h-7 text-[#0A66C2]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+                  </svg>
+                )}
+              </div>
+
+              <h3 className="text-lg font-extrabold text-white">
+                Sign in with {ssoModalProvider === 'google' ? 'Google' : 'LinkedIn'}
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                Choose an account to continue to <span className="text-purple-400 font-bold">MindMatrix Portal</span>
+              </p>
+            </div>
+
+            {/* Select Account List */}
+            <div className="space-y-3 mb-6">
+              
+              {/* Option 1: Primary Demo Account */}
+              <button
+                type="button"
+                onClick={() => handleExecuteSsoLogin(
+                  ssoModalProvider === 'google' ? 'alex.rivera.google@gmail.com' : 'sarah.jenkins.linkedin@linkedin.com',
+                  ssoModalProvider === 'google' ? 'Alex Rivera' : 'Sarah Jenkins'
+                )}
+                className="w-full p-3 bg-slate-950/80 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={ssoModalProvider === 'google'
+                      ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120'
+                      : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=120'}
+                    alt="User"
+                    className="w-10 h-10 rounded-full object-cover border border-purple-400/40"
+                  />
+                  <div>
+                    <p className="text-xs font-extrabold text-white group-hover:text-purple-300 transition-colors">
+                      {ssoModalProvider === 'google' ? 'Alex Rivera' : 'Sarah Jenkins'}
+                    </p>
+                    <p className="text-[11px] font-medium text-slate-400">
+                      {ssoModalProvider === 'google' ? 'alex.rivera.google@gmail.com' : 'sarah.jenkins.linkedin@linkedin.com'}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-purple-400 group-hover:translate-x-0.5 transition-transform">Connect →</span>
+              </button>
+
+              {/* Option 2: Sathish Account */}
+              <button
+                type="button"
+                onClick={() => handleExecuteSsoLogin(
+                  ssoModalProvider === 'google' ? 'sathish.mindmatrix@gmail.com' : 'sathish.mindmatrix@linkedin.com',
+                  'Sathish N'
+                )}
+                className="w-full p-3 bg-slate-950/80 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120"
+                    alt="Sathish"
+                    className="w-10 h-10 rounded-full object-cover border border-blue-400/40"
+                  />
+                  <div>
+                    <p className="text-xs font-extrabold text-white group-hover:text-purple-300 transition-colors">Sathish N</p>
+                    <p className="text-[11px] font-medium text-slate-400">
+                      {ssoModalProvider === 'google' ? 'sathish.mindmatrix@gmail.com' : 'sathish.mindmatrix@linkedin.com'}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-purple-400 group-hover:translate-x-0.5 transition-transform">Connect →</span>
+              </button>
+
+              {/* Option 3: Custom Email Input */}
+              <div className="pt-2 border-t border-slate-800">
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Or enter another email:</label>
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={customSsoEmail}
+                    onChange={(e) => {
+                      setCustomSsoEmail(e.target.value);
+                      setSelectedSsoOption('custom');
+                    }}
+                    placeholder="user@example.com"
+                    className="flex-1 bg-slate-950 border border-slate-800 focus:border-purple-500 px-3 py-2 rounded-xl text-white text-xs placeholder-slate-500 outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleExecuteSsoLogin(customSsoEmail, customSsoEmail.split('@')[0])}
+                    disabled={!customSsoEmail || !customSsoEmail.includes('@')}
+                    className="py-2 px-3 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
+                  >
+                    Sign In
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Notice */}
+            <p className="text-[10.5px] text-center text-slate-500">
+              By continuing, MindMatrix receives basic profile permissions (name, email, avatar).
+            </p>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+
 
