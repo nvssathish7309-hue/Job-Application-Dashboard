@@ -24,7 +24,7 @@ const runSeedLogic = async () => {
   await Notification.deleteMany({});
   await AuditLog.deleteMany({});
 
-  console.log('Seeding demo users...');
+  console.log('Seeding Super Admin user...');
   const adminUser = await User.create({
     firstName: 'Super',
     lastName: 'Admin',
@@ -33,46 +33,6 @@ const runSeedLogic = async () => {
     role: 'SUPER_ADMIN',
     department: 'Executive',
     phone: '9876543210'
-  });
-
-  const hrUser = await User.create({
-    firstName: 'Sarah',
-    lastName: 'Jenkins',
-    email: 'hr@mindmatrix.com',
-    password: 'HrManager@2026',
-    role: 'HR_MANAGER',
-    department: 'Human Resources',
-    phone: '9876543211'
-  });
-
-  const recruiterUser = await User.create({
-    firstName: 'Alex',
-    lastName: 'Rivera',
-    email: 'recruiter@mindmatrix.com',
-    password: 'Recruiter@2026',
-    role: 'RECRUITER',
-    department: 'Talent Acquisition',
-    phone: '9876543212'
-  });
-
-  const interviewerUser = await User.create({
-    firstName: 'David',
-    lastName: 'Chen',
-    email: 'interviewer@mindmatrix.com',
-    password: 'Interviewer@2026',
-    role: 'INTERVIEWER',
-    department: 'Engineering',
-    phone: '9876543213'
-  });
-
-  const candidateUser1 = await User.create({
-    firstName: 'Jane',
-    lastName: 'Doe',
-    email: 'candidate@mindmatrix.com',
-    password: 'Password123!',
-    role: 'CANDIDATE',
-    department: 'Applicant Portal',
-    phone: '9876543214'
   });
 
   console.log('Seeding jobs...');
@@ -88,8 +48,8 @@ const runSeedLogic = async () => {
     workMode: 'Hybrid',
     openings: 3,
     status: 'Open',
-    createdBy: hrUser._id,
-    assignedRecruiter: recruiterUser._id
+    createdBy: adminUser._id,
+    assignedRecruiter: adminUser._id
   });
 
   const job2 = await Job.create({
@@ -104,8 +64,8 @@ const runSeedLogic = async () => {
     workMode: 'Remote',
     openings: 2,
     status: 'Open',
-    createdBy: hrUser._id,
-    assignedRecruiter: recruiterUser._id
+    createdBy: adminUser._id,
+    assignedRecruiter: adminUser._id
   });
 
   console.log('Seeding candidates...');
@@ -121,7 +81,7 @@ const runSeedLogic = async () => {
       experience: '2 years',
       projects: ['Job Application Dashboard', 'E-Commerce Platform', 'AI Chat Assistant'],
       status: 'Shortlisted',
-      createdBy: recruiterUser._id
+      createdBy: adminUser._id
     },
     {
       candidateId: 'CAN-0002',
@@ -134,7 +94,7 @@ const runSeedLogic = async () => {
       experience: 'Fresher',
       projects: ['Banking Management Portal', 'Inventory System'],
       status: 'Shortlisted',
-      createdBy: recruiterUser._id
+      createdBy: adminUser._id
     },
     {
       candidateId: 'CAN-0003',
@@ -147,7 +107,7 @@ const runSeedLogic = async () => {
       experience: 'Fresher',
       projects: ['LLM Document Classifier', 'Computer Vision Inspector'],
       status: 'Interview',
-      createdBy: recruiterUser._id
+      createdBy: adminUser._id
     },
     {
       candidateId: 'CAN-0004',
@@ -160,7 +120,7 @@ const runSeedLogic = async () => {
       experience: '3 Years',
       projects: ['SaaS Analytics Dashboard', 'Fintech Mobile Web App'],
       status: 'Selected',
-      createdBy: recruiterUser._id
+      createdBy: adminUser._id
     },
     {
       candidateId: 'CAN-0005',
@@ -173,7 +133,7 @@ const runSeedLogic = async () => {
       experience: '4 Years',
       projects: ['CRM Redesign Project', 'Mobile App Growth'],
       status: 'Shortlisted',
-      createdBy: recruiterUser._id
+      createdBy: adminUser._id
     },
     {
       candidateId: 'CAN-0006',
@@ -186,7 +146,7 @@ const runSeedLogic = async () => {
       experience: '2 Years',
       projects: ['Customer Churn Prediction Model', 'Sales Forecasting'],
       status: 'Interview',
-      createdBy: recruiterUser._id
+      createdBy: adminUser._id
     },
     {
       candidateId: 'CAN-0007',
@@ -199,7 +159,7 @@ const runSeedLogic = async () => {
       experience: 'Fresher',
       projects: ['Portfolio Website', 'Weather Dashboard App'],
       status: 'Shortlisted',
-      createdBy: recruiterUser._id
+      createdBy: adminUser._id
     },
     {
       candidateId: 'CAN-0008',
@@ -212,7 +172,7 @@ const runSeedLogic = async () => {
       experience: '2 Years',
       projects: ['Real-time Monitoring Pipeline', 'Infrastructure Automation'],
       status: 'Selected',
-      createdBy: recruiterUser._id
+      createdBy: adminUser._id
     }
   ];
 
@@ -226,14 +186,14 @@ const runSeedLogic = async () => {
       applicationId: `APP-000${i + 1}`,
       candidateId: cand._id,
       jobId: job._id,
-      recruiterId: recruiterUser._id,
+      recruiterId: adminUser._id,
       status: cand.status,
       stage: cand.status === 'Applied' ? 'New' : cand.status,
       source: i % 3 === 0 ? 'LinkedIn' : i % 2 === 0 ? 'Website' : 'Referral',
       appliedAt: new Date(Date.now() - i * 86400000),
       stageHistory: [
-        { stage: 'New', changedBy: recruiterUser._id, remarks: 'Application submitted' },
-        ...(cand.status !== 'Applied' ? [{ stage: cand.status, changedBy: hrUser._id, remarks: `Status updated to ${cand.status}` }] : [])
+        { stage: 'New', changedBy: adminUser._id, remarks: 'Application submitted' },
+        ...(cand.status !== 'Applied' ? [{ stage: cand.status, changedBy: adminUser._id, remarks: `Status updated to ${cand.status}` }] : [])
       ]
     });
   }
@@ -245,7 +205,7 @@ const runSeedLogic = async () => {
       interviewId: 'INT-0001',
       candidateId: interviewCand._id,
       jobId: job1._id,
-      interviewerId: interviewerUser._id,
+      interviewerId: adminUser._id,
       round: 'Technical Round 1',
       date: '2026-08-15',
       startTime: '10:00',
@@ -254,11 +214,11 @@ const runSeedLogic = async () => {
       meetingLink: 'https://meet.google.com/abc-defg-hij',
       notes: 'Evaluate candidate technical skill, problem solving, and architectural alignment.',
       status: 'Scheduled',
-      createdBy: recruiterUser._id
+      createdBy: adminUser._id
     });
 
     await Notification.create({
-      userId: interviewerUser._id,
+      userId: adminUser._id,
       title: 'Interview Scheduled',
       message: `You have an interview scheduled with ${interviewCand.fullName} on 2026-08-15 at 10:00 AM.`,
       type: 'Interview Scheduled',
@@ -268,12 +228,12 @@ const runSeedLogic = async () => {
 
   console.log('Seeding audit logs...');
   await AuditLog.create({
-    userId: hrUser._id,
-    userName: 'Sarah Jenkins',
+    userId: adminUser._id,
+    userName: 'Super Admin',
     action: 'SYSTEM_SEED',
     entity: 'System',
     entityId: 'SYS-001',
-    description: 'Database initialized and seeded with full-stack demo data.'
+    description: 'Database initialized and seeded with Super Admin control account.'
   });
 
   console.log('✅ DATABASE SEEDING COMPLETED SUCCESSFULLY!');
