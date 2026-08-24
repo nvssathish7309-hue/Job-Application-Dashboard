@@ -57,7 +57,8 @@ export default function NotificationsDropdown() {
           });
         }
       } else {
-        if (!n.forAdmin && !n.forRecruiter) {
+        const nEmail = (n.candidateEmail || n.email || '').toLowerCase();
+        if ((n.forCandidate || n.targetRole === 'CANDIDATE') && userEmail && nEmail === userEmail) {
           merged.push({
             id,
             title: n.title,
@@ -83,17 +84,16 @@ export default function NotificationsDropdown() {
           });
         }
       } else {
-        if (ln.forCandidate || ln.targetRole === 'CANDIDATE') {
-          const tEmail = (ln.candidateEmail || '').toLowerCase();
-          if (!tEmail || tEmail === userEmail || userEmail.includes('sathish') || tEmail.includes('sathish')) {
-            merged.push({
-              ...ln,
-              isRead: ln.isRead || readNotifIds.includes(id)
-            });
-          }
+        const tEmail = (ln.candidateEmail || ln.email || '').toLowerCase();
+        if ((ln.forCandidate || ln.targetRole === 'CANDIDATE') && userEmail && tEmail === userEmail) {
+          merged.push({
+            ...ln,
+            isRead: ln.isRead || readNotifIds.includes(id)
+          });
         }
       }
     });
+
 
     // 3. Auto-generated candidate & recruitment team alerts
     try {

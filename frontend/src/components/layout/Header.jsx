@@ -149,7 +149,8 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
           });
         }
       } else {
-        if (!n.forAdmin && !n.forRecruiter) {
+        const nEmail = (n.candidateEmail || n.email || '').toLowerCase();
+        if ((n.forCandidate || n.targetRole === 'CANDIDATE') && userEmail && nEmail === userEmail) {
           merged.push({
             ...n,
             id,
@@ -172,17 +173,16 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
           });
         }
       } else {
-        if (ln.forCandidate || ln.targetRole === 'CANDIDATE') {
-          const tEmail = (ln.candidateEmail || '').toLowerCase();
-          if (!tEmail || tEmail === userEmail || userEmail.includes('sathish') || tEmail.includes('sathish')) {
-            merged.push({
-              ...ln,
-              isRead: ln.isRead || readNotifIds.includes(id)
-            });
-          }
+        const tEmail = (ln.candidateEmail || ln.email || '').toLowerCase();
+        if ((ln.forCandidate || ln.targetRole === 'CANDIDATE') && userEmail && tEmail === userEmail) {
+          merged.push({
+            ...ln,
+            isRead: ln.isRead || readNotifIds.includes(id)
+          });
         }
       }
     });
+
 
     // 3. Auto-generate candidate & recruitment team alerts
     try {
@@ -281,7 +281,10 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
                   link: 'https://meet.google.com/xyz-abc-123'
                 });
 
-                triggerCandidateEmailIfNeeded(reminder10MinId, userEmail || c.email || 'nvssathish7309@gmail.com', candName, remTitle, remMsg, 'Interview Scheduled');
+                const targetCandEmail = userEmail || (c.email || '').toLowerCase();
+                if (targetCandEmail) {
+                  triggerCandidateEmailIfNeeded(reminder10MinId, targetCandEmail, candName, remTitle, remMsg, 'Interview Scheduled');
+                }
               }
             } else if (sLower.includes('shortlist')) {
               stageText = 'Shortlisted';
@@ -314,8 +317,12 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
                 isRead: readNotifIds.includes(notifId)
               });
 
-              triggerCandidateEmailIfNeeded(notifId, userEmail || c.email || 'nvssathish7309@gmail.com', candName, title, msg, stageText);
+              const targetCandEmail = userEmail || (c.email || '').toLowerCase();
+              if (targetCandEmail) {
+                triggerCandidateEmailIfNeeded(notifId, targetCandEmail, candName, title, msg, stageText);
+              }
             }
+
           });
         });
       }
