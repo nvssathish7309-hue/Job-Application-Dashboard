@@ -116,7 +116,7 @@ const runSeedLogic = async () => {
       email: 'candidate@mindmatrix.com',
       phone: '9876543214',
       role: 'Software Engineer',
-      skills: ['React', 'Node.js', 'JavaScript', 'MongoDB', 'HTML5', 'CSS3'],
+      skills: ['React', 'Node.js', 'JavaScript', 'MongoDB', 'REST APIs'],
       education: 'B.Tech in Computer Science',
       experience: '2 years',
       projects: ['Job Application Dashboard', 'E-Commerce Platform', 'AI Chat Assistant'],
@@ -128,9 +128,9 @@ const runSeedLogic = async () => {
       fullName: 'Rahul Sharma',
       email: 'rahul.sharma@example.com',
       phone: '9812345678',
-      role: 'Software Engineer',
-      skills: ['Java', 'Spring Boot', 'SQL', 'Microservices', 'Git'],
-      education: 'B.E. Information Technology',
+      role: 'Full Stack Engineer',
+      skills: ['Java', 'Spring Boot', 'PostgreSQL', 'Microservices', 'Git'],
+      education: 'B.E. in Information Technology',
       experience: 'Fresher',
       projects: ['Banking Management Portal', 'Inventory System'],
       status: 'Shortlisted',
@@ -154,9 +154,9 @@ const runSeedLogic = async () => {
       fullName: 'Vikram Sengupta',
       email: 'vikram.s@example.com',
       phone: '9834567890',
-      role: 'Software Engineer',
+      role: 'Senior Frontend Developer',
       skills: ['React', 'TypeScript', 'Redux', 'Tailwind CSS', 'Jest'],
-      education: 'B.Tech Computer Science',
+      education: 'B.Tech in Information Science',
       experience: '3 Years',
       projects: ['SaaS Analytics Dashboard', 'Fintech Mobile Web App'],
       status: 'Selected',
@@ -182,7 +182,7 @@ const runSeedLogic = async () => {
       phone: '9856789012',
       role: 'Data Scientist',
       skills: ['Python', 'SQL', 'Pandas', 'Scikit-learn', 'Tableau'],
-      education: 'B.Sc Statistics',
+      education: 'B.Sc in Statistics',
       experience: '2 Years',
       projects: ['Customer Churn Prediction Model', 'Sales Forecasting'],
       status: 'Interview',
@@ -193,9 +193,9 @@ const runSeedLogic = async () => {
       fullName: 'Meera Deshmukh',
       email: 'meera.d@example.com',
       phone: '9867890123',
-      role: 'Frontend Developer',
-      skills: ['HTML5', 'CSS3', 'JavaScript', 'Vue.js', 'Tailwind'],
-      education: 'B.CA',
+      role: 'UI/UX Designer',
+      skills: ['Figma', 'Wireframing', 'Prototyping', 'Design Systems', 'User Testing'],
+      education: 'B.CA in Computer Applications',
       experience: 'Fresher',
       projects: ['Portfolio Website', 'Weather Dashboard App'],
       status: 'Shortlisted',
@@ -206,11 +206,11 @@ const runSeedLogic = async () => {
       fullName: 'Arjun Verma',
       email: 'arjun.verma@example.com',
       phone: '9878901234',
-      role: 'AI Engineer',
-      skills: ['Python', 'PyTorch', 'FastAPI', 'Docker', 'OpenCV'],
-      education: 'M.S. Data Science',
+      role: 'DevOps Engineer',
+      skills: ['Docker', 'Kubernetes', 'AWS', 'Terraform', 'CI/CD'],
+      education: 'M.S. in Cloud Computing',
       experience: '2 Years',
-      projects: ['Real-time Face Recognition System', 'Recommendation Engine'],
+      projects: ['Real-time Monitoring Pipeline', 'Infrastructure Automation'],
       status: 'Selected',
       createdBy: recruiterUser._id
     }
@@ -252,7 +252,7 @@ const runSeedLogic = async () => {
       endTime: '11:00',
       mode: 'Online',
       meetingLink: 'https://meet.google.com/abc-defg-hij',
-      notes: 'Evaluate React component design, state management, and algorithm problem solving.',
+      notes: 'Evaluate candidate technical skill, problem solving, and architectural alignment.',
       status: 'Scheduled',
       createdBy: recruiterUser._id
     });
@@ -283,6 +283,7 @@ const standaloneSeed = async () => {
   try {
     const connectDB = require('../config/db');
     await connectDB();
+    await runSeedLogic();
     process.exit(0);
   } catch (err) {
     console.error('Seed execution error:', err);
