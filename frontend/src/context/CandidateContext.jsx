@@ -93,9 +93,8 @@ export const CandidateProvider = ({ children }) => {
       });
 
 
-      // Single candidate profile per unique candidate name or email address with merged applications list
+      // Single candidate profile per unique candidate email or candidate ID with merged applications list
       const candidateMap = new Map();
-      const seenNames = new Map();
 
       rawList.forEach(item => {
         if (!item) return;
@@ -103,17 +102,12 @@ export const CandidateProvider = ({ children }) => {
         const emailStr = (item.email || '').trim();
         if (!nameStr && !emailStr) return;
 
-        const nameKey = nameStr.toLowerCase().replace(/\s+/g, ' ');
-        const emailKey = emailStr ? emailStr.toLowerCase() : `name-${nameKey}`;
-
-        let mapKey = emailKey;
-        if (nameKey && seenNames.has(nameKey)) {
-          mapKey = seenNames.get(nameKey);
-        } else if (nameKey) {
-          seenNames.set(nameKey, mapKey);
-        }
+        const emailKey = emailStr ? emailStr.toLowerCase() : null;
+        const idKey = item._id || item.id || item.candidateId;
+        const mapKey = emailKey || (idKey ? String(idKey).toLowerCase() : `name-${nameStr.toLowerCase().replace(/\s+/g, ' ')}`);
 
         const existing = candidateMap.get(mapKey);
+
 
         const appObj = {
           _id: item.applicationId || item._id || item.id || `app-${Date.now()}`,

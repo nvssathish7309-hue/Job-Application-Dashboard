@@ -6,11 +6,12 @@ const Interview = require('../models/Interview');
 const getDashboardMetrics = async (req, res, next) => {
   try {
     const totalCandidates = await Candidate.countDocuments();
-    const shortlistedCount = await Candidate.countDocuments({ status: 'Shortlisted' });
-    const interviewCount = await Candidate.countDocuments({ status: 'Interview' });
-    const selectedCount = await Candidate.countDocuments({ status: 'Selected' });
-    const rejectedCount = await Candidate.countDocuments({ status: 'Rejected' });
-    const appliedCount = await Candidate.countDocuments({ status: { $in: ['Applied', 'New'] } });
+    const shortlistedCount = await Candidate.countDocuments({ status: { $regex: /^shortlist/i } });
+    const interviewCount = await Candidate.countDocuments({ status: { $regex: /^interview/i } });
+    const selectedCount = await Candidate.countDocuments({ status: { $regex: /^(select|offer|hired)/i } });
+    const rejectedCount = await Candidate.countDocuments({ status: { $regex: /^reject/i } });
+    const appliedCount = await Candidate.countDocuments({ status: { $regex: /^(applied|new)$/i } });
+
 
     const openJobs = await Job.countDocuments({ status: 'Open' });
     const totalJobs = await Job.countDocuments();
