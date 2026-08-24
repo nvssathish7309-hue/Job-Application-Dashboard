@@ -305,7 +305,7 @@ export default function Login() {
             </div>
 
             {/* Form Card Container */}
-            <div key={switchKey} className="bg-slate-900/80 border border-slate-800/90 p-6 sm:p-8 rounded-3xl shadow-xl backdrop-blur-xl relative">
+            <div key={switchKey} className="bg-slate-900/80 border border-slate-800/90 p-5 sm:p-7 rounded-3xl shadow-xl backdrop-blur-xl relative">
 
               {/* Form Title & Secondary Mode Toggle */}
               <div className="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
@@ -369,7 +369,7 @@ export default function Login() {
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1">First Name *</label>
+                        <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">First Name *</label>
                         <input
                           type="text"
                           required
@@ -380,7 +380,7 @@ export default function Login() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1">Last Name *</label>
+                        <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">Last Name *</label>
                         <input
                           type="text"
                           required
@@ -393,7 +393,7 @@ export default function Login() {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1">Phone Number *</label>
+                      <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">Phone Number *</label>
                       <div className="relative flex items-center">
                         <span className="absolute left-3.5 text-slate-500 text-xs font-bold pointer-events-none z-10">+91</span>
                         <input
@@ -434,7 +434,7 @@ export default function Login() {
                       <button
                         type="button"
                         onClick={() => alert('Passwords for HR Manager, Recruiter, and Interviewer accounts are assigned by Super Admin. Please contact your Super Admin to obtain or reset your credentials.')}
-                        className="text-[11px] text-purple-400 hover:text-purple-300 font-bold transition-colors"
+                        className="text-[11px] text-purple-400 hover:text-purple-300 font-bold transition-colors pr-2"
                       >
                         Forgot?
                       </button>
