@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { getDashboardMetrics, exportReportsCSV } = require('../controllers/reportController');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, optionalAuth } = require('../middleware/auth');
 
-router.use(requireAuth);
-
-router.get('/metrics', getDashboardMetrics);
-router.get('/csv', exportReportsCSV);
+router.get('/metrics', optionalAuth, getDashboardMetrics);
+router.get('/csv', requireAuth, exportReportsCSV);
 
 module.exports = router;
+

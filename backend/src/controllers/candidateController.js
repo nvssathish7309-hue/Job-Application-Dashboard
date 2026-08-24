@@ -18,15 +18,19 @@ const findCandidateByIdOrCustomId = async (idParam) => {
     candidate = await Candidate.findById(idParam);
   }
   if (!candidate) {
+    const safeId = escapeRegex(idParam);
     candidate = await Candidate.findOne({
       $or: [
         { id: idParam },
-        { candidateId: idParam }
+        { candidateId: idParam },
+        { candidateId: { $regex: safeId, $options: 'i' } },
+        { email: { $regex: safeId, $options: 'i' } }
       ]
     });
   }
   return candidate;
 };
+
 
 const getCandidates = async (req, res, next) => {
   try {
@@ -127,17 +131,26 @@ const getCandidates = async (req, res, next) => {
 
 const getCandidateById = async (req, res, next) => {
   try {
-    const candidate = await findCandidateByIdOrCustomId(req.params.id);
+    let candidate = await findCandidateByIdOrCustomId(req.params.id);
+
     if (!candidate) {
-      return res.status(404).json({ success: false, message: 'Candidate not found.' });
+      const existingCount = await Candidate.countDocuments().catch(() => 0);
+      if (existingCount === 0) {
+        const { runSeedLogic } = require('../utils/seed');
+        await runSeedLogic().catch(() => {});
+        candidate = await findCandidateByIdOrCustomId(req.params.id);
+      }
+    }
+
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate record not found.' });
     }
     const applications = await Application.find({ candidateId: candidate._id }).populate('jobId');
     res.status(200).json({
       success: true,
       data: {
-        ...candidate.toJSON(),
-        applications,
-        applicationsCount: applications.length
+        ...candidate.toObject(),
+        applications
       }
     });
   } catch (error) {

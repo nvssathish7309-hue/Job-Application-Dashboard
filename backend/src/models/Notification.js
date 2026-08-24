@@ -2,25 +2,19 @@ const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false, default: null },
     title: { type: String, required: true },
     message: { type: String, required: true },
     type: {
       type: String,
-      enum: [
-        'New Application',
-        'Interview Scheduled',
-        'Interview Reminder',
-        'Candidate Shortlisted',
-        'Candidate Rejected',
-        'Interview Feedback Pending'
-      ],
       default: 'New Application'
     },
     isRead: { type: Boolean, default: false },
-    link: { type: String, default: '' }
+    link: { type: String, default: '' },
+    relatedId: { type: mongoose.Schema.Types.ObjectId, default: null }
   },
   { timestamps: true }
 );
 
 module.exports = mongoose.model('Notification', notificationSchema);
+
