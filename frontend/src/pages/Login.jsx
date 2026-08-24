@@ -482,13 +482,13 @@ export default function Login() {
             </div>
 
 
-            {/* Quick-Select Demo Roles Tray (Bottom Card) */}
+            {/* Quick-Select Team Access Tray (Bottom Card) */}
             {mode === 'login' && activePortalTab === 'recruiter' && (
               <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl shadow-lg backdrop-blur-md">
                 <div className="flex items-center justify-between mb-3 text-[11px]">
                   <span className="font-extrabold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     <Shield className="w-3.5 h-3.5 text-purple-400" />
-                    Demo Role Quick Select:
+                    Team Access:
                   </span>
                   <span className="text-[10px] text-slate-500 italic">Click to select email</span>
                 </div>
@@ -497,69 +497,66 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('admin@mindmatrix.com')}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       email === 'admin@mindmatrix.com'
                         ? 'bg-purple-950/60 border-purple-500 ring-1 ring-purple-500'
                         : 'bg-slate-950/60 border-slate-800 hover:border-purple-500/50 hover:bg-slate-800/50'
                     }`}
                   >
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=80" alt="Super Admin" className="w-7 h-7 rounded-full object-cover shrink-0 border border-purple-400/40" />
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold text-purple-300 uppercase leading-none">Super Admin</p>
-                      <p className="text-[10.5px] font-medium text-slate-300 truncate mt-0.5">admin@mindmatrix.com</p>
+                      <p className="text-[10.5px] font-medium text-slate-300 truncate mt-1">admin@mindmatrix.com</p>
                     </div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('hr@mindmatrix.com')}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       email === 'hr@mindmatrix.com'
                         ? 'bg-blue-950/60 border-blue-500 ring-1 ring-blue-500'
                         : 'bg-slate-950/60 border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/50'
                     }`}
                   >
-                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=80" alt="HR Manager" className="w-7 h-7 rounded-full object-cover shrink-0 border border-blue-400/40" />
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold text-blue-300 uppercase leading-none">HR Manager</p>
-                      <p className="text-[10.5px] font-medium text-slate-300 truncate mt-0.5">hr@mindmatrix.com</p>
+                      <p className="text-[10.5px] font-medium text-slate-300 truncate mt-1">hr@mindmatrix.com</p>
                     </div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('recruiter@mindmatrix.com')}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       email === 'recruiter@mindmatrix.com'
                         ? 'bg-emerald-950/60 border-emerald-500 ring-1 ring-emerald-500'
                         : 'bg-slate-950/60 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/50'
                     }`}
                   >
-                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=80" alt="Recruiter" className="w-7 h-7 rounded-full object-cover shrink-0 border border-emerald-400/40" />
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold text-emerald-300 uppercase leading-none">Recruiter</p>
-                      <p className="text-[10.5px] font-medium text-slate-300 truncate mt-0.5">recruiter@mindmatrix.com</p>
+                      <p className="text-[10.5px] font-medium text-slate-300 truncate mt-1">recruiter@mindmatrix.com</p>
                     </div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('interviewer@mindmatrix.com')}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       email === 'interviewer@mindmatrix.com'
                         ? 'bg-amber-950/60 border-amber-500 ring-1 ring-amber-500'
                         : 'bg-slate-950/60 border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/50'
                     }`}
                   >
-                    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=80" alt="Interviewer" className="w-7 h-7 rounded-full object-cover shrink-0 border border-amber-400/40" />
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold text-amber-300 uppercase leading-none">Interviewer</p>
-                      <p className="text-[10.5px] font-medium text-slate-300 truncate mt-0.5">interviewer@mindmatrix.com</p>
+                      <p className="text-[10.5px] font-medium text-slate-300 truncate mt-1">interviewer@mindmatrix.com</p>
                     </div>
                   </button>
                 </div>
               </div>
             )}
+
 
           </div>
         </div>
