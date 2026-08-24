@@ -62,14 +62,10 @@ export default function Login() {
         if (res?.success) {
           navigate(from, { replace: true });
         } else {
-          setErrorMessage(
-            email.toLowerCase() === 'admin@mindmatrix.com'
-              ? `Invalid credentials for Super Admin account.`
-              : `Invalid email or password. Please check your credentials.`
-          );
+          setErrorMessage(res?.message || 'Invalid email address or password. Access denied.');
         }
       } catch (err) {
-        setErrorMessage(err.response?.data?.message || err.message || 'Failed to communicate with authentication server.');
+        setErrorMessage(err.response?.data?.message || 'Invalid email address or password. Access denied.');
       } finally {
         setIsLoading(false);
       }

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Candidate = require('../models/Candidate');
 const { createAuditLog } = require('../services/auditService');
 
 const generateToken = (userId) => {
@@ -73,29 +74,33 @@ const login = async (req, res, next) => {
       });
     }
 
-    let user = await User.findOne({ email: email.toLowerCase() });
+    const cleanEmail = email.toLowerCase().trim();
+    let user = await User.findOne({ email: cleanEmail });
 
     if (!user) {
-      const cleanEmail = email.toLowerCase().trim();
-      const existingCandidate = await Candidate.findOne({ email: cleanEmail });
-      if (existingCandidate || cleanEmail.includes('gmail') || cleanEmail.includes('yahoo') || cleanEmail.includes('candidate') || cleanEmail.includes('hotmail')) {
-        const nameParts = (existingCandidate?.fullName || cleanEmail.split('@')[0]).split(' ');
-        user = await User.create({
-          firstName: nameParts[0] || 'Candidate',
-          lastName: nameParts.slice(1).join(' ') || 'User',
-          email: cleanEmail,
-          password: password,
-          role: 'CANDIDATE',
-          department: 'Applicant Portal',
-          phone: existingCandidate?.phone || ''
-        });
+      try {
+        const existingCandidate = await Candidate.findOne({ email: cleanEmail });
+        if (existingCandidate || cleanEmail.includes('gmail') || cleanEmail.includes('yahoo') || cleanEmail.includes('candidate') || cleanEmail.includes('hotmail')) {
+          const nameParts = (existingCandidate?.fullName || cleanEmail.split('@')[0]).split(' ');
+          user = await User.create({
+            firstName: nameParts[0] || 'Candidate',
+            lastName: nameParts.slice(1).join(' ') || 'User',
+            email: cleanEmail,
+            password: password,
+            role: 'CANDIDATE',
+            department: 'Applicant Portal',
+            phone: existingCandidate?.phone || ''
+          });
+        }
+      } catch (candErr) {
+        // Fallthrough safely to invalid credentials response
       }
     }
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials. Please check email and password.'
+        message: 'Invalid email address or password. Access denied.'
       });
     }
 
@@ -103,7 +108,7 @@ const login = async (req, res, next) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials. Please check email and password.'
+        message: 'Invalid email address or password. Access denied.'
       });
     }
 
