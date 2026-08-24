@@ -171,7 +171,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full bg-[#0F172A] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans selection:bg-purple-500 selection:text-white relative overflow-hidden">
-      
+
       {/* Background Ambient Glow Orbs */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
@@ -182,7 +182,7 @@ export default function Login() {
 
         {/* ── LEFT HERO PANEL (DARK SLATE) ── */}
         <div className="lg:col-span-6 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] p-8 lg:p-12 flex flex-col justify-between relative border-b lg:border-b-0 lg:border-r border-slate-800/80 overflow-hidden">
-          
+
           {/* Subtle Grid Pattern Overlay */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
 
@@ -201,12 +201,13 @@ export default function Login() {
             <div className="relative z-10 w-24 h-24 rounded-full p-1 flex items-center justify-center animate-bounce-slow shadow-[0_0_35px_rgba(168,85,247,0.8),0_0_70px_rgba(59,130,246,0.5)]">
               {/* Glowing Rotating Multi-Color Gradient Ring */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-sky-400 via-pink-500 to-indigo-500 animate-spin-slow opacity-90 blur-[2px]" />
-              <div className="absolute inset-[2px] rounded-full bg-slate-900" />
-              
-              {/* Inner Core Shield with Glowing MindMatrix Logo */}
-              <div className="relative z-10 w-full h-full rounded-full bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 border border-purple-400/60 flex items-center justify-center p-2.5 shadow-inner overflow-hidden group">
-                <MindMatrixIcon className="w-10 h-7 text-white drop-shadow-[0_0_12px_rgba(168,85,247,0.9)] transition-transform duration-500 group-hover:scale-110" />
+              <div className="absolute inset-[2px] rounded-full bg-white" />
+
+              {/* Inner Core Shield with MindMatrix Logo */}
+              <div className="relative z-10 w-full h-full rounded-full bg-white border border-purple-300/80 flex items-center justify-center p-2.5 shadow-md overflow-hidden group">
+                <MindMatrixIcon className="w-10 h-7 transition-transform duration-500 group-hover:scale-110" />
               </div>
+
             </div>
 
 
@@ -273,7 +274,7 @@ export default function Login() {
 
         {/* ── RIGHT FORM PANEL (SLATE & FROSTED GLASS) ── */}
         <div className="lg:col-span-6 bg-slate-950/60 p-6 sm:p-10 lg:p-12 flex flex-col justify-center relative">
-          
+
           <div className="w-full max-w-md mx-auto space-y-6">
 
             {/* Portal Tab Switcher (Recruiter Portal / Candidate Sign-In) */}
@@ -281,11 +282,10 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => handlePortalSwitch('recruiter')}
-                className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer relative z-10 flex items-center justify-center gap-2 ${
-                  activePortalTab === 'recruiter'
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
+                className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer relative z-10 flex items-center justify-center gap-2 ${activePortalTab === 'recruiter'
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25'
+                  : 'text-slate-400 hover:text-slate-200'
+                  }`}
               >
                 <Shield className="w-3.5 h-3.5" />
                 <span>Recruiter Portal</span>
@@ -294,11 +294,10 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => handlePortalSwitch('candidate')}
-                className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer relative z-10 flex items-center justify-center gap-2 ${
-                  activePortalTab === 'candidate'
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
+                className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer relative z-10 flex items-center justify-center gap-2 ${activePortalTab === 'candidate'
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25'
+                  : 'text-slate-400 hover:text-slate-200'
+                  }`}
               >
                 <User className="w-3.5 h-3.5" />
                 <span>Candidate Sign-In</span>
@@ -307,7 +306,7 @@ export default function Login() {
 
             {/* Form Card Container */}
             <div key={switchKey} className="bg-slate-900/80 border border-slate-800/90 p-6 sm:p-8 rounded-3xl shadow-xl backdrop-blur-xl relative">
-              
+
               {/* Form Title & Secondary Mode Toggle */}
               <div className="flex items-center justify-between mb-6 border-b border-slate-800 pb-4">
                 <div>
@@ -323,18 +322,16 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => handleModeSwitch('login')}
-                    className={`px-2.5 py-1 font-bold rounded-lg transition-all ${
-                      mode === 'login' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
-                    }`}
+                    className={`px-2.5 py-1 font-bold rounded-lg transition-all ${mode === 'login' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                      }`}
                   >
                     Sign In
                   </button>
                   <button
                     type="button"
                     onClick={() => handleModeSwitch('register')}
-                    className={`px-2.5 py-1 font-bold rounded-lg transition-all ${
-                      mode === 'register' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
-                    }`}
+                    className={`px-2.5 py-1 font-bold rounded-lg transition-all ${mode === 'register' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                      }`}
                   >
                     Sign Up
                   </button>
@@ -505,11 +502,10 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('admin@mindmatrix.com')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      email === 'admin@mindmatrix.com'
-                        ? 'bg-purple-950/60 border-purple-500 ring-1 ring-purple-500'
-                        : 'bg-slate-950/60 border-slate-800 hover:border-purple-500/50 hover:bg-slate-800/50'
-                    }`}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${email === 'admin@mindmatrix.com'
+                      ? 'bg-purple-950/60 border-purple-500 ring-1 ring-purple-500'
+                      : 'bg-slate-950/60 border-slate-800 hover:border-purple-500/50 hover:bg-slate-800/50'
+                      }`}
                   >
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold text-purple-300 uppercase leading-none">Super Admin</p>
@@ -520,11 +516,10 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('hr@mindmatrix.com')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      email === 'hr@mindmatrix.com'
-                        ? 'bg-blue-950/60 border-blue-500 ring-1 ring-blue-500'
-                        : 'bg-slate-950/60 border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/50'
-                    }`}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${email === 'hr@mindmatrix.com'
+                      ? 'bg-blue-950/60 border-blue-500 ring-1 ring-blue-500'
+                      : 'bg-slate-950/60 border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/50'
+                      }`}
                   >
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold text-blue-300 uppercase leading-none">HR Manager</p>
@@ -535,11 +530,10 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('recruiter@mindmatrix.com')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      email === 'recruiter@mindmatrix.com'
-                        ? 'bg-emerald-950/60 border-emerald-500 ring-1 ring-emerald-500'
-                        : 'bg-slate-950/60 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/50'
-                    }`}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${email === 'recruiter@mindmatrix.com'
+                      ? 'bg-emerald-950/60 border-emerald-500 ring-1 ring-emerald-500'
+                      : 'bg-slate-950/60 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/50'
+                      }`}
                   >
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold text-emerald-300 uppercase leading-none">Recruiter</p>
@@ -550,11 +544,10 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('interviewer@mindmatrix.com')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      email === 'interviewer@mindmatrix.com'
-                        ? 'bg-amber-950/60 border-amber-500 ring-1 ring-amber-500'
-                        : 'bg-slate-950/60 border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/50'
-                    }`}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${email === 'interviewer@mindmatrix.com'
+                      ? 'bg-amber-950/60 border-amber-500 ring-1 ring-amber-500'
+                      : 'bg-slate-950/60 border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/50'
+                      }`}
                   >
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold text-amber-300 uppercase leading-none">Interviewer</p>
@@ -575,7 +568,7 @@ export default function Login() {
       {ssoModalProvider && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
           <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden p-6 sm:p-8 relative">
-            
+
             {/* Close Button */}
             <button
               type="button"
@@ -612,7 +605,7 @@ export default function Login() {
 
             {/* Select Account List */}
             <div className="space-y-3 mb-6">
-              
+
               {/* Option 1: Primary Demo Account */}
               <button
                 type="button"
