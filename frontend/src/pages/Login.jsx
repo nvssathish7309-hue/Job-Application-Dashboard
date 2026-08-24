@@ -205,11 +205,17 @@ export default function Login() {
       {/* Main Split-Screen SaaS Container Frame */}
       <div className="w-full max-w-6xl min-h-[640px] bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative z-10 backdrop-blur-xl">
 
-        {/* ── LEFT HERO PANEL (DARK SLATE) ── */}
-        <div className="lg:col-span-6 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] p-8 lg:p-12 flex flex-col justify-between relative border-b lg:border-b-0 lg:border-r border-slate-800/80 overflow-hidden">
+        {/* ── LEFT HERO PANEL (ENHANCED DEEP INDIGO-PURPLE MIDNIGHT SAAS) ── */}
+        <div className="lg:col-span-6 bg-gradient-to-br from-[#0A0D18] via-[#13192B] via-[#1A1435] to-[#0D111E] p-8 lg:p-12 flex flex-col justify-between relative border-b lg:border-b-0 lg:border-r border-purple-900/30 overflow-hidden">
 
-          {/* Subtle Grid Pattern Overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+          {/* Ambient Hero Spotlight Glow Orbs */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] bg-gradient-to-tr from-purple-600/25 via-indigo-500/20 to-sky-500/15 rounded-full blur-[90px] pointer-events-none" />
+          <div className="absolute -top-10 -left-10 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Cyber Grid Pattern Overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_70%_70%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+
 
           {/* Top Brand Logo */}
           <div className="relative z-10">
