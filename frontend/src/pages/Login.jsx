@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, register, socialLogin } = useAuth();
+  const { login, register, socialLogin, logout } = useAuth();
 
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [activePortalTab, setActivePortalTab] = useState('recruiter'); // 'recruiter' | 'candidate'
@@ -39,11 +39,15 @@ export default function Login() {
     setSwitchKey(prev => prev + 1);
     setErrorMessage('');
     setSuccessMessage('');
-    if (portal === 'candidate') {
+    setIsExistingAccount(false);
+    if (portal === 'recruiter') {
+      setMode('login'); // Registration is disabled for Team Access
+    } else if (portal === 'candidate') {
       setEmail('');
       setPassword('');
     }
   };
+
 
   const handleModeSwitch = (targetMode) => {
     if (mode !== targetMode) {
@@ -77,6 +81,26 @@ export default function Login() {
       try {
         const res = await login(email, password);
         if (res?.success) {
+          const userObj = res?.data?.user || res?.user;
+          const userRole = userObj?.role;
+
+          // Strict Role Isolation between Team Access and Candidate Portal
+          if (activePortalTab === 'recruiter') {
+            if (userRole === 'CANDIDATE') {
+              if (typeof logout === 'function') logout();
+              setErrorMessage('This account is a Candidate profile. Please switch to Candidate Sign-In to log in.');
+              setIsLoading(false);
+              return;
+            }
+          } else if (activePortalTab === 'candidate') {
+            if (userRole && userRole !== 'CANDIDATE') {
+              if (typeof logout === 'function') logout();
+              setErrorMessage('This is a Team account. Please switch to Recruiter Portal / Team Access to log in.');
+              setIsLoading(false);
+              return;
+            }
+          }
+
           navigate(from, { replace: true });
         } else {
           setErrorMessage(res?.message || 'Invalid email address or password. Access denied.');
@@ -86,6 +110,7 @@ export default function Login() {
       } finally {
         setIsLoading(false);
       }
+
     } else {
       // Candidate Registration
       if (!firstName || !lastName || !phone || !email || !password) {
@@ -333,24 +358,27 @@ export default function Login() {
                   </p>
                 </div>
 
-                <div className="flex bg-slate-800/60 p-1 rounded-xl border border-slate-700/50 text-[11px]">
-                  <button
-                    type="button"
-                    onClick={() => handleModeSwitch('login')}
-                    className={`px-2.5 py-1 font-bold rounded-lg transition-all ${mode === 'login' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
-                      }`}
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleModeSwitch('register')}
-                    className={`px-2.5 py-1 font-bold rounded-lg transition-all ${mode === 'register' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
-                      }`}
-                  >
-                    Sign Up
-                  </button>
-                </div>
+                {activePortalTab === 'candidate' && (
+                  <div className="flex bg-slate-800/60 p-1 rounded-xl border border-slate-700/50 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => handleModeSwitch('login')}
+                      className={`px-2.5 py-1 font-bold rounded-lg transition-all ${mode === 'login' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                        }`}
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleModeSwitch('register')}
+                      className={`px-2.5 py-1 font-bold rounded-lg transition-all ${mode === 'register' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                        }`}
+                    >
+                      Sign Up
+                    </button>
+                  </div>
+                )}
+
               </div>
 
               {/* Status Notifications */}
