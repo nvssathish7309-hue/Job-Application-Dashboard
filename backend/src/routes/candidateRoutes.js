@@ -9,20 +9,10 @@ const {
   shortlistCandidate,
   rejectCandidate 
 } = require('../controllers/candidateController');
-const express = require('express');
-const router = express.Router();
-const { 
-  getCandidates, 
-  getCandidateById, 
-  createCandidate, 
-  updateCandidate, 
-  deleteCandidate,
-  shortlistCandidate,
-  rejectCandidate 
-} = require('../controllers/candidateController');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { requireRole } = require('../middleware/rbac');
 const { uploadResume } = require('../middleware/upload');
+
 
 // Public & Optional Auth endpoints
 router.get('/', optionalAuth, getCandidates);

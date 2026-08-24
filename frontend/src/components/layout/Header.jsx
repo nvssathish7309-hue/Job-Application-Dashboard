@@ -19,9 +19,10 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
     isError, 
     setIsError,
     notifications,
-    markNotifAsRead,
-    markAllNotifsAsRead
+    markNotifAsRead: markNotifAsReadCtx,
+    markAllNotifsAsRead: markAllNotifsAsReadCtx
   } = useCandidates();
+
 
   const [localProfile, setLocalProfile] = useState(() => {
     try {
@@ -341,7 +342,7 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
       localStorage.setItem('local_notifications', JSON.stringify(updatedLocal));
       setLocalNotifs(updatedLocal);
     } catch (e) {}
-    if (markAsRead) markAsRead(notifId);
+    if (markNotifAsReadCtx) markNotifAsReadCtx(notifId);
   };
 
   const markAllNotifsAsRead = () => {
@@ -356,8 +357,9 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
       localStorage.setItem('local_notifications', JSON.stringify(updatedLocal));
       setLocalNotifs(updatedLocal);
     } catch (e) {}
-    if (markAllAsRead) markAllAsRead();
+    if (markAllNotifsAsReadCtx) markAllNotifsAsReadCtx();
   };
+
 
   const clearAllNotifications = () => {
     try {
