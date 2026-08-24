@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, User, Phone, ArrowRight, UserPlus, LogIn, CheckCircle2, ShieldCheck, Zap, Users, Shield, X, Check } from 'lucide-react';
-import MindMatrixLogo from '../components/MindMatrixLogo';
+import MindMatrixLogo, { MindMatrixIcon } from '../components/MindMatrixLogo';
 import { useAuth } from '../context/AuthContext';
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -196,12 +197,18 @@ export default function Login() {
             <div className="w-56 h-56 rounded-full border border-purple-500/20 animate-pulse absolute" />
             <div className="w-72 h-72 rounded-full border border-blue-500/10 absolute" />
 
-            {/* Central Node Avatar */}
-            <div className="relative z-10 w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 p-1 shadow-lg shadow-purple-500/30 animate-bounce-slow">
-              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-2xl font-extrabold text-white overflow-hidden border border-purple-400/40">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200" alt="Avatar" className="w-full h-full object-cover" />
+            {/* Central MindMatrix Logo Node with Multi-Color Neon Glowing Light Border */}
+            <div className="relative z-10 w-24 h-24 rounded-full p-1 flex items-center justify-center animate-bounce-slow shadow-[0_0_35px_rgba(168,85,247,0.8),0_0_70px_rgba(59,130,246,0.5)]">
+              {/* Glowing Rotating Multi-Color Gradient Ring */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-sky-400 via-pink-500 to-indigo-500 animate-spin-slow opacity-90 blur-[2px]" />
+              <div className="absolute inset-[2px] rounded-full bg-slate-900" />
+              
+              {/* Inner Core Shield with Glowing MindMatrix Logo */}
+              <div className="relative z-10 w-full h-full rounded-full bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 border border-purple-400/60 flex items-center justify-center p-2.5 shadow-inner overflow-hidden group">
+                <MindMatrixIcon className="w-10 h-7 text-white drop-shadow-[0_0_12px_rgba(168,85,247,0.9)] transition-transform duration-500 group-hover:scale-110" />
               </div>
             </div>
+
 
             {/* Floating Peripheral Nodes with Glowing Lines */}
             {/* Top Node */}

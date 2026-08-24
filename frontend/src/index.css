@@ -1162,3 +1162,30 @@ html.dark .border-slate-100 {
 .animate-pulse-ring {
   animation: pulseGlowRing 2.5s infinite;
 }
+
+/* ── MindMatrix Logo Central Node Glowing Light Effect ── */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 4s ease-in-out infinite;
+}
