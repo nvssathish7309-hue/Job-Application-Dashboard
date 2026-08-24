@@ -1,4 +1,5 @@
 const Notification = require('../models/Notification');
+const { sendNotificationEmail } = require('../utils/emailService');
 
 const getNotifications = async (req, res, next) => {
   try {
@@ -40,8 +41,41 @@ const markAllAsRead = async (req, res, next) => {
   }
 };
 
+const sendEmailNotification = async (req, res, next) => {
+  try {
+    const { toEmail, candidateName, title, message, stage, link } = req.body;
+    const targetEmail = toEmail || req.user?.email;
+
+    if (!targetEmail || !title || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Recipient email (toEmail), title, and message are required.'
+      });
+    }
+
+    const result = await sendNotificationEmail({
+      toEmail: targetEmail,
+      candidateName: candidateName || (req.user ? `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() : 'Candidate'),
+      title,
+      message,
+      stage,
+      link
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Email notification processed successfully',
+      result
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getNotifications,
   markAsRead,
-  markAllAsRead
+  markAllAsRead,
+  sendEmailNotification
 };
+

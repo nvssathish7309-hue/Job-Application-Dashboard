@@ -3,6 +3,8 @@ const Candidate = require('../models/Candidate');
 const mongoose = require('mongoose');
 const { generateCustomId } = require('../utils/idGenerator');
 const { createAuditLog } = require('../services/auditService');
+const { sendNotificationEmail } = require('../utils/emailService');
+
 
 const findApplicationByIdOrCustomId = async (idParam) => {
   if (!idParam) return null;
@@ -109,8 +111,25 @@ const updateStage = async (req, res, next) => {
     await application.save();
 
     if (application.candidateId) {
-      await Candidate.findByIdAndUpdate(application.candidateId, { status: stage });
+      const candidateObj = await Candidate.findByIdAndUpdate(application.candidateId, { status: stage }, { new: true });
+      if (candidateObj && candidateObj.email) {
+        try {
+          const isPositive = ['shortlisted', 'interview', 'selected', 'offer', 'screening'].some(s => stage.toLowerCase().includes(s));
+          const title = isPositive ? `🎉 Application Status Update: ${stage}` : `Application Update: ${stage}`;
+          const message = `Dear ${candidateObj.fullName || 'Candidate'}, your job application status has been updated to "${stage}"${remarks ? `. Remarks: ${remarks}` : '.'}`;
+          await sendNotificationEmail({
+            toEmail: candidateObj.email,
+            candidateName: candidateObj.fullName || 'Candidate',
+            title,
+            message,
+            stage
+          });
+        } catch (e) {
+          console.warn('Failed to send stage update candidate email:', e.message);
+        }
+      }
     }
+
 
     await createAuditLog({
       req,

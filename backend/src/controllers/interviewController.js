@@ -5,6 +5,8 @@ const Application = require('../models/Application');
 const Notification = require('../models/Notification');
 const { generateCustomId } = require('../utils/idGenerator');
 const { createAuditLog } = require('../services/auditService');
+const { sendNotificationEmail } = require('../utils/emailService');
+
 
 const getInterviews = async (req, res, next) => {
   try {
@@ -95,6 +97,24 @@ const scheduleInterview = async (req, res, next) => {
       type: 'Interview Scheduled',
       link: '/interviews'
     });
+
+    // Send email notification to Candidate
+    try {
+      const targetCand = await Candidate.findById(candidateId);
+      if (targetCand && targetCand.email) {
+        await sendNotificationEmail({
+          toEmail: targetCand.email,
+          candidateName: targetCand.fullName || targetCand.name || 'Candidate',
+          title: '🎉 Interview Scheduled — Technical Round',
+          message: `Congratulations ${targetCand.fullName || 'Candidate'}! An interview round has been scheduled for you on ${date} at ${startTime}.${meetingLink ? ` Joining link: ${meetingLink}` : ''}`,
+          stage: 'Interview Scheduled',
+          link: meetingLink || `${process.env.CLIENT_URL || 'http://localhost:5173'}/candidate-portal`
+        });
+      }
+    } catch (e) {
+      console.warn('Failed to send interview scheduled candidate email:', e.message);
+    }
+
 
     await createAuditLog({
       req,

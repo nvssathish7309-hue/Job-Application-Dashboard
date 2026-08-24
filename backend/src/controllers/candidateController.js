@@ -3,8 +3,10 @@ const Application = require('../models/Application');
 const Notification = require('../models/Notification');
 const { generateCustomId } = require('../utils/idGenerator');
 const { createAuditLog } = require('../services/auditService');
+const { sendNotificationEmail } = require('../utils/emailService');
 
 const mongoose = require('mongoose');
+
 
 const escapeRegex = (text) => text ? String(text).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') : '';
 
@@ -215,7 +217,7 @@ const createCandidate = async (req, res, next) => {
       }]
     });
 
-    // Notify HR / Admins
+    // Notify HR / Admins & Candidate Email
     try {
       await Notification.create({
         title: 'New Job Application Submitted',
@@ -223,9 +225,17 @@ const createCandidate = async (req, res, next) => {
         type: 'APPLICATION',
         relatedId: newApplication._id
       });
+      await sendNotificationEmail({
+        toEmail: candidate.email,
+        candidateName: fullName,
+        title: `🎉 Application Received: ${role}`,
+        message: `Thank you ${fullName}! Your job application for "${role}" (${applicationId}) has been successfully submitted and received by MindMatrix recruitment team.`,
+        stage: 'New'
+      });
     } catch (e) {
-      console.warn('Failed to create application notification:', e.message);
+      console.warn('Failed to create application notification / send email:', e.message);
     }
+
 
     await createAuditLog({
       req,

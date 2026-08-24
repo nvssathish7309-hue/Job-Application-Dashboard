@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { candidateService } from '../services/candidateService';
 import { reportService } from '../services/reportService';
+import { notificationService } from '../services/notificationService';
 import { INITIAL_CANDIDATES } from '../data/mockCandidates';
 import { useAuth } from './AuthContext';
+
 
 const CandidateContext = createContext();
 
@@ -324,8 +326,20 @@ export const CandidateProvider = ({ children }) => {
       };
 
       localStorage.setItem('local_notifications', JSON.stringify([candidateNotif, interviewerNotif, ...existingNotifs]));
+
+      // 3. Send email notification to Candidate
+      if (candEmail) {
+        notificationService.sendEmailNotification({
+          toEmail: candEmail,
+          candidateName: candName,
+          title: notifTitle,
+          message: notifMessage,
+          stage: newStage
+        }).catch(err => console.warn('Failed to dispatch candidate email notification:', err.message));
+      }
     } catch (e) {}
   };
+
 
   const shortlistCandidate = async (id, remarks) => {
     const res = await candidateService.shortlistCandidate(id, remarks).catch(() => null);

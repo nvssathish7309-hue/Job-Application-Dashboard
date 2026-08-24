@@ -5,7 +5,9 @@ import {
 } from 'lucide-react';
 import { useCandidates } from '../../context/CandidateContext';
 import { useAuth } from '../../context/AuthContext';
+import { notificationService } from '../../services/notificationService';
 import MindMatrixLogo from '../MindMatrixLogo';
+
 
 export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
   const navigate = useNavigate();
@@ -108,6 +110,24 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
     window.addEventListener('candidateSubmitted', loadNotifState);
     return () => window.removeEventListener('candidateSubmitted', loadNotifState);
   }, []);
+
+  const triggerCandidateEmailIfNeeded = (id, toEmail, candidateName, title, message, stage = '') => {
+    if (!toEmail || !toEmail.includes('@')) return;
+    try {
+      const sentIds = JSON.parse(localStorage.getItem('sent_email_notification_ids') || '[]');
+      if (!sentIds.includes(id)) {
+        sentIds.push(id);
+        localStorage.setItem('sent_email_notification_ids', JSON.stringify(sentIds));
+        notificationService.sendEmailNotification({
+          toEmail,
+          candidateName,
+          title,
+          message,
+          stage
+        }).catch(e => console.warn('Header auto-email dispatch failed:', e.message));
+      }
+    } catch (e) {}
+  };
 
   const validNotifications = useMemo(() => {
     const userEmail = (user?.email || '').toLowerCase();
@@ -251,14 +271,19 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
                 }
                 if (!iName) iName = 'Santhosh N';
 
+                const remTitle = `⏰ Upcoming Interview Reminder — 10 Mins Away`;
+                const remMsg = `Hi ${candName}! Your Technical Round 1 interview for "${roleName}" with ${iName} is starting in 10 minutes (10:00 AM IST). Click to join Google Meet: https://meet.google.com/xyz-abc-123`;
+
                 merged.push({
                   id: reminder10MinId,
-                  title: `⏰ Upcoming Interview Reminder — 10 Mins Away`,
-                  message: `Hi ${candName}! Your Technical Round 1 interview for "${roleName}" with ${iName} is starting in 10 minutes (10:00 AM IST). Click to join Google Meet: https://meet.google.com/xyz-abc-123`,
+                  title: remTitle,
+                  message: remMsg,
                   timestamp: new Date().toISOString(),
                   isRead: readNotifIds.includes(reminder10MinId),
                   link: 'https://meet.google.com/xyz-abc-123'
                 });
+
+                triggerCandidateEmailIfNeeded(reminder10MinId, userEmail || c.email || 'nvssathish7309@gmail.com', candName, remTitle, remMsg, 'Interview Scheduled');
               }
             } else if (sLower.includes('shortlist')) {
               stageText = 'Shortlisted';
@@ -290,6 +315,8 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
                 timestamp: app.appliedAt || new Date().toISOString(),
                 isRead: readNotifIds.includes(notifId)
               });
+
+              triggerCandidateEmailIfNeeded(notifId, userEmail || c.email || 'nvssathish7309@gmail.com', candName, title, msg, stageText);
             }
           });
         });
@@ -297,6 +324,7 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
     } catch (e) {
       console.error('Error generating notifications:', e);
     }
+
 
     return merged.sort((a, b) => new Date(b.timestamp || b.createdAt || 0) - new Date(a.timestamp || a.createdAt || 0));
   }, [notifications, localNotifs, readNotifIds, clearedNotifIds, user, candidates]);

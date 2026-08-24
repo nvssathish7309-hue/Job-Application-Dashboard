@@ -12,5 +12,10 @@ export const notificationService = {
   markAllAsRead: async () => {
     const res = await api.patch('/notifications/read-all');
     return res.data;
+  },
+  sendEmailNotification: async (payload) => {
+    const res = await api.post('/notifications/send-email', payload);
+    return res.data;
   }
 };
+
