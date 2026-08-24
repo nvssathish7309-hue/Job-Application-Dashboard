@@ -58,9 +58,6 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }, [headerName]);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const notifRef = useRef(null);
-
   // Dark & Light Theme State System
   const [isDarkMode, setIsDarkMode] = useState(() => {
     try {
@@ -85,12 +82,12 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
     setIsDarkMode(prev => !prev);
   };
 
-  const [localNotifs, setLocalNotifs] = useState(() => {
   const [localNotifs, setLocalNotifs] = useState([]);
   const [readNotifIds, setReadNotifIds] = useState([]);
   const [clearedNotifIds, setClearedNotifIds] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
+
 
   const loadNotifState = () => {
     try {
