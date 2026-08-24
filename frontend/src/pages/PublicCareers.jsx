@@ -66,10 +66,22 @@ export default function PublicCareers() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 py-4 px-6 sticky top-0 z-10 shadow-2xs">
+    <div
+      style={{
+        backgroundImage: `url(/abstract-glass.png)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        backgroundRepeat: 'no-repeat'
+      }}
+      className="min-h-screen bg-black text-slate-100 relative"
+    >
+      {/* Soft Vignette Overlay */}
+      <div className="absolute inset-0 bg-black/65 backdrop-blur-[2px] pointer-events-none" />
+
+      <div className="relative z-10">
+        {/* Header */}
+        <header className="bg-slate-900/80 border-b border-slate-800 py-4 px-6 sticky top-0 z-20 backdrop-blur-md">
+
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3 select-none">
             <MindMatrixLogo layout="iconOnly" />
@@ -237,6 +249,8 @@ export default function PublicCareers() {
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 }
+
