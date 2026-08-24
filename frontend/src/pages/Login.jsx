@@ -191,9 +191,9 @@ export default function Login() {
             <MindMatrixLogo layout="horizontal" showTagline={false} />
           </div>
 
-          {/* Center Graphic Node Illustration */}
-          <div className="my-8 lg:my-0 relative flex items-center justify-center min-h-[220px]">
-            {/* Pulsing Outer Network Ring */}
+          {/* Center Graphic Node Illustration with Revolving 3D Orbit Cards */}
+          <div className="my-10 lg:my-6 relative flex items-center justify-center min-h-[280px]">
+            {/* Pulsing Outer Network Rings */}
             <div className="w-56 h-56 rounded-full border border-purple-500/20 animate-pulse absolute" />
             <div className="w-72 h-72 rounded-full border border-blue-500/10 absolute" />
 
@@ -207,44 +207,59 @@ export default function Login() {
               <div className="relative z-10 w-full h-full rounded-full bg-white border border-purple-300/80 flex items-center justify-center p-2.5 shadow-md overflow-hidden group">
                 <MindMatrixIcon className="w-10 h-7 transition-transform duration-500 group-hover:scale-110" />
               </div>
-
             </div>
 
+            {/* 360-Degree Smooth Revolving Orbital Ring Container */}
+            <div className="absolute w-[260px] sm:w-[280px] h-[260px] sm:h-[280px] rounded-full border border-purple-500/15 animate-orbit pointer-events-none flex items-center justify-center">
+              
+              {/* Card 1: Top Position (0deg) */}
+              <div className="absolute -top-5 left-1/2 -translate-x-1/2 pointer-events-auto">
+                <div className="animate-orbit-counter">
+                  <div className="bg-slate-800/90 border border-purple-500/40 p-2.5 rounded-2xl shadow-xl backdrop-blur-md flex items-center gap-2.5 whitespace-nowrap hover:scale-105 transition-transform">
+                    <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-xs shrink-0">
+                      <Zap className="w-4 h-4 text-purple-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Smart Match</p>
+                      <p className="text-xs font-extrabold text-white">98% Fit Score</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-            {/* Floating Peripheral Nodes with Glowing Lines */}
-            {/* Top Node */}
-            <div className="absolute -top-2 left-1/4 bg-slate-800/90 border border-purple-500/40 p-2.5 rounded-2xl shadow-lg backdrop-blur-md flex items-center gap-2 animate-float">
-              <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-xs">
-                <Zap className="w-4 h-4 text-purple-400" />
+              {/* Card 2: Bottom-Right Position (120deg) */}
+              <div className="absolute bottom-2 right-[-20px] sm:right-[-28px] pointer-events-auto">
+                <div className="animate-orbit-counter">
+                  <div className="bg-slate-800/90 border border-blue-500/40 p-2.5 rounded-2xl shadow-xl backdrop-blur-md flex items-center gap-2.5 whitespace-nowrap hover:scale-105 transition-transform">
+                    <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-300 flex items-center justify-center font-bold text-xs shrink-0">
+                      <Users className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Candidate</p>
+                      <p className="text-xs font-extrabold text-white">Shortlisted</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="text-left">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Smart Match</p>
-                <p className="text-xs font-extrabold text-white">98% Fit Score</p>
-              </div>
-            </div>
 
-            {/* Right Node */}
-            <div className="absolute top-1/3 -right-2 bg-slate-800/90 border border-blue-500/40 p-2.5 rounded-2xl shadow-lg backdrop-blur-md flex items-center gap-2 animate-float-delayed">
-              <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-300 flex items-center justify-center font-bold text-xs">
-                <Users className="w-4 h-4 text-blue-400" />
+              {/* Card 3: Bottom-Left Position (240deg) */}
+              <div className="absolute bottom-2 left-[-20px] sm:left-[-28px] pointer-events-auto">
+                <div className="animate-orbit-counter">
+                  <div className="bg-slate-800/90 border border-emerald-500/40 p-2.5 rounded-2xl shadow-xl backdrop-blur-md flex items-center gap-2.5 whitespace-nowrap hover:scale-105 transition-transform">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Security</p>
+                      <p className="text-xs font-extrabold text-white">Verified Profile</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="text-left">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Candidate</p>
-                <p className="text-xs font-extrabold text-white">Shortlisted</p>
-              </div>
-            </div>
 
-            {/* Left Node */}
-            <div className="absolute bottom-2 left-4 bg-slate-800/90 border border-emerald-500/40 p-2.5 rounded-2xl shadow-lg backdrop-blur-md flex items-center gap-2 animate-float">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-xs">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              </div>
-              <div className="text-left">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Security</p>
-                <p className="text-xs font-extrabold text-white">Verified Profile</p>
-              </div>
             </div>
           </div>
+
 
           {/* Bottom Headline & Checklist */}
           <div className="relative z-10 text-left space-y-4">

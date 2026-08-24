@@ -1188,4 +1188,32 @@ html.dark .border-slate-100 {
 
 .animate-bounce-slow {
   animation: bounce-slow 4s ease-in-out infinite;
-}
+}
+
+/* ── 360-Degree Smooth Orbital Revolving Keyframes ── */
+@keyframes orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-spin-counter {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.animate-orbit {
+  animation: orbit-spin 22s linear infinite;
+}
+
+.animate-orbit-counter {
+  animation: orbit-spin-counter 22s linear infinite;
+}
+
