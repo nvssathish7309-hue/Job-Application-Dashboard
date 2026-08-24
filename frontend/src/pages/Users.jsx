@@ -145,8 +145,8 @@ export default function Users() {
   };
 
   const generateRoleEmail = (role, firstName = '', lastName = '') => {
-    const f = (firstName || '').toLowerCase().trim();
-    const l = (lastName || '').toLowerCase().trim();
+    const f = (firstName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+    const l = (lastName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '');
     const namePrefix = f ? (l ? `${f}.${l}` : f) : '';
 
     if (role === 'HR_MANAGER') {
@@ -167,6 +167,17 @@ export default function Users() {
     return 'hr@mindmatrix.com';
   };
 
+  const getDefaultDepartment = (role) => {
+    switch (role) {
+      case 'HR_MANAGER': return 'Human Resources';
+      case 'RECRUITER': return 'Talent Acquisition';
+      case 'INTERVIEWER': return 'Engineering';
+      case 'SUPER_ADMIN': return 'Executive';
+      case 'CANDIDATE': return 'Applicant Portal';
+      default: return 'Human Resources';
+    }
+  };
+
   const handleOpenAddModal = () => {
     const defaultRole = 'HR_MANAGER';
     setNewUser({
@@ -175,18 +186,18 @@ export default function Users() {
       email: generateRoleEmail(defaultRole),
       password: '',
       role: defaultRole,
-      department: 'Human Resources',
+      department: getDefaultDepartment(defaultRole),
       phone: ''
     });
     setShowAddModal(true);
   };
 
   const handleRoleSelectChange = (newRole) => {
-    const newEmail = generateRoleEmail(newRole, newUser.firstName, newUser.lastName);
     setNewUser(prev => ({
       ...prev,
       role: newRole,
-      email: newEmail
+      email: generateRoleEmail(newRole, prev.firstName, prev.lastName),
+      department: getDefaultDepartment(newRole)
     }));
   };
 
@@ -667,6 +678,23 @@ export default function Users() {
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Assigned Access Role *
+                </label>
+                <select
+                  value={newUser.role}
+                  onChange={(e) => handleRoleSelectChange(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 cursor-pointer focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="HR_MANAGER">HR Manager</option>
+                  <option value="RECRUITER">Recruiter</option>
+                  <option value="INTERVIEWER">Interviewer</option>
+                  {isAdmin && <option value="SUPER_ADMIN">Super Admin</option>}
+                  <option value="CANDIDATE">Candidate</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Email Address (Team Login Email) *
                 </label>
                 <input
@@ -710,23 +738,6 @@ export default function Users() {
                     Password visibility is restricted to Super Admin.
                   </span>
                 )}
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Assigned Access Role *
-                </label>
-                <select
-                  value={newUser.role}
-                  onChange={(e) => handleRoleSelectChange(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 cursor-pointer focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                >
-                  <option value="HR_MANAGER">HR Manager</option>
-                  <option value="RECRUITER">Recruiter</option>
-                  <option value="INTERVIEWER">Interviewer</option>
-                  {isAdmin && <option value="SUPER_ADMIN">Super Admin</option>}
-                  <option value="CANDIDATE">Candidate</option>
-                </select>
               </div>
 
               <div>
