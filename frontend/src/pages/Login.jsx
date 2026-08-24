@@ -366,31 +366,58 @@ export default function Login() {
             {mode === 'login' && (
               <div className="mt-6 pt-6 border-t border-white/15">
                 <div className="text-[11px] font-bold text-blue-300/70 uppercase tracking-wider mb-3 flex items-center justify-between">
-                  <span>System Control Account:</span>
-                  <span className="text-[9.5px] font-medium text-sky-300/60 lowercase italic tracking-normal">(Team credentials given by Admin)</span>
+                  <span>Admin &amp; Team Quick Select:</span>
+                  <span className="text-[9.5px] font-medium text-sky-300/60 lowercase italic tracking-normal">(Password typed manually)</span>
                 </div>
                 
-                <div className="flex flex-col gap-2.5 text-xs">
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
                     type="button"
                     onClick={() => handleDemoLogin('admin@mindmatrix.com')}
-                    className={`demo-btn btn-moving-light px-3 py-2.5 rounded-xl font-bold text-left transition-all cursor-pointer overflow-hidden flex items-center justify-between ${
+                    className={`demo-btn btn-moving-light px-2.5 py-2 rounded-xl font-bold text-left transition-all cursor-pointer overflow-hidden ${
                       email === 'admin@mindmatrix.com' ? 'scale-[1.02] ring-2 ring-purple-400' : ''
                     }`}
                     style={{'--demo-color': '#a855f7'}}
                   >
-                    <div>
-                      <span className="block text-[10px] font-extrabold uppercase mb-0.5" style={{color: '#c084fc'}}>Super Admin</span>
-                      <span className="block text-xs font-medium text-white/90 truncate tracking-tight">admin@mindmatrix.com</span>
-                    </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-200 border border-purple-400/30 font-bold">
-                      Control Panel
-                    </span>
+                    <span className="block text-[10px] font-extrabold uppercase mb-0.5" style={{color: '#c084fc'}}>Super Admin</span>
+                    <span className="block text-[10.5px] font-medium text-white/80 truncate tracking-tight">admin@mindmatrix.com</span>
                   </button>
 
-                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-blue-200/80 leading-relaxed font-medium">
-                    💡 <strong className="text-white">Team Member Access:</strong> HR Manager, Recruiter, and Interviewer accounts are granted and given credentials directly by Super Admin via User Management.
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin('hr@mindmatrix.com')}
+                    className={`demo-btn btn-moving-light px-2.5 py-2 rounded-xl font-bold text-left transition-all cursor-pointer overflow-hidden ${
+                      email === 'hr@mindmatrix.com' ? 'scale-[1.02] ring-2 ring-blue-400' : ''
+                    }`}
+                    style={{'--demo-color': '#3b82f6'}}
+                  >
+                    <span className="block text-[10px] font-extrabold uppercase mb-0.5" style={{color: '#93c5fd'}}>HR Manager</span>
+                    <span className="block text-[10.5px] font-medium text-white/80 truncate tracking-tight">hr@mindmatrix.com</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin('recruiter@mindmatrix.com')}
+                    className={`demo-btn btn-moving-light px-2.5 py-2 rounded-xl font-bold text-left transition-all cursor-pointer overflow-hidden ${
+                      email === 'recruiter@mindmatrix.com' ? 'scale-[1.02] ring-2 ring-emerald-400' : ''
+                    }`}
+                    style={{'--demo-color': '#10b981'}}
+                  >
+                    <span className="block text-[10px] font-extrabold uppercase mb-0.5" style={{color: '#6ee7b7'}}>Recruiter</span>
+                    <span className="block text-[10.5px] font-medium text-white/80 truncate tracking-tight">recruiter@mindmatrix.com</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin('interviewer@mindmatrix.com')}
+                    className={`demo-btn btn-moving-light px-2.5 py-2 rounded-xl font-bold text-left transition-all cursor-pointer overflow-hidden ${
+                      email === 'interviewer@mindmatrix.com' ? 'scale-[1.02] ring-2 ring-amber-400' : ''
+                    }`}
+                    style={{'--demo-color': '#f59e0b'}}
+                  >
+                    <span className="block text-[10px] font-extrabold uppercase mb-0.5" style={{color: '#fcd34d'}}>Interviewer</span>
+                    <span className="block text-[10.5px] font-medium text-white/80 truncate tracking-tight">interviewer@mindmatrix.com</span>
+                  </button>
                 </div>
               </div>
             )}
