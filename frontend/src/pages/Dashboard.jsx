@@ -548,13 +548,11 @@ export default function Dashboard() {
     if (!user) return;
     setLoadingMyApps(true);
     try {
-      const searchEmail = (user.email || 'nvssathish7309@gmail.com').toLowerCase();
-      const userFirstName = (user.firstName || 'Sathish').toLowerCase();
+      const searchEmail = (user.email || '').toLowerCase();
 
       const matchedInState = (candidates || []).filter(c => {
         const cEmail = (c.email || '').toLowerCase();
-        const cName = (c.fullName || c.name || '').toLowerCase();
-        return cEmail === searchEmail || cName.includes(userFirstName) || (searchEmail.includes('sathish') && cName.includes('sathish'));
+        return cEmail && searchEmail && cEmail === searchEmail;
       });
 
       let localReg = [];
@@ -562,10 +560,10 @@ export default function Dashboard() {
         const saved = JSON.parse(localStorage.getItem('registered_candidates') || '[]');
         localReg = saved.filter(c => {
           const cEmail = (c.email || '').toLowerCase();
-          const cName = (c.fullName || c.name || '').toLowerCase();
-          return cEmail === searchEmail || cName.includes(userFirstName) || (searchEmail.includes('sathish') && cName.includes('sathish'));
+          return cEmail && searchEmail && cEmail === searchEmail;
         });
       } catch (e) {}
+
 
       const allApps = [...matchedInState];
       localReg.forEach(lr => {
@@ -705,13 +703,12 @@ export default function Dashboard() {
     const candidateName = user.firstName || savedProfile?.name?.split(' ')[0] || 'Applicant';
     const openJobsCount = publicJobs.length;
 
-    const candidateEmail = (user.email || 'nvssathish7309@gmail.com').toLowerCase();
-    const candidateNameLower = (user.firstName || '').toLowerCase();
+    const candidateEmail = (user?.email || '').toLowerCase();
 
     const userApplications = (candidates || []).filter(c => 
-      c.email?.toLowerCase() === candidateEmail ||
-      ((c.fullName || c.name || '').toLowerCase() === candidateNameLower && candidateNameLower !== '')
+      c.email && candidateEmail && c.email.toLowerCase() === candidateEmail
     );
+
 
     const matchedCandidate = userApplications[0] || null;
 
@@ -972,9 +969,8 @@ export default function Dashboard() {
                 const jobTitleLower = (job.title || '').toLowerCase().trim();
 
                 const specificApp = (candidates || []).find(c => {
-                  const isUser = c.email?.toLowerCase() === candidateEmail ||
-                    (c.fullName || c.name || '').toLowerCase().includes(candidateNameLower) ||
-                    (candidateEmail.includes('sathish') && (c.fullName || c.name || '').toLowerCase().includes('sathish'));
+                  if (!c.email || !candidateEmail) return false;
+                  const isUser = c.email.toLowerCase() === candidateEmail;
                   if (!isUser) return false;
                   const cRole = (c.role || '').toLowerCase().trim();
                   return cRole === jobTitleLower || cRole.includes(jobTitleLower) || jobTitleLower.includes(cRole);
@@ -982,6 +978,7 @@ export default function Dashboard() {
                   const aRole = (a.role || '').toLowerCase().trim();
                   return aRole === jobTitleLower || aRole.includes(jobTitleLower) || jobTitleLower.includes(aRole);
                 });
+
 
                 const specificStage = (specificApp?.stage || specificApp?.status || '').toLowerCase();
                 const isAppliedActive = !!specificApp && !specificStage.includes('reject');

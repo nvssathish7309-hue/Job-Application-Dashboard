@@ -144,9 +144,10 @@ export default function NotificationsDropdown() {
         const candidateRecords = allCand.filter(c => {
           if (!c) return false;
           const cEmail = (c.email || '').toLowerCase();
-          const cName = (c.fullName || c.name || '').toLowerCase();
-          return (userEmail && cEmail === userEmail) || cName.includes(userFirstName) || cName.includes('sathish') || userEmail.includes('sathish');
+          return userEmail && cEmail && cEmail === userEmail;
         });
+
+
 
         const candName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : (candidateRecords[0]?.fullName || candidateRecords[0]?.name || 'Candidate C');
 
