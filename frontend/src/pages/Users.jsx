@@ -144,26 +144,12 @@ export default function Users() {
     }
   };
 
-  const generateRoleEmail = (role, firstName = '', lastName = '') => {
-    const f = (firstName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '');
-    const l = (lastName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '');
-    const namePrefix = f ? (l ? `${f}.${l}` : f) : '';
-
-    if (role === 'HR_MANAGER') {
-      return namePrefix ? `${namePrefix}.hr@mindmatrix.com` : 'hr@mindmatrix.com';
-    }
-    if (role === 'RECRUITER') {
-      return namePrefix ? `${namePrefix}.recruiter@mindmatrix.com` : 'recruiter@mindmatrix.com';
-    }
-    if (role === 'INTERVIEWER') {
-      return namePrefix ? `${namePrefix}.interviewer@mindmatrix.com` : 'interviewer@mindmatrix.com';
-    }
-    if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
-      return namePrefix ? `${namePrefix}.admin@mindmatrix.com` : 'admin@mindmatrix.com';
-    }
-    if (role === 'CANDIDATE') {
-      return namePrefix ? `${namePrefix}@gmail.com` : 'candidate@mindmatrix.com';
-    }
+  const generateRoleEmail = (role) => {
+    if (role === 'HR_MANAGER') return 'hr@mindmatrix.com';
+    if (role === 'RECRUITER') return 'recruiter@mindmatrix.com';
+    if (role === 'INTERVIEWER') return 'interviewer@mindmatrix.com';
+    if (role === 'SUPER_ADMIN' || role === 'ADMIN') return 'admin@mindmatrix.com';
+    if (role === 'CANDIDATE') return 'candidate@mindmatrix.com';
     return 'hr@mindmatrix.com';
   };
 
@@ -196,22 +182,16 @@ export default function Users() {
     setNewUser(prev => ({
       ...prev,
       role: newRole,
-      email: generateRoleEmail(newRole, prev.firstName, prev.lastName),
+      email: generateRoleEmail(newRole),
       department: getDefaultDepartment(newRole)
     }));
   };
 
   const handleNameInputChange = (field, val) => {
-    setNewUser(prev => {
-      const fn = field === 'firstName' ? val : prev.firstName;
-      const ln = field === 'lastName' ? val : prev.lastName;
-      const newEmail = generateRoleEmail(prev.role, fn, ln);
-      return {
-        ...prev,
-        [field]: val,
-        email: newEmail
-      };
-    });
+    setNewUser(prev => ({
+      ...prev,
+      [field]: val
+    }));
   };
 
   const handleCreateUser = async (e) => {
