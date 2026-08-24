@@ -476,17 +476,20 @@ export default function Dashboard() {
         if (!currentApps.some(a => a.role === candRole || a.jobTitle === candRole)) {
           currentApps.push(newApp);
         }
+        const allRoles = [...new Set(currentApps.map(a => a.role || a.jobTitle).filter(Boolean))];
         const updatedCand = {
           ...existingCand,
           fullName: candName,
           name: candName,
           phone: candPhone,
-          role: candRole,
-          applications: currentApps
+          role: allRoles.join(', ') || candRole,
+          applications: currentApps,
+          applicationsCount: currentApps.length
         };
         const updatedList = [updatedCand, ...existing.filter(c => c.email?.toLowerCase() !== candEmail.toLowerCase())];
         localStorage.setItem('registered_candidates', JSON.stringify(updatedList));
       }
+
     } catch (err) {}
 
     try {

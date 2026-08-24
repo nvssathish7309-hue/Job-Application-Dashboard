@@ -121,29 +121,45 @@ export const CandidateProvider = ({ children }) => {
         };
 
         if (!existing) {
+          const initApps = item.applications && item.applications.length > 0 ? item.applications : [appObj];
+          const allRoles = [...new Set(initApps.map(a => a.role || a.jobTitle).filter(Boolean))];
           candidateMap.set(mapKey, {
             ...item,
             fullName: nameStr || item.fullName || item.name || 'Candidate User',
             name: nameStr || item.name || item.fullName || 'Candidate User',
-            applications: item.applications && item.applications.length > 0 ? item.applications : [appObj],
-            applicationsCount: item.applicationsCount || (item.applications?.length) || 1
+            role: allRoles.join(', ') || item.role || 'Software Engineer',
+            applications: initApps,
+            applicationsCount: initApps.length
           });
         } else {
           // Merge existing candidate profile with latest info without duplicate candidate names
-          const currentApps = existing.applications || [];
-          const appExists = currentApps.some(a => (a._id && a._id === appObj._id) || (a.role && a.role === appObj.role));
-          if (!appExists) {
-            currentApps.push(appObj);
+          const currentApps = [...(existing.applications || [])];
+          if (item.applications && item.applications.length > 0) {
+            item.applications.forEach(a => {
+              const aRole = a.role || a.jobTitle;
+              const aId = String(a._id || a.applicationId || '');
+              if (!currentApps.some(ca => (aId && String(ca._id || ca.applicationId || '') === aId) || (aRole && (ca.role || ca.jobTitle) === aRole))) {
+                currentApps.push(a);
+              }
+            });
+          } else {
+            const appExists = currentApps.some(a => (a._id && a._id === appObj._id) || (a.role && a.role === appObj.role));
+            if (!appExists) {
+              currentApps.push(appObj);
+            }
           }
+          const allRoles = [...new Set(currentApps.map(a => a.role || a.jobTitle).filter(Boolean))];
           candidateMap.set(mapKey, {
             ...existing,
             ...item,
             fullName: existing.fullName || nameStr,
             name: existing.name || nameStr,
+            role: allRoles.join(', ') || existing.role || item.role,
             applications: currentApps,
             applicationsCount: currentApps.length
           });
         }
+
       });
 
       const combined = Array.from(candidateMap.values());

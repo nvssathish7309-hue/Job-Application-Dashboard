@@ -211,7 +211,11 @@ const createCandidate = async (req, res, next) => {
       // Update existing candidate info with latest application data
       candidate.fullName = fullName || candidate.fullName;
       candidate.phone = phone || candidate.phone;
-      candidate.role = role || candidate.role;
+      if (candidate.role && role && !candidate.role.toLowerCase().includes(role.toLowerCase())) {
+        candidate.role = `${candidate.role}, ${role}`;
+      } else if (!candidate.role) {
+        candidate.role = role;
+      }
       if (parsedSkills.length > 0) candidate.skills = parsedSkills;
       if (experience) candidate.experience = experience;
       if (education) candidate.education = education;
@@ -219,6 +223,7 @@ const createCandidate = async (req, res, next) => {
       candidate.status = 'New';
       await candidate.save();
     }
+
 
     // Always create an Application entry stored in the Applications & Candidates list
     const applicationId = await generateCustomId(Application, 'APP');

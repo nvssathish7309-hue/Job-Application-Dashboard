@@ -292,7 +292,11 @@ export default function Candidates() {
                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-slate-700 font-medium whitespace-nowrap">{c.role}</td>
+                      <td className="py-3.5 px-4 text-slate-700 font-medium max-w-[220px]">
+                        <div className="truncate" title={c.role}>{c.role}</div>
+                      </td>
+
+
                       <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">{c.experience}</td>
                       <td className="py-3.5 px-4">
                         <div className="flex flex-wrap gap-1">
