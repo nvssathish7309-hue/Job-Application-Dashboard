@@ -365,33 +365,33 @@ export default function Login() {
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">First Name *</label>
+                        <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1">First Name *</label>
                         <input
                           type="text"
                           required
                           value={firstName}
                           onChange={(e) => setFirstName(e.target.value)}
                           placeholder="Jane"
-                          className="w-full bg-slate-950/80 border border-slate-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 px-3 py-2.5 rounded-xl text-white text-xs font-medium placeholder-slate-500 outline-none transition-all"
+                          className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 px-3.5 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
                         />
                       </div>
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Last Name *</label>
+                        <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1">Last Name *</label>
                         <input
                           type="text"
                           required
                           value={lastName}
                           onChange={(e) => setLastName(e.target.value)}
                           placeholder="Doe"
-                          className="w-full bg-slate-950/80 border border-slate-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 px-3 py-2.5 rounded-xl text-white text-xs font-medium placeholder-slate-500 outline-none transition-all"
+                          className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 px-3.5 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Phone Number *</label>
+                      <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1">Phone Number *</label>
                       <div className="relative flex items-center">
-                        <span className="absolute left-3 text-slate-400 text-xs font-bold pointer-events-none">+91</span>
+                        <span className="absolute left-3.5 text-slate-500 text-xs font-bold pointer-events-none z-10">+91</span>
                         <input
                           type="tel"
                           required
@@ -399,7 +399,7 @@ export default function Login() {
                           onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                           placeholder="9876543210"
                           maxLength={10}
-                          className="w-full bg-slate-950/80 border border-slate-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 pl-12 pr-3 py-2.5 rounded-xl text-white text-xs font-medium placeholder-slate-500 outline-none transition-all"
+                          className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-12 pr-3.5 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
                         />
                       </div>
                     </div>
@@ -408,16 +408,16 @@ export default function Login() {
 
                 {/* Email Field */}
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Email Address *</label>
+                  <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1">Email Address *</label>
                   <div className="relative flex items-center">
-                    <Mail className="w-4 h-4 absolute left-3.5 text-slate-500 pointer-events-none" />
+                    <Mail className="w-4 h-4 absolute left-4 text-slate-500 pointer-events-none z-10" />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={activePortalTab === 'recruiter' ? 'admin@mindmatrix.com' : 'candidate@example.com'}
-                      className="w-full bg-slate-950/80 border border-slate-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 pl-10 pr-4 py-2.5 rounded-xl text-white text-xs font-medium placeholder-slate-500 outline-none transition-all"
+                      className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-11 pr-4 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
                     />
                   </div>
                 </div>
@@ -425,7 +425,7 @@ export default function Login() {
                 {/* Password Field */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider">Password *</label>
+                    <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider">Password *</label>
                     {mode === 'login' && (
                       <button
                         type="button"
@@ -437,24 +437,25 @@ export default function Login() {
                     )}
                   </div>
                   <div className="relative flex items-center">
-                    <Lock className="w-4 h-4 absolute left-3.5 text-slate-500 pointer-events-none" />
+                    <Lock className="w-4 h-4 absolute left-4 text-slate-500 pointer-events-none z-10" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-slate-950/80 border border-slate-800 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 pl-10 pr-10 py-2.5 rounded-xl text-white text-xs font-medium placeholder-slate-500 outline-none transition-all"
+                      className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-11 pr-11 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 text-slate-500 hover:text-white transition-colors cursor-pointer"
+                      className="absolute right-4 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer z-10 flex items-center justify-center"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
+
 
                 {/* Primary Submit CTA Button */}
                 <button
