@@ -178,7 +178,7 @@ export default function Trash() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                })}
               </tbody>
             </table>
           </div>
