@@ -444,17 +444,18 @@ export default function Login() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-11 pr-11 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
+                      className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-11 pr-14 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer z-10 flex items-center justify-center"
+                      className="absolute right-5 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer z-10 flex items-center justify-center p-0.5"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
+
 
 
                 {/* Primary Submit CTA Button */}
