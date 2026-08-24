@@ -407,9 +407,9 @@ export default function Login() {
                 )}
 
                 {/* Email Field */}
-                <div>
-                  <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1">Email Address *</label>
-                  <div className="relative flex items-center">
+                <div className="w-full">
+                  <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider mb-1.5">Email Address *</label>
+                  <div className="relative w-full flex items-center">
                     <Mail className="w-4 h-4 absolute left-4 text-slate-500 pointer-events-none z-10" />
                     <input
                       type="email"
@@ -417,14 +417,14 @@ export default function Login() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={activePortalTab === 'recruiter' ? 'admin@mindmatrix.com' : 'candidate@example.com'}
-                      className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-11 pr-4 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
+                      className="w-full h-12 bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-11 pr-11 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm box-border"
                     />
                   </div>
                 </div>
 
                 {/* Password Field */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
+                <div className="w-full">
+                  <div className="flex items-center justify-between mb-1.5">
                     <label className="block text-[11px] font-extrabold text-slate-300 uppercase tracking-wider">Password *</label>
                     {mode === 'login' && (
                       <button
@@ -436,7 +436,7 @@ export default function Login() {
                       </button>
                     )}
                   </div>
-                  <div className="relative flex items-center">
+                  <div className="relative w-full flex items-center">
                     <Lock className="w-4 h-4 absolute left-4 text-slate-500 pointer-events-none z-10" />
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -444,17 +444,18 @@ export default function Login() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-11 pr-14 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm"
+                      className="w-full h-12 bg-[#EEF5FF] border border-blue-200/80 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 pl-11 pr-11 py-3 rounded-2xl text-slate-900 font-semibold text-xs placeholder-slate-400 outline-none transition-all shadow-sm box-border"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-5 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer z-10 flex items-center justify-center p-0.5"
+                      className="absolute right-4 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer z-10 flex items-center justify-center p-0.5"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
+
 
 
 
