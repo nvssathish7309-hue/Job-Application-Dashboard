@@ -206,20 +206,33 @@ export default function Login() {
     >
 
       {/* Full Page Dark Vignette Overlay */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] pointer-events-none" />
+      <div className="absolute inset-0 bg-black/35 backdrop-blur-[1px] pointer-events-none" />
 
       {/* Background Ambient Glow Orbs */}
-      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-red-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-red-600/25 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] bg-cyan-600/25 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* Main Split-Screen SaaS Container Frame */}
-      <div className="w-full max-w-6xl min-h-[640px] bg-slate-950/70 border border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative z-10 backdrop-blur-xl">
+      {/* Main Split-Screen SaaS Container Frame with Abstract Glass Background */}
+      <div
+        style={{
+          backgroundImage: `url(/abstract-glass.png)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat'
+        }}
+        className="w-full max-w-6xl min-h-[640px] border border-slate-700/60 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative z-10 backdrop-blur-xl"
+      >
 
-        {/* ── LEFT HERO PANEL (TRANSLUCENT FROSTED GLASS OVER FULL BG) ── */}
-        <div className="lg:col-span-6 p-8 lg:p-12 flex flex-col justify-between relative border-b lg:border-b-0 lg:border-r border-slate-800/60 overflow-hidden bg-black/35 backdrop-blur-md">
+        {/* ── LEFT HERO PANEL (BRIGHT GLASS DISPLAY) ── */}
+        <div className="lg:col-span-6 p-8 lg:p-12 flex flex-col justify-between relative border-b lg:border-b-0 lg:border-r border-slate-700/50 overflow-hidden bg-black/20 backdrop-blur-xs">
 
-          {/* Balanced Overlay for Text Contrast */}
+          {/* Balanced Vignette Overlay for Text Contrast */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/75 pointer-events-none" />
+
+          {/* Vibrant Ambient Glow Highlights */}
+          <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-red-600/30 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute -top-10 -right-10 w-96 h-96 bg-cyan-400/25 rounded-full blur-[100px] pointer-events-none" />
+
 
 
           {/* Vibrant Ambient Glow Highlights */}
