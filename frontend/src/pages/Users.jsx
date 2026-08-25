@@ -267,25 +267,65 @@ export default function Users() {
 
       const res = await userService.updateUser(editModalUser._id, payload);
       if (res.success && res.data) {
+        const updatedUserObj = res.data;
+        const fullName = `${updatedUserObj.firstName || editFirstName || ''} ${updatedUserObj.lastName || editLastName || ''}`.trim();
         alert(`Successfully updated details for ${editModalUser.email}`);
         
         // Sync HR Profile automatically so Settings & Header auto-update!
-        const fullName = `${res.data.firstName || editFirstName || ''} ${res.data.lastName || editLastName || ''}`.trim();
         const updatedProfile = {
           name: fullName,
-          phone: res.data.phone || editPhone || '',
-          email: res.data.email || editModalUser.email,
-          title: res.data.department || editDepartment || 'Senior HR Manager'
+          phone: updatedUserObj.phone || editPhone || '',
+          email: updatedUserObj.email || editModalUser.email,
+          title: updatedUserObj.department || editDepartment || 'Senior HR Manager'
         };
+
+        // If the edited user is the CURRENT LOGGED IN USER, update AuthContext live!
+        const isSelf = currentUser && (
+          (currentUser._id && (currentUser._id === editModalUser._id || currentUser._id === updatedUserObj._id)) ||
+          (currentUser.email && currentUser.email.toLowerCase() === editModalUser.email.toLowerCase())
+        );
+
+        if (isSelf && typeof updateCurrentUser === 'function') {
+          updateCurrentUser({
+            firstName: updatedUserObj.firstName || editFirstName.trim(),
+            lastName: updatedUserObj.lastName || editLastName.trim(),
+            name: fullName,
+            phone: updatedUserObj.phone || editPhone.trim(),
+            department: updatedUserObj.department || editDepartment.trim()
+          });
+        }
+
+        // Store profile keys for Settings & Header auto-sync
+        const userKey1 = `userProfile_${editModalUser._id}`;
+        const userKey2 = `userProfile_${(editModalUser.email || '').toLowerCase()}`;
+        try {
+          localStorage.setItem(userKey1, JSON.stringify(updatedProfile));
+          localStorage.setItem(userKey2, JSON.stringify(updatedProfile));
+          localStorage.setItem('hrProfile', JSON.stringify(updatedProfile));
+        } catch (e) {}
+
         // Update local users array in localStorage
         try {
           const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-          const userIdx = savedUsers.findIndex(u => (u._id || u.email) === (editModalUser._id || editModalUser.email));
-          const updatedUserObj = { ...savedUsers[userIdx], ...res.data, firstName: editFirstName, lastName: editLastName, name: fullName, department: editDepartment, phone: editPhone };
+          const userIdx = savedUsers.findIndex(u => 
+            (u._id && u._id === editModalUser._id) || 
+            ((u.email || '').toLowerCase() === (editModalUser.email || '').toLowerCase())
+          );
+          const newMemberObj = { 
+            ...savedUsers[userIdx], 
+            ...updatedUserObj, 
+            firstName: editFirstName.trim(), 
+            lastName: editLastName.trim(), 
+            name: fullName, 
+            department: editDepartment.trim(), 
+            phone: editPhone.trim() 
+          };
           if (userIdx !== -1) {
-            savedUsers[userIdx] = updatedUserObj;
-            localStorage.setItem('users', JSON.stringify(savedUsers));
+            savedUsers[userIdx] = newMemberObj;
+          } else {
+            savedUsers.push(newMemberObj);
           }
+          localStorage.setItem('users', JSON.stringify(savedUsers));
 
           // If updated user is an Interviewer, sync interviewerName on candidate records!
           if ((editModalUser.role || '').toUpperCase() === 'INTERVIEWER' || (editModalUser.email || '').toLowerCase().includes('interviewer')) {

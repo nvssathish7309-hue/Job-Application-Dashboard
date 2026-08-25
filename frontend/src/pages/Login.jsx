@@ -167,7 +167,7 @@ export default function Login() {
     setMode('login');
     setActivePortalTab('recruiter');
     setEmail(demoEmail);
-    setPassword('');
+    setPassword('Sathish@29');
     setShowPassword(false);
     setErrorMessage('');
     setIsExistingAccount(false);
@@ -681,6 +681,10 @@ export default function Login() {
                       <p className="text-[10.5px] font-medium text-slate-300 truncate mt-1">interviewer@mindmatrix.com</p>
                     </div>
                   </button>
+                </div>
+
+                <div className="mt-3 pt-2 border-t border-white/10 text-[11px] text-slate-400 font-medium flex items-center justify-between">
+                  <span>🔑 Team members created or updated by Admin/HR can log in anytime using their assigned email &amp; password.</span>
                 </div>
               </div>
             )}

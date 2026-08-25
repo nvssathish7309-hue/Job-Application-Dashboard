@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
 import { useAuth } from '../context/AuthContext';
+import { userService } from '../services/userService';
 import Toast from '../components/common/Toast';
 
 const ROLES = [
@@ -56,17 +57,34 @@ export default function SettingsPage() {
   // Helper to load profile data from logged in user / localStorage per user key
   const loadProfileData = () => {
     let saved = null;
-    const userKey = `userProfile_${user?.id || user?.email || 'default'}`;
+    const userKey1 = `userProfile_${user?._id || user?.id || 'default'}`;
+    const userKey2 = `userProfile_${(user?.email || '').toLowerCase()}`;
     try {
-      const stored = localStorage.getItem(userKey);
-      if (stored) saved = JSON.parse(stored);
+      const stored1 = localStorage.getItem(userKey1);
+      if (stored1) saved = JSON.parse(stored1);
+      if (!saved && user?.email) {
+        const stored2 = localStorage.getItem(userKey2);
+        if (stored2) saved = JSON.parse(stored2);
+      }
     } catch (e) {}
 
-    const userName = (user?.firstName && user?.lastName)
-      ? `${user.firstName} ${user.lastName}`
-      : (user?.name || (user?.email ? user.email.split('@')[0] : 'Candidate C'));
+    // Check if team member list has updated name for this user
+    let teamMemberMatch = null;
+    try {
+      const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      teamMemberMatch = savedUsers.find(u => 
+        (u._id && (u._id === user?._id || u._id === user?.id)) ||
+        ((u.email || '').toLowerCase() === (user?.email || '').toLowerCase())
+      );
+    } catch (e) {}
 
-    const userTitle = user?.department || (
+    const teamMemberFullName = teamMemberMatch ? `${teamMemberMatch.firstName || ''} ${teamMemberMatch.lastName || ''}`.trim() : '';
+
+    const userName = teamMemberFullName || ((user?.firstName && user?.lastName)
+      ? `${user.firstName} ${user.lastName}`
+      : (user?.name || (user?.email ? user.email.split('@')[0] : 'Staff Member')));
+
+    const userTitle = teamMemberMatch?.department || user?.department || (
       user?.role === 'SUPER_ADMIN' ? 'Super Admin' :
       user?.role === 'HR_MANAGER' ? 'HR Manager' :
       user?.role === 'RECRUITER' ? 'Recruiter' :
@@ -75,7 +93,7 @@ export default function SettingsPage() {
 
     return {
       name: saved?.name || userName,
-      phone: saved?.phone || user?.phone || '+91 9876543210',
+      phone: saved?.phone || teamMemberMatch?.phone || user?.phone || '+91 9876543210',
       email: user?.email || saved?.email || 'admin@mindmatrix.com',
       title: saved?.title || userTitle
     };
@@ -223,7 +241,7 @@ export default function SettingsPage() {
     setIsProfileEdited(true); // Blue Save HR Profile button
   };
 
-  const handleSaveProfile = (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
 
     let digits = (profileForm.phone || '').replace(/\D/g, '');
@@ -233,13 +251,31 @@ export default function SettingsPage() {
     }
 
     setHrPhoneError('');
-    const userKey = `userProfile_${user?.id || user?.email || 'default'}`;
+    const userKey = `userProfile_${user?._id || user?.id || user?.email || 'default'}`;
     localStorage.setItem(userKey, JSON.stringify(profileForm));
+    if (user?.email) {
+      localStorage.setItem(`userProfile_${user.email.toLowerCase()}`, JSON.stringify(profileForm));
+    }
     
     // Split name into firstName & lastName to update AuthContext if available
     const nameParts = (profileForm.name || '').trim().split(/\s+/);
     const fName = nameParts[0] || '';
     const lName = nameParts.slice(1).join(' ') || '';
+
+    // Persist profile changes to backend if logged in user has MongoDB _id
+    if (user && (user._id || user.id)) {
+      try {
+        await userService.updateUser(user._id || user.id, {
+          firstName: fName,
+          lastName: lName,
+          department: profileForm.title,
+          phone: profileForm.phone
+        });
+      } catch (backendErr) {
+        console.warn('Backend user profile update notice:', backendErr.message);
+      }
+    }
+
     if (updateCurrentUser) {
       updateCurrentUser({
         firstName: fName,
@@ -268,6 +304,7 @@ export default function SettingsPage() {
     } catch (err) {}
 
     window.dispatchEvent(new CustomEvent('userProfileUpdated', { detail: profileForm }));
+    window.dispatchEvent(new CustomEvent('teamMembersUpdated'));
     setIsProfileEdited(false);
     
     // Compute new initials for toast
