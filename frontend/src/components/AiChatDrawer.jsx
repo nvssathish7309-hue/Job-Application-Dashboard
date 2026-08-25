@@ -14,7 +14,7 @@ function RenderFormattedText({ text, isUser }) {
   const lines = text.split('\n');
 
   return (
-    <div className="space-y-1.5 leading-relaxed text-xs text-slate-900 dark:text-blue-50">
+    <div className="space-y-1.5 leading-relaxed text-xs text-blue-950 font-medium">
       {lines.map((line, idx) => {
         let trimmed = line.trim();
         if (!trimmed) return <div key={idx} className="h-1" />;
@@ -22,7 +22,7 @@ function RenderFormattedText({ text, isUser }) {
         // Header ###
         if (trimmed.startsWith('### ')) {
           return (
-            <h4 key={idx} className="font-extrabold text-xs sm:text-sm text-blue-900 dark:text-blue-200 mt-2 mb-1">
+            <h4 key={idx} className="font-extrabold text-xs sm:text-sm text-blue-900 mt-2 mb-1">
               {formatInlineBold(trimmed.replace('### ', ''))}
             </h4>
           );
@@ -32,8 +32,8 @@ function RenderFormattedText({ text, isUser }) {
         if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
           const content = trimmed.slice(2);
           return (
-            <div key={idx} className="flex items-start gap-2 pl-1 my-0.5">
-              <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+            <div key={idx} className="flex items-start gap-2 pl-1 my-0.5 text-blue-950">
+              <span className="text-blue-600 font-bold">•</span>
               <span>{formatInlineBold(content)}</span>
             </div>
           );
@@ -45,8 +45,8 @@ function RenderFormattedText({ text, isUser }) {
           const num = numberedMatch[1];
           const content = numberedMatch[2];
           return (
-            <div key={idx} className="flex items-start gap-2 pl-1 my-1">
-              <span className="bg-blue-600 text-white dark:bg-blue-500 font-extrabold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+            <div key={idx} className="flex items-start gap-2 pl-1 my-1 text-blue-950">
+              <span className="bg-blue-600 text-white font-extrabold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 {num}
               </span>
               <span>{formatInlineBold(content)}</span>
@@ -56,7 +56,7 @@ function RenderFormattedText({ text, isUser }) {
 
         // Normal paragraph
         return (
-          <p key={idx}>
+          <p key={idx} className="text-blue-950 font-medium">
             {formatInlineBold(trimmed)}
           </p>
         );
@@ -69,10 +69,10 @@ function formatInlineBold(text) {
   const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="font-extrabold text-slate-900 dark:text-white">{part.slice(2, -2)}</strong>;
+      return <strong key={i} className="font-extrabold text-blue-900">{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith('*') && part.endsWith('*')) {
-      return <em key={i} className="italic text-slate-800 dark:text-blue-200">{part.slice(1, -1)}</em>;
+      return <em key={i} className="italic text-blue-800">{part.slice(1, -1)}</em>;
     }
     return part;
   });
