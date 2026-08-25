@@ -422,6 +422,17 @@ html.dark .border-slate-100 {
   border-color: #1f2937 !important;
 }
 
+/* Strip default rectangular focus rings from brand logo and links */
+a:focus,
+a:active,
+a:focus-visible,
+a.group:focus,
+a.group:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
 /* ══════════════════════════════════════════════════════════
    ✦ LOGIN PAGE — ANIMATED BACKGROUND SYSTEM
 ══════════════════════════════════════════════════════════ */
