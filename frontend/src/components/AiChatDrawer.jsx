@@ -213,7 +213,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
         id: `ai-${Date.now()}`,
         sender: 'ai',
         timestamp,
-        text: `🔍 **Option 1 Detailed Breakdown: Automated Resume Screening**\n\n- 📄 **Analyzed Resumes:** 8 Candidates match your core parameters.\n- ⭐ **Average AI Fit Score:** 94.2%\n- 🛠️ **Matched Skills:** React.js, TypeScript, Tailwind CSS, State Management.\n- 🏆 **Top Candidates:**\n  1. Aarav Sharma - 98% Match\n  2. Priya Patel - 94% Match\n  3. Rohan Mehta - 91% Match\n\n👉 *Reply "1", "2", or "3" to explore other options!*`
+        text: `🔍 **Option 1 Detailed Breakdown: Automated Resume Screening**\n\n- 📄 **Analyzed Resumes:** 8 Candidates match your core parameters.\n- ⭐ **Average AI Fit Score:** 94.2%\n- 🛠️ **Matched Skills:** React.js, TypeScript, Tailwind CSS, State Management.\n- 🏆 **Top Candidates:**\n  1. Aarav Sharma - 98% Match\n  2. Priya Patel - 94% Match\n  3. Rohan Mehta - 91% Match`
       };
     }
 
@@ -223,7 +223,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
         id: `ai-${Date.now()}`,
         sender: 'ai',
         timestamp,
-        text: `📅 **Option 2 Detailed Breakdown: Interview Slot Availability**\n\n- ⏰ **Next Available Slot:** Tomorrow, 2:00 PM - 3:00 PM IST\n- 👥 **Assigned Panel:** Technical Hiring Leads (Engineering Dept)\n- 💻 **Platform:** Integrated Google Meet / Zoom Video Call\n- ⏳ **Estimated Duration:** 45 minutes per candidate\n\n👉 *Reply "1", "2", or "3" to explore other options!*`
+        text: `📅 **Option 2 Detailed Breakdown: Interview Slot Availability**\n\n- ⏰ **Next Available Slot:** Tomorrow, 2:00 PM - 3:00 PM IST\n- 👥 **Assigned Panel:** Technical Hiring Leads (Engineering Dept)\n- 💻 **Platform:** Integrated Google Meet / Zoom Video Call\n- ⏳ **Estimated Duration:** 45 minutes per candidate`
       };
     }
 
@@ -233,7 +233,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
         id: `ai-${Date.now()}`,
         sender: 'ai',
         timestamp,
-        text: `📧 **Option 3 Detailed Breakdown: Smart Email Notifications**\n\n- 🚀 **Target Queue:** 8 Shortlisted candidates\n- 📩 **Notification Type:** Automated Application Status & Next Steps\n- ⚡ **Delivery Status:** All 8 automated emails prepared & ready to dispatch.\n- 🛡️ **Template:** MindMatrix Branded Candidate Portal Invitation\n\n👉 *Reply "1", "2", or "3" to explore other options!*`
+        text: `📧 **Option 3 Detailed Breakdown: Smart Email Notifications**\n\n- 🚀 **Target Queue:** 8 Shortlisted candidates\n- 📩 **Notification Type:** Automated Application Status & Next Steps\n- ⚡ **Delivery Status:** All 8 automated emails prepared & ready to dispatch.\n- 🛡️ **Template:** MindMatrix Branded Candidate Portal Invitation`
       };
     }
 
@@ -368,33 +368,6 @@ export default function AiChatDrawer({ isOpen, onClose }) {
                           </span>
                         </div>
                       ))}
-                    </div>
-                  )}
-
-                  {/* Render Quick Option Action Chips if message includes options */}
-                  {msg.sender === 'ai' && (msg.text.includes('1.') || msg.text.includes('Automated Screening')) && (
-                    <div className="mt-3 pt-2.5 border-t border-blue-200/80 flex flex-wrap gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => handleSendMessage('1')}
-                        className="px-2.5 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[10.5px] font-bold shadow-xs transition-transform active:scale-95 cursor-pointer flex items-center gap-1"
-                      >
-                        <span>1️⃣</span> Option 1: Screening
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSendMessage('2')}
-                        className="px-2.5 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[10.5px] font-bold shadow-xs transition-transform active:scale-95 cursor-pointer flex items-center gap-1"
-                      >
-                        <span>2️⃣</span> Option 2: Interviews
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSendMessage('3')}
-                        className="px-2.5 py-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[10.5px] font-bold shadow-xs transition-transform active:scale-95 cursor-pointer flex items-center gap-1"
-                      >
-                        <span>3️⃣</span> Option 3: Email Alerts
-                      </button>
                     </div>
                   )}
 
