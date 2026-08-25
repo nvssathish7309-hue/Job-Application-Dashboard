@@ -68,12 +68,12 @@ export default function Navbar() {
       </div>
 
       {/* Center: Quick Search */}
-      <div className="btn-moving-light hidden md:flex items-center relative w-72 lg:w-96 rounded-xl bg-white dark:bg-slate-900 border border-blue-200/90 dark:border-slate-700/90 shadow-[0_0_15px_rgba(59,130,246,0.25)] overflow-hidden">
-        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-600 dark:text-blue-400 pointer-events-none z-10" />
+      <div className="btn-moving-light hidden md:flex items-center relative w-72 lg:w-96 rounded-xl bg-blue-50/50 border border-blue-200/90 shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-600 pointer-events-none z-10" />
         <input
           type="text"
           placeholder="Search candidates, jobs, applications..."
-          className="w-full pl-10 pr-4 py-2 text-xs bg-white dark:bg-slate-900 border-0 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/80 focus:bg-white dark:focus:bg-slate-900 transition-all"
+          className="w-full pl-10 pr-4 py-2 text-xs bg-white/90 border-0 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/80 focus:bg-white transition-all"
         />
       </div>
 
