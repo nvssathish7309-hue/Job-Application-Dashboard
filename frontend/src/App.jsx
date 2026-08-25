@@ -9,7 +9,6 @@ import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 // Pages
-import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Candidates from './pages/Candidates';
@@ -53,8 +52,7 @@ export default function App() {
           <CandidateProvider>
             <Routes>
               {/* Public Routes */}
-              <Route path="/" element={<Landing />} />
-              <Route path="/landing" element={<Landing />} />
+              <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<Login />} />
               <Route path="/careers" element={<PublicCareers />} />
 
