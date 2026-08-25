@@ -13,6 +13,8 @@ const InterviewFeedback = require('../models/InterviewFeedback');
 const Notification = require('../models/Notification');
 const AuditLog = require('../models/AuditLog');
 
+const { saveUserToPersistentStore, syncPersistentUsersToDB } = require('./userStorage');
+
 const runSeedLogic = async () => {
   console.log('Clearing existing database collections...');
   await User.deleteMany({});
@@ -24,7 +26,7 @@ const runSeedLogic = async () => {
   await Notification.deleteMany({});
   await AuditLog.deleteMany({});
 
-  console.log('Seeding Super Admin user...');
+  console.log('Seeding default team & admin users...');
   const adminUser = await User.create({
     firstName: 'Super',
     lastName: 'Admin',
@@ -34,6 +36,44 @@ const runSeedLogic = async () => {
     department: 'Executive',
     phone: '9876543210'
   });
+  saveUserToPersistentStore(adminUser, 'Sathish@29');
+
+  const hrUser = await User.create({
+    firstName: 'Tirumal',
+    lastName: 'M',
+    email: 'hr@mindmatrix.com',
+    password: 'Sathish@29',
+    role: 'HR_MANAGER',
+    department: 'Human Resources',
+    phone: '9876543211'
+  });
+  saveUserToPersistentStore(hrUser, 'Sathish@29');
+
+  const recruiterUser = await User.create({
+    firstName: 'Sarah',
+    lastName: 'Jenkins',
+    email: 'recruiter@mindmatrix.com',
+    password: 'Sathish@29',
+    role: 'RECRUITER',
+    department: 'Talent Acquisition',
+    phone: '9876543212'
+  });
+  saveUserToPersistentStore(recruiterUser, 'Sathish@29');
+
+  const interviewerUser = await User.create({
+    firstName: 'Alex',
+    lastName: 'Rivera',
+    email: 'interviewer@mindmatrix.com',
+    password: 'Sathish@29',
+    role: 'INTERVIEWER',
+    department: 'Engineering',
+    phone: '9876543213'
+  });
+  saveUserToPersistentStore(interviewerUser, 'Sathish@29');
+
+  // Restoring any admin-granted team access members from persistent file storage
+  console.log('Restoring admin-granted team members from persistent storage...');
+  await syncPersistentUsersToDB();
 
   console.log('Seeding jobs...');
   const job1 = await Job.create({

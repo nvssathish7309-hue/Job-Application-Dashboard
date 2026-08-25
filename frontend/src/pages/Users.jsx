@@ -56,13 +56,8 @@ export default function Users() {
 
         res.data.forEach(u => {
           const emailKey = (u.email || '').toLowerCase().trim();
-          const fullNameKey = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase().replace(/\s+/g, ' ').trim();
-
           if (emailKey && seenEmails.has(emailKey)) return;
-          if (fullNameKey && fullNameKey !== 'user' && seenNames.has(fullNameKey)) return;
-
           if (emailKey) seenEmails.add(emailKey);
-          if (fullNameKey && fullNameKey !== 'user') seenNames.add(fullNameKey);
           uniqueUsers.push(u);
         });
 
@@ -335,14 +330,12 @@ export default function Users() {
     setTimeout(() => setCopyFeedback(false), 2000);
   };
   const seenFilteredEmails = new Set();
-  const seenFilteredNames = new Set();
   const filteredUsers = users.filter(u => {
     const emailKey = (u.email || '').toLowerCase().trim();
     const fullNameRaw = `${u.firstName || ''} ${u.lastName || ''}`.trim();
     const fullNameKey = fullNameRaw.toLowerCase().replace(/\s+/g, ' ');
 
     if (emailKey && seenFilteredEmails.has(emailKey)) return false;
-    if (fullNameKey && fullNameKey !== 'user' && seenFilteredNames.has(fullNameKey)) return false;
 
     const query = searchQuery.toLowerCase();
     const matchesSearch = !query || fullNameKey.includes(query) || emailKey.includes(query) || u.role?.toLowerCase().includes(query);
@@ -352,7 +345,6 @@ export default function Users() {
 
     if (matchesSearch && matchesRole) {
       if (emailKey) seenFilteredEmails.add(emailKey);
-      if (fullNameKey && fullNameKey !== 'user') seenFilteredNames.add(fullNameKey);
       return true;
     }
     return false;

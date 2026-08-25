@@ -27,6 +27,8 @@ const connectDB = async () => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     console.log(`==================================================`);
     await checkAndSeedIfEmpty();
+    const { syncPersistentUsersToDB } = require('../utils/userStorage');
+    await syncPersistentUsersToDB();
     return true;
   } catch (error) {
     console.warn(`Local MongoDB not reachable (${error.message}).`);

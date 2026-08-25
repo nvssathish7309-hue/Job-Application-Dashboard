@@ -78,6 +78,24 @@ const login = async (req, res, next) => {
     let user = await User.findOne({ email: cleanEmail });
 
     if (!user) {
+      const { getPersistentUsers } = require('../utils/userStorage');
+      const pUsers = getPersistentUsers();
+      const pMatch = pUsers.find(pu => (pu.email || '').toLowerCase().trim() === cleanEmail);
+      if (pMatch) {
+        user = await User.create({
+          firstName: pMatch.firstName || 'Team',
+          lastName: pMatch.lastName || 'Member',
+          email: cleanEmail,
+          password: pMatch.rawPassword || pMatch.passwordHash || password,
+          role: pMatch.role || 'RECRUITER',
+          department: pMatch.department || 'Human Resources',
+          phone: pMatch.phone || '',
+          isActive: pMatch.isActive !== undefined ? pMatch.isActive : true
+        });
+      }
+    }
+
+    if (!user) {
       try {
         const existingCandidate = await Candidate.findOne({ email: cleanEmail });
         if (existingCandidate || cleanEmail.includes('gmail') || cleanEmail.includes('yahoo') || cleanEmail.includes('candidate') || cleanEmail.includes('hotmail')) {

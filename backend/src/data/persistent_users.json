@@ -1,0 +1,58 @@
+[
+  {
+    "_id": "6a8d0077909732838da0cafc",
+    "firstName": "Super",
+    "lastName": "Admin",
+    "email": "admin@mindmatrix.com",
+    "role": "SUPER_ADMIN",
+    "department": "Executive",
+    "phone": "9876543210",
+    "isActive": true,
+    "rawPassword": "Sathish@29",
+    "passwordHash": "$2a$10$YbUqfGxg22YSdMelJfTLiOTaQhm/w7BW32/eYg9IKSM2j9wcnXPuq",
+    "createdAt": "2026-08-25T02:39:51.050Z",
+    "updatedAt": "2026-08-25T02:39:51.932Z"
+  },
+  {
+    "_id": "6a8d0077909732838da0cafe",
+    "firstName": "Tirumal",
+    "lastName": "M",
+    "email": "hr@mindmatrix.com",
+    "role": "HR_MANAGER",
+    "department": "Human Resources",
+    "phone": "9876543211",
+    "isActive": true,
+    "rawPassword": "Sathish@29",
+    "passwordHash": "$2a$10$O0MVAFstVb0RdndEM5dij.bb4iQ59HAo1IYyscONGgdN6TbwhcFBu",
+    "createdAt": "2026-08-25T02:39:51.946Z",
+    "updatedAt": "2026-08-25T02:39:52.413Z"
+  },
+  {
+    "_id": "6a8d0078909732838da0cb00",
+    "firstName": "Sarah",
+    "lastName": "Jenkins",
+    "email": "recruiter@mindmatrix.com",
+    "role": "RECRUITER",
+    "department": "Talent Acquisition",
+    "phone": "9876543212",
+    "isActive": true,
+    "rawPassword": "Sathish@29",
+    "passwordHash": "$2a$10$jK9FyAaaQa2cWfL9KVMLVOCeWjSAnyPAmwaFDL5d9rrV3FYI/LbOu",
+    "createdAt": "2026-08-25T02:39:52.423Z",
+    "updatedAt": "2026-08-25T02:39:52.799Z"
+  },
+  {
+    "_id": "6a8d0078909732838da0cb02",
+    "firstName": "Alex",
+    "lastName": "Rivera",
+    "email": "interviewer@mindmatrix.com",
+    "role": "INTERVIEWER",
+    "department": "Engineering",
+    "phone": "9876543213",
+    "isActive": true,
+    "rawPassword": "Sathish@29",
+    "passwordHash": "$2a$10$weEhKz1DgPWUQXJmkL8zUunmE/fyuRbjd3xAv11tRgkS6LmHYrHN.",
+    "createdAt": "2026-08-25T02:39:52.803Z",
+    "updatedAt": "2026-08-25T02:39:53.228Z"
+  }
+]

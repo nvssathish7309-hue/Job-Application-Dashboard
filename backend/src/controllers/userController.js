@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { createAuditLog } = require('../services/auditService');
+const { saveUserToPersistentStore, removeUserFromPersistentStore } = require('../utils/userStorage');
 
 const getUsers = async (req, res, next) => {
   try {
@@ -14,25 +15,15 @@ const getUsers = async (req, res, next) => {
 
     const uniqueUsers = [];
     const seenEmails = new Set();
-    const seenNames = new Set();
-    const duplicateIdsToDelete = [];
 
     users.forEach(u => {
       const emailKey = (u.email || '').toLowerCase().trim();
-      const fullNameKey = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase().replace(/\s+/g, ' ').trim();
-
-      if ((emailKey && seenEmails.has(emailKey)) || (fullNameKey && fullNameKey !== 'super admin' && seenNames.has(fullNameKey))) {
-        duplicateIdsToDelete.push(u._id);
-      } else {
-        if (emailKey) seenEmails.add(emailKey);
-        if (fullNameKey && fullNameKey !== 'super admin') seenNames.add(fullNameKey);
-        uniqueUsers.push(u);
+      if (emailKey) {
+        if (seenEmails.has(emailKey)) return;
+        seenEmails.add(emailKey);
       }
+      uniqueUsers.push(u);
     });
-
-    if (duplicateIdsToDelete.length > 0) {
-      User.deleteMany({ _id: { $in: duplicateIdsToDelete } }).catch(() => {});
-    }
 
     res.status(200).json({ success: true, data: uniqueUsers });
   } catch (error) {
@@ -48,7 +39,8 @@ const createUser = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'First name, last name, email, password, and role are required.' });
     }
 
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const cleanEmail = email.toLowerCase().trim();
+    const existingUser = await User.findOne({ email: cleanEmail });
     if (existingUser) {
       return res.status(409).json({ success: false, message: 'User with this email already exists.' });
     }
@@ -56,12 +48,15 @@ const createUser = async (req, res, next) => {
     const user = await User.create({
       firstName,
       lastName,
-      email: email.toLowerCase(),
+      email: cleanEmail,
       password,
       role,
       department: department || 'Human Resources',
       phone: phone || ''
     });
+
+    // Save to persistent file storage so team member survives restarts
+    saveUserToPersistentStore(user, password);
 
     await createAuditLog({
       req,
@@ -90,6 +85,8 @@ const updateUserRole = async (req, res, next) => {
     user.role = role;
     await user.save();
 
+    saveUserToPersistentStore(user);
+
     await createAuditLog({
       req,
       action: 'UPDATE_USER_ROLE',
@@ -115,6 +112,8 @@ const toggleUserStatus = async (req, res, next) => {
 
     user.isActive = !user.isActive;
     await user.save();
+
+    saveUserToPersistentStore(user);
 
     await createAuditLog({
       req,
@@ -146,6 +145,8 @@ const updateUserPassword = async (req, res, next) => {
     user.password = password;
     await user.save();
 
+    saveUserToPersistentStore(user, password);
+
     await createAuditLog({
       req,
       action: 'UPDATE_USER_PASSWORD',
@@ -176,6 +177,8 @@ const updateUser = async (req, res, next) => {
 
     await user.save();
 
+    saveUserToPersistentStore(user, password || '');
+
     await createAuditLog({
       req,
       action: 'UPDATE_USER_DETAILS',
@@ -197,6 +200,10 @@ const deleteUser = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
     await User.findByIdAndDelete(req.params.id);
+
+    removeUserFromPersistentStore(req.params.id);
+    removeUserFromPersistentStore(user.email);
+
     await createAuditLog({
       req,
       action: 'DELETE_USER',
@@ -219,3 +226,4 @@ module.exports = {
   updateUserPassword,
   deleteUser
 };
+
