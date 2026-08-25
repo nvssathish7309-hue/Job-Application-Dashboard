@@ -106,7 +106,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
       emoji = '🌤️';
     } else if (hour >= 17 && hour < 22) {
       timeGreeting = 'Good Evening';
-      emoji = '<ctrl42>';
+      emoji = '🌆';
     } else {
       timeGreeting = 'Good Night';
       emoji = '🌙';
