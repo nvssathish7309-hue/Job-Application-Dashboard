@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, X, Send, Bot, User, RefreshCw, ChevronDown, CheckCircle2, Award, Briefcase, Calendar, TrendingUp, Zap, Sparkle } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User, RefreshCw, ChevronDown, CheckCircle2, Award, Briefcase, Calendar, TrendingUp, Zap, Sparkle, RotateCcw } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
 import { useAuth } from '../context/AuthContext';
 
 export default function AiChatDrawer({ isOpen, onClose }) {
   const { candidates } = useCandidates();
   const { user } = useAuth();
+
+  const userId = user?._id || user?.id || user?.email || 'guest';
+  const storageKey = `ai_chat_history_${userId}`;
 
   const getTimeBasedGreeting = (currentUser) => {
     const hour = new Date().getHours();
@@ -30,7 +33,31 @@ export default function AiChatDrawer({ isOpen, onClose }) {
     return `${emoji} **${timeGreeting}, ${name}!**\n\nI'm **MindMatrix AI Assistant**. How can I help optimize your recruitment workflow today?`;
   };
 
-  const [messages, setMessages] = useState([]);
+  const getInitialWelcomeMessage = (currentUser) => ({
+    id: 'welcome-1',
+    sender: 'ai',
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    text: getTimeBasedGreeting(currentUser),
+    suggestions: [
+      "🎯 Find top software engineering candidates",
+      "📊 Summarize recruitment pipeline metrics",
+      "📝 Generate job description for React Dev",
+      "⚡ Check candidates matching Senior Frontend Developer"
+    ]
+  });
+
+  // Load saved messages for current user or default welcome message
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [getInitialWelcomeMessage(user)];
+  });
+
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
@@ -39,26 +66,43 @@ export default function AiChatDrawer({ isOpen, onClose }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Sync messages with sessionStorage when updated
+  useEffect(() => {
+    if (messages && messages.length > 0) {
+      try {
+        sessionStorage.getItem && sessionStorage.setItem(storageKey, JSON.stringify(messages));
+      } catch (e) {}
+    }
+  }, [messages, storageKey]);
+
+  // Reset or reload messages when user logs out/in or switches accounts
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+          return;
+        }
+      }
+    } catch (e) {}
+    setMessages([getInitialWelcomeMessage(user)]);
+  }, [userId, user]);
+
   useEffect(() => {
     if (isOpen) {
-      // Set initial Gemini-style greeting when opened
-      setMessages([
-        {
-          id: 'welcome-1',
-          sender: 'ai',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          text: getTimeBasedGreeting(user),
-          suggestions: [
-            "🎯 Find top software engineering candidates",
-            "📊 Summarize recruitment pipeline metrics",
-            "📝 Generate job description for React Dev",
-            "⚡ Check candidates matching Senior Frontend Developer"
-          ]
-        }
-      ]);
       scrollToBottom();
     }
-  }, [isOpen, user]);
+  }, [isOpen, messages]);
+
+  const handleClearChat = () => {
+    const freshWelcome = [getInitialWelcomeMessage(user)];
+    setMessages(freshWelcome);
+    try {
+      sessionStorage.setItem(storageKey, JSON.stringify(freshWelcome));
+    } catch (e) {}
+  };
 
   if (!isOpen) return null;
 
@@ -182,10 +226,20 @@ export default function AiChatDrawer({ isOpen, onClose }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleClearChat}
+              className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition-all text-[11px] font-extrabold flex items-center gap-1 cursor-pointer border border-white/10 active:scale-95"
+              title="Clear Chat History"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Clear</span>
+            </button>
+
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
+              className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
               title="Close AI Chat"
             >
               <X className="w-5 h-5" />
