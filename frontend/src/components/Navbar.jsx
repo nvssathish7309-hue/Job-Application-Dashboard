@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, LogOut, Shield, Sparkles, Zap, Bot } from 'lucide-react';
+import { Search, LogOut, Shield, Sparkles, Zap, Bot, Sun, Moon } from 'lucide-react';
 import MindMatrixLogo from './MindMatrixLogo';
 import NotificationsDropdown from './NotificationsDropdown';
 import AiChatDrawer from './AiChatDrawer';
@@ -10,6 +10,29 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const [isAiModeActive, setIsAiModeActive] = useState(true);
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+
+  // Theme Management State
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try {
+      const stored = localStorage.getItem('theme_mode');
+      if (stored) return stored === 'dark';
+      return document.documentElement.classList.contains('dark');
+    } catch (e) { return false; }
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme_mode', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme_mode', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(prev => !prev);
+  };
 
   const toggleAiMode = () => {
     setIsAiModeActive(true);
@@ -50,7 +73,7 @@ export default function Navbar() {
         />
       </div>
 
-      {/* Right: AI Mode Toggle, Notifications, User Profile, Role Badge, Logout */}
+      {/* Right: AI Mode Toggle, Theme Toggle, Notifications, User Profile, Role Badge, Logout */}
       <div className="flex items-center gap-2.5 sm:gap-3">
 
         {/* ⚡ AI Mode Toggle Button */}
@@ -72,6 +95,20 @@ export default function Navbar() {
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-blue-200 animate-ping" />
           </button>
         </div>
+
+        {/* ☀️ / 🌙 Light & Dark Mode Toggle Icon Button */}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="w-9 h-9 rounded-xl border text-xs font-bold flex items-center justify-center transition-all cursor-pointer select-none shadow-2xs hover:scale-105 active:scale-95 bg-slate-100/80 hover:bg-slate-200/80 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-amber-300"
+          title={isDarkMode ? "Switch to Light Mode (White Background)" : "Switch to Dark Mode (Black Background)"}
+        >
+          {isDarkMode ? (
+            <Sun className="w-4 h-4 text-amber-400" />
+          ) : (
+            <Moon className="w-4 h-4 text-indigo-600" />
+          )}
+        </button>
 
         {/* Bell Notifications Dropdown */}
         <NotificationsDropdown />
