@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, X, Send, Bot, User, RefreshCw, ChevronDown, CheckCircle2, Award, Briefcase, Calendar, TrendingUp, Zap, Sparkle, RotateCcw } from 'lucide-react';
+import { Sparkles, X, Send, Bot, Plus, Mic, ChevronDown, RotateCcw } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,13 +8,13 @@ function RenderFormattedText({ text, isUser }) {
   if (!text) return null;
 
   if (isUser) {
-    return <p className="whitespace-pre-line leading-relaxed text-xs font-medium">{text}</p>;
+    return <p className="whitespace-pre-line leading-relaxed text-xs sm:text-sm font-medium">{text}</p>;
   }
 
   const lines = text.split('\n');
 
   return (
-    <div className="space-y-1.5 leading-relaxed text-xs text-slate-900 dark:text-blue-50">
+    <div className="space-y-2 leading-relaxed text-xs sm:text-sm text-slate-100">
       {lines.map((line, idx) => {
         let trimmed = line.trim();
         if (!trimmed) return <div key={idx} className="h-1" />;
@@ -22,7 +22,7 @@ function RenderFormattedText({ text, isUser }) {
         // Header ###
         if (trimmed.startsWith('### ')) {
           return (
-            <h4 key={idx} className="font-extrabold text-xs sm:text-sm text-blue-900 dark:text-blue-200 mt-2 mb-1">
+            <h4 key={idx} className="font-extrabold text-xs sm:text-base text-blue-300 mt-3 mb-1">
               {formatInlineBold(trimmed.replace('### ', ''))}
             </h4>
           );
@@ -33,7 +33,7 @@ function RenderFormattedText({ text, isUser }) {
           const content = trimmed.slice(2);
           return (
             <div key={idx} className="flex items-start gap-2 pl-1 my-0.5">
-              <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+              <span className="text-cyan-400 font-bold">•</span>
               <span>{formatInlineBold(content)}</span>
             </div>
           );
@@ -46,7 +46,7 @@ function RenderFormattedText({ text, isUser }) {
           const content = numberedMatch[2];
           return (
             <div key={idx} className="flex items-start gap-2 pl-1 my-1">
-              <span className="bg-blue-600 text-white dark:bg-blue-500 font-extrabold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+              <span className="bg-blue-600 text-white font-extrabold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 {num}
               </span>
               <span>{formatInlineBold(content)}</span>
@@ -69,10 +69,10 @@ function formatInlineBold(text) {
   const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="font-extrabold text-blue-950 dark:text-white">{part.slice(2, -2)}</strong>;
+      return <strong key={i} className="font-extrabold text-white">{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith('*') && part.endsWith('*')) {
-      return <em key={i} className="italic text-blue-800 dark:text-blue-200">{part.slice(1, -1)}</em>;
+      return <em key={i} className="italic text-blue-200">{part.slice(1, -1)}</em>;
     }
     return part;
   });
@@ -84,6 +84,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
 
   const userId = user?._id || user?.id || user?.email || 'guest';
   const storageKey = `ai_chat_history_${userId}`;
+  const userFirstName = user?.firstName || (user?.name ? user.name.split(' ')[0] : 'Sathish');
 
   const userInitials = (() => {
     const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.name || user?.email || 'User';
@@ -112,7 +113,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
       emoji = '🌙';
     }
 
-    const name = currentUser?.firstName || (currentUser?.name ? currentUser.name.split(' ')[0] : 'there');
+    const name = currentUser?.firstName || (currentUser?.name ? currentUser.name.split(' ')[0] : 'Sathish');
     return `${emoji} **${timeGreeting}, ${name}!**\n\nI'm **MindMatrix AI Assistant**. How can I help optimize your recruitment workflow today?`;
   };
 
@@ -123,7 +124,6 @@ export default function AiChatDrawer({ isOpen, onClose }) {
     text: getTimeBasedGreeting(currentUser)
   });
 
-  // Load saved messages for current user or default welcome message
   const [messages, setMessages] = useState(() => {
     try {
       const saved = sessionStorage.getItem(storageKey);
@@ -137,22 +137,21 @@ export default function AiChatDrawer({ isOpen, onClose }) {
 
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('Flash 2.5');
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Sync messages with sessionStorage when updated
   useEffect(() => {
     if (messages && messages.length > 0) {
       try {
-        sessionStorage.getItem && sessionStorage.setItem(storageKey, JSON.stringify(messages));
+        sessionStorage.setItem && sessionStorage.setItem(storageKey, JSON.stringify(messages));
       } catch (e) {}
     }
   }, [messages, storageKey]);
 
-  // Reset or reload messages when user logs out/in or switches accounts
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem(storageKey);
@@ -198,7 +197,6 @@ export default function AiChatDrawer({ isOpen, onClose }) {
     if (!textToSend) setInputValue('');
     setIsTyping(true);
 
-    // Simulate intelligent AI processing
     setTimeout(() => {
       const botResponse = generateAiResponse(queryText, candidates);
       setMessages(prev => [...prev, botResponse]);
@@ -206,6 +204,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
     }, 900);
   };
 
+  // Helper response generator
   const generateAiResponse = (query, candidatesList = []) => {
     const q = query.toLowerCase();
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -253,42 +252,39 @@ export default function AiChatDrawer({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-end p-2 sm:p-4 pointer-events-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 pointer-events-none">
       
-      {/* Background Overlay */}
+      {/* Dark Glass Overlay */}
       <div 
         onClick={onClose} 
-        className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs pointer-events-auto transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-slate-950/75 backdrop-blur-md pointer-events-auto transition-opacity animate-fade-in"
       />
 
-      {/* Floating AI Chat Window */}
-      <div className="relative w-full max-w-lg bg-white/95 backdrop-blur-xl border border-purple-200/90 rounded-3xl shadow-2xl overflow-hidden flex flex-col pointer-events-auto h-[620px] max-h-[85vh] animate-slide-up-sm z-50">
+      {/* Floating Gemini AI Window */}
+      <div className="relative w-full max-w-3xl bg-slate-950/95 border border-slate-800/90 rounded-3xl shadow-2xl overflow-hidden flex flex-col pointer-events-auto h-[680px] max-h-[90vh] animate-slide-up-sm z-50 text-slate-100">
         
-        {/* Glow Top Accent Header */}
-        <div className="bg-gradient-to-r from-purple-700 via-indigo-600 to-cyan-600 text-white p-4 flex items-center justify-between shadow-md relative overflow-hidden shrink-0">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
-          
+        {/* Gemini Top Header */}
+        <div className="bg-slate-900/90 border-b border-slate-800/80 px-5 py-3.5 flex items-center justify-between shadow-md shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner border border-white/20 shrink-0">
-              <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg border border-white/20">
+              <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-sm tracking-wide text-white">MindMatrix AI Recruiter</h3>
-                <span className="bg-emerald-400/20 text-emerald-300 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-400/40 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                  ACTIVE
+                <h3 className="font-extrabold text-sm tracking-wide text-white font-sans">Gemini AI Recruiter</h3>
+                <span className="bg-blue-500/20 text-blue-300 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-blue-400/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                  {selectedModel}
                 </span>
               </div>
-              <p className="text-[11px] text-purple-100 font-medium">Smart Match, Automated JD & Candidate Insights</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleClearChat}
-              className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition-all text-[11px] font-extrabold flex items-center gap-1 cursor-pointer border border-white/10 active:scale-95"
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 active:scale-95"
               title="Clear Chat History"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -297,7 +293,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
               title="Close AI Chat"
             >
               <X className="w-5 h-5" />
@@ -305,39 +301,51 @@ export default function AiChatDrawer({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Chat Message Stream */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gradient-to-b from-purple-50/20 via-white to-blue-50/20 text-slate-800 text-xs">
+        {/* Gemini Central Body */}
+        <div className="flex-1 p-5 overflow-y-auto space-y-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-200 scrollbar-thin">
+          
+          {/* Centered Gemini Welcome Header (Matching user's screenshot!) */}
+          <div className="text-center py-6 sm:py-8 border-b border-slate-800/60 mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-slate-100 font-sans tracking-tight">
+              Hi, {userFirstName}. What's on your mind?
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-2 font-medium">
+              Ask anything about candidate matching, pipeline metrics, or job description drafting.
+            </p>
+          </div>
+
+          {/* Chat Stream */}
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.sender === 'ai' && (
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shrink-0 shadow-md mt-0.5 border border-white/20">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 text-white flex items-center justify-center shrink-0 shadow-md mt-1 border border-white/20">
                   <Sparkles className="w-4 h-4 text-amber-300" />
                 </div>
               )}
 
               <div className="max-w-[85%] space-y-2">
                 <div
-                  className={`p-3.5 rounded-2xl shadow-xs transition-all ${
+                  className={`p-4 rounded-3xl shadow-sm transition-all ${
                     msg.sender === 'user'
-                      ? 'bg-blue-600 text-white font-medium rounded-tr-none shadow-sm'
-                      : 'bg-blue-50/90 dark:bg-blue-950/80 border border-blue-200/90 dark:border-blue-800/80 text-slate-900 dark:text-blue-50 rounded-tl-none shadow-sm'
+                      ? 'bg-blue-600 text-white font-medium rounded-tr-none'
+                      : 'bg-slate-900/90 border border-slate-800 text-slate-100 rounded-tl-none'
                   }`}
                 >
                   <RenderFormattedText text={msg.text} isUser={msg.sender === 'user'} />
 
                   {/* Render Candidates Data Cards if present */}
                   {msg.candidatesData && (
-                    <div className="mt-3 space-y-2 border-t border-blue-200/80 dark:border-blue-800/80 pt-2.5">
+                    <div className="mt-3 space-y-2 border-t border-slate-800 pt-3">
                       {msg.candidatesData.map((cand, idx) => (
-                        <div key={idx} className="p-2.5 rounded-xl bg-blue-100/70 dark:bg-blue-900/60 border border-blue-200 dark:border-blue-700/60 flex items-center justify-between gap-2 hover:bg-blue-200/60 dark:hover:bg-blue-800/70 transition-colors">
+                        <div key={idx} className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between gap-3 hover:bg-slate-800 transition-colors">
                           <div>
-                            <p className="font-bold text-blue-950 dark:text-white text-xs">{cand.name || cand.firstName + ' ' + cand.lastName}</p>
-                            <p className="text-[10.5px] text-blue-700 dark:text-blue-300 font-medium">{cand.role || cand.position || 'Frontend Developer'}</p>
+                            <p className="font-bold text-white text-xs sm:text-sm">{cand.name || cand.firstName + ' ' + cand.lastName}</p>
+                            <p className="text-xs text-slate-400 font-medium">{cand.role || cand.position || 'Frontend Developer'}</p>
                           </div>
-                          <span className="bg-blue-600 text-white text-[10px] font-extrabold px-2 py-1 rounded-lg shrink-0 shadow-xs">
+                          <span className="bg-blue-600 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-xl shrink-0 shadow-xs">
                             {cand.score || 95}% Match
                           </span>
                         </div>
@@ -345,14 +353,14 @@ export default function AiChatDrawer({ isOpen, onClose }) {
                     </div>
                   )}
 
-                  <span className={`block text-[9.5px] mt-2 ${msg.sender === 'user' ? 'text-blue-200 text-right' : 'text-blue-600/80 dark:text-blue-300/80'}`}>
+                  <span className={`block text-[10px] mt-2.5 ${msg.sender === 'user' ? 'text-blue-200 text-right' : 'text-slate-400'}`}>
                     {msg.timestamp}
                   </span>
                 </div>
               </div>
 
               {msg.sender === 'user' && (
-                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5 font-extrabold text-xs tracking-tight">
+                <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md mt-1 font-extrabold text-xs tracking-tight">
                   {userInitials}
                 </div>
               )}
@@ -361,15 +369,15 @@ export default function AiChatDrawer({ isOpen, onClose }) {
 
           {/* Typing Indicator */}
           {isTyping && (
-            <div className="flex gap-2.5 items-center">
-              <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Bot className="w-4 h-4" />
+            <div className="flex gap-3 items-center">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 text-white flex items-center justify-center shrink-0 shadow-md">
+                <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
               </div>
-              <div className="p-3 bg-white border border-slate-200 rounded-2xl rounded-tl-none text-slate-400 flex items-center gap-1.5 shadow-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-                <span className="text-[10.5px] text-slate-400 font-medium ml-1">AI is thinking...</span>
+              <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-3xl rounded-tl-none text-slate-400 flex items-center gap-2 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="text-xs text-slate-300 font-medium ml-1">Gemini is processing...</span>
               </div>
             </div>
           )}
@@ -377,33 +385,69 @@ export default function AiChatDrawer({ isOpen, onClose }) {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Bar */}
-        <div className="p-3 bg-white border-t border-slate-200 shrink-0">
+        {/* Gemini Bottom Search Bar Pill (Matching user's screenshot exactly!) */}
+        <div className="p-4 bg-slate-950 border-t border-slate-800/80 shrink-0">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleSendMessage();
             }}
-            className="flex items-center gap-2 relative"
+            className="w-full"
           >
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask AI anything (e.g. Recommend candidates, draft JD...)"
-              className="flex-1 pl-4 pr-10 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/80 focus:bg-white transition-all placeholder:text-slate-400"
-            />
-            <button
-              type="submit"
-              disabled={!inputValue.trim()}
-              className="p-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-md transition-all cursor-pointer shrink-0 active:scale-95"
-              title="Send Message"
-            >
-              <Send className="w-4 h-4" />
-            </button>
+            <div className="relative flex items-center justify-between rounded-full bg-slate-900/90 border border-slate-800 focus-within:border-blue-500/80 focus-within:ring-2 focus-within:ring-blue-500/30 px-4 py-2.5 shadow-2xl transition-all">
+              
+              {/* Left Side: + Icon & Input */}
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <button
+                  type="button"
+                  className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+                  title="Add Attachment"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Ask Gemini"
+                  className="w-full bg-transparent border-0 text-sm text-slate-100 placeholder:text-slate-400 font-sans font-medium focus:outline-none focus:ring-0"
+                />
+              </div>
+
+              {/* Right Side: Flash Dropdown, Mic, Send */}
+              <div className="flex items-center gap-2 shrink-0 pl-2">
+                {/* Model Selector Pill */}
+                <div className="hidden sm:flex items-center gap-1 text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-800 px-3 py-1 rounded-full border border-slate-700/60 cursor-pointer select-none">
+                  <span>Flash</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                </div>
+
+                {/* Mic Icon */}
+                <button
+                  type="button"
+                  className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Voice Input"
+                >
+                  <Mic className="w-4 h-4" />
+                </button>
+
+                {/* Send Button */}
+                <button
+                  type="submit"
+                  disabled={!inputValue.trim()}
+                  className="p-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shrink-0 active:scale-95 shadow-md"
+                  title="Send to Gemini"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+            </div>
           </form>
-          <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium mt-2 px-1">
-            <span>⚡ Powered by MindMatrix AI Engine</span>
+
+          <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium mt-2 px-3">
+            <span>Gemini AI may display inaccurate info, so double-check its responses.</span>
             <span>Press Enter to send</span>
           </div>
         </div>
