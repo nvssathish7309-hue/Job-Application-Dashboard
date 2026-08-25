@@ -91,7 +91,7 @@ export default function Navbar() {
             title="Click to Open AI Recruiter Assistant"
           >
             <Sparkles className="w-4 h-4 text-blue-600 animate-pulse" />
-            <span className="text-slate-800 font-extrabold tracking-tight">AI Mode</span>
+            <span className="font-extrabold tracking-tight" style={{ color: '#1d4ed8' }}>AI Mode</span>
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-blue-200 animate-ping" />
           </button>
         </div>
