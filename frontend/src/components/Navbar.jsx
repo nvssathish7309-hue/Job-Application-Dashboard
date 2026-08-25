@@ -58,7 +58,7 @@ export default function Navbar() {
       
       {/* Left: Brand Logo & Title */}
       <div className="flex items-center gap-3">
-        <Link to="/dashboard" className="group hover:opacity-95 transition-opacity">
+        <Link to="/dashboard" className="group hover:opacity-95 transition-opacity focus:outline-none focus:ring-0 outline-none border-none ring-0 select-none">
           <MindMatrixLogo layout="horizontal" showTagline={true} />
         </Link>
       </div>
