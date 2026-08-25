@@ -3,18 +3,17 @@ import { Link } from 'react-router-dom';
 import { Search, LogOut, Shield, Sparkles, Zap, Bot } from 'lucide-react';
 import MindMatrixLogo from './MindMatrixLogo';
 import NotificationsDropdown from './NotificationsDropdown';
+import AiChatDrawer from './AiChatDrawer';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const [isAiModeActive, setIsAiModeActive] = useState(true);
-  const [showAiToast, setShowAiToast] = useState(false);
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
   const toggleAiMode = () => {
-    const nextState = !isAiModeActive;
-    setIsAiModeActive(nextState);
-    setShowAiToast(true);
-    setTimeout(() => setShowAiToast(false), 2500);
+    setIsAiModeActive(true);
+    setIsAiChatOpen(true);
   };
 
   const getRoleBadgeColor = (role) => {
@@ -54,7 +53,7 @@ export default function Navbar() {
       {/* Right: AI Mode Toggle, Notifications, User Profile, Role Badge, Logout */}
       <div className="flex items-center gap-2.5 sm:gap-3">
 
-        {/* ⚡ AI Mode Toggle Button (Styled strictly like Image 1) */}
+        {/* ⚡ AI Mode Toggle Button */}
         <div className="relative">
           <button
             type="button"
@@ -62,26 +61,16 @@ export default function Navbar() {
             className="relative inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer select-none shadow-2xs hover:shadow-md active:scale-95"
             style={{
               backgroundOrigin: 'border-box',
-              backgroundImage: isAiModeActive
-                ? `linear-gradient(#F0F5FE, #F0F5FE), linear-gradient(135deg, #3b82f6 0%, #8b5cf6 35%, #ec4899 70%, #06b6d4 100%)`
-                : `linear-gradient(#F8FAFC, #F8FAFC), linear-gradient(135deg, #cbd5e1, #94a3b8)`,
+              backgroundImage: `linear-gradient(#F0F5FE, #F0F5FE), linear-gradient(135deg, #3b82f6 0%, #8b5cf6 35%, #ec4899 70%, #06b6d4 100%)`,
               backgroundClip: 'padding-box, border-box',
               border: '1.8px solid transparent',
             }}
-            title={isAiModeActive ? "AI Mode is Active (Auto Matching & Insights)" : "Click to Enable AI Mode"}
+            title="Click to Open AI Recruiter Assistant"
           >
-            <Sparkles className={`w-4 h-4 transition-colors ${isAiModeActive ? 'text-blue-600' : 'text-slate-400'}`} />
+            <Sparkles className="w-4 h-4 text-blue-600 animate-pulse" />
             <span className="text-slate-800 font-extrabold tracking-tight">AI Mode</span>
-            <span className={`w-2.5 h-2.5 rounded-full transition-all ${isAiModeActive ? 'bg-blue-500 ring-2 ring-blue-200' : 'bg-slate-400'}`} />
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-blue-200 animate-ping" />
           </button>
-
-          {/* AI Mode Status Toast */}
-          {showAiToast && (
-            <div className="absolute right-0 top-11 w-64 p-2.5 rounded-xl bg-slate-900 text-white border border-blue-500/40 shadow-xl z-50 text-[11px] font-semibold animate-fade-in flex items-center gap-2 backdrop-blur-md">
-              <Bot className="w-4 h-4 text-cyan-400 shrink-0" />
-              <span>{isAiModeActive ? '✨ AI Smart Assist Mode Enabled' : '⏸️ AI Assist Mode Paused'}</span>
-            </div>
-          )}
         </div>
 
         {/* Bell Notifications Dropdown */}
@@ -121,6 +110,9 @@ export default function Navbar() {
         })()}
 
       </div>
+
+      {/* Interactive AI Chat Assistant Drawer */}
+      <AiChatDrawer isOpen={isAiChatOpen} onClose={() => setIsAiChatOpen(false)} />
 
     </header>
   );

@@ -1,0 +1,292 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Sparkles, X, Send, Bot, User, RefreshCw, ChevronDown, CheckCircle2, Award, Briefcase, Calendar, TrendingUp, Zap, Sparkle } from 'lucide-react';
+import { useCandidates } from '../context/CandidateContext';
+
+export default function AiChatDrawer({ isOpen, onClose }) {
+  const { candidates } = useCandidates();
+  const [messages, setMessages] = useState([
+    {
+      id: 'welcome-1',
+      sender: 'ai',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text: "👋 Hi! I'm **MindMatrix AI Assistant**. How can I help optimize your recruitment workflow today?",
+      suggestions: [
+        "🎯 Find top software engineering candidates",
+        "📊 Summarize recruitment pipeline metrics",
+        "📝 Generate job description for React Dev",
+        "⚡ Check candidates matching Senior Frontend Developer"
+      ]
+    }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      scrollToBottom();
+    }
+  }, [messages, isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleSendMessage = (textToSend) => {
+    const queryText = textToSend || inputValue;
+    if (!queryText.trim()) return;
+
+    const userMsg = {
+      id: `user-${Date.now()}`,
+      sender: 'user',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text: queryText
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    if (!textToSend) setInputValue('');
+    setIsTyping(true);
+
+    // Simulate intelligent AI processing
+    setTimeout(() => {
+      const botResponse = generateAiResponse(queryText, candidates);
+      setMessages(prev => [...prev, botResponse]);
+      setIsTyping(false);
+    }, 900);
+  };
+
+  const generateAiResponse = (query, candidatesList = []) => {
+    const q = query.toLowerCase();
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    if (q.includes('candidate') || q.includes('find') || q.includes('top') || q.includes('react') || q.includes('frontend')) {
+      const topCandidates = candidatesList.slice(0, 3);
+      return {
+        id: `ai-${Date.now()}`,
+        sender: 'ai',
+        timestamp,
+        text: `🎯 **AI Candidate Match Results:**\nFound **${candidatesList.length || 5} candidates** matching your criteria. Here are the top recommendations:`,
+        candidatesData: topCandidates.length > 0 ? topCandidates : [
+          { name: 'Aarav Sharma', role: 'Senior Frontend Developer', score: 98, skills: ['React', 'TypeScript', 'Tailwind'] },
+          { name: 'Priya Patel', role: 'Full Stack Engineer', score: 94, skills: ['React', 'Node.js', 'MongoDB'] },
+          { name: 'Rohan Mehta', role: 'UI/UX Developer', score: 91, skills: ['React', 'Figma', 'Redux'] }
+        ],
+        suggestions: [
+          "📅 Schedule interviews for top candidates",
+          "⚡ Compare top candidate skill matrices",
+          "📊 Show hiring pipeline summary"
+        ]
+      };
+    }
+
+    if (q.includes('pipeline') || q.includes('metric') || q.includes('summary') || q.includes('stat') || q.includes('hiring')) {
+      return {
+        id: `ai-${Date.now()}`,
+        sender: 'ai',
+        timestamp,
+        text: `📊 **Recruitment Pipeline Intelligence Overview:**\n\n- 🚀 **Total Candidates:** ${candidatesList.length || 24}\n- ⚡ **Shortlisted Candidates:** ${Math.ceil((candidatesList.length || 24) * 0.45)}\n- 📅 **Interviews Scheduled:** 8\n- 🏆 **Offers Issued:** 3\n\n*Overall Pipeline Efficiency:* **92.4%** (Optimal time-to-hire: 14 days)`,
+        suggestions: [
+          "🎯 Find top candidates",
+          "📝 Draft job description for Backend Engineer",
+          "⚡ Show pending interview feedback"
+        ]
+      };
+    }
+
+    if (q.includes('job') || q.includes('description') || q.includes('draft') || q.includes('react dev')) {
+      return {
+        id: `ai-${Date.now()}`,
+        sender: 'ai',
+        timestamp,
+        text: `📝 **Generated Job Description Preview:**\n\n### **Senior React Frontend Developer**\n**Department:** Engineering | **Location:** Hybrid\n\n**Key Responsibilities:**\n- Architect performant & accessible React components using state-of-the-art design systems.\n- Collaborate with product design & backend API teams to deliver seamless web apps.\n- Maintain high unit & integration test coverage (Jest / React Testing Library).\n\n**Requirements:**\n- 3+ years modern JavaScript (ES6+), React.js, and TypeScript.\n- Experience with Tailwind CSS & state management (Redux / Context).\n\n*(You can edit and publish this directly in Create Job page!)*`,
+        suggestions: [
+          "🎯 Search candidates matching this JD",
+          "📊 View active job openings"
+        ]
+      };
+    }
+
+    // Default intelligent response
+    return {
+      id: `ai-${Date.now()}`,
+      sender: 'ai',
+      timestamp,
+      text: `✨ **AI Insights & Recommendation:**\nI have analyzed your query ("*${query}*"). Here are key actionable recommendations for your recruitment workflow:\n\n1. **Automated Screening:** 8 candidate resumes match your core skill parameters.\n2. **Interview Slot Availability:** Next available slot is tomorrow at 2:00 PM.\n3. **Smart Notification:** Shortlisted candidates will receive automated updates via email.`,
+      suggestions: [
+        "🎯 Find top software engineering candidates",
+        "📊 Summarize recruitment pipeline metrics",
+        "⚡ Check active job openings"
+      ]
+    };
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-end p-2 sm:p-4 pointer-events-none">
+      
+      {/* Background Overlay */}
+      <div 
+        onClick={onClose} 
+        className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs pointer-events-auto transition-opacity animate-fade-in"
+      />
+
+      {/* Floating AI Chat Window */}
+      <div className="relative w-full max-w-lg bg-white/95 backdrop-blur-xl border border-purple-200/90 rounded-3xl shadow-2xl overflow-hidden flex flex-col pointer-events-auto h-[620px] max-h-[85vh] animate-slide-up-sm z-50">
+        
+        {/* Glow Top Accent Header */}
+        <div className="bg-gradient-to-r from-purple-700 via-indigo-600 to-cyan-600 text-white p-4 flex items-center justify-between shadow-md relative overflow-hidden shrink-0">
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
+          
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner border border-white/20 shrink-0">
+              <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-extrabold text-sm tracking-wide text-white">MindMatrix AI Recruiter</h3>
+                <span className="bg-emerald-400/20 text-emerald-300 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-400/40 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  ACTIVE
+                </span>
+              </div>
+              <p className="text-[11px] text-purple-100 font-medium">Smart Match, Automated JD & Candidate Insights</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onClose}
+              className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
+              title="Close AI Chat"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Chat Message Stream */}
+        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gradient-to-b from-purple-50/20 via-white to-blue-50/20 text-slate-800 text-xs">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              {msg.sender === 'ai' && (
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                  <Bot className="w-4 h-4" />
+                </div>
+              )}
+
+              <div className={`max-w-[85%] space-y-2`}>
+                <div
+                  className={`p-3.5 rounded-2xl shadow-xs ${
+                    msg.sender === 'user'
+                      ? 'bg-blue-600 text-white font-medium rounded-tr-none'
+                      : 'bg-white border border-slate-200/80 text-slate-800 rounded-tl-none shadow-sm'
+                  }`}
+                >
+                  <p className="whitespace-pre-line leading-relaxed font-sans text-xs">
+                    {msg.text}
+                  </p>
+
+                  {/* Render Candidates Data Cards if present */}
+                  {msg.candidatesData && (
+                    <div className="mt-3 space-y-2 border-t border-slate-100 pt-2.5">
+                      {msg.candidatesData.map((cand, idx) => (
+                        <div key={idx} className="p-2.5 rounded-xl bg-purple-50/60 border border-purple-100 flex items-center justify-between gap-2 hover:bg-purple-100/50 transition-colors">
+                          <div>
+                            <p className="font-bold text-slate-900 text-xs">{cand.name || cand.firstName + ' ' + cand.lastName}</p>
+                            <p className="text-[10.5px] text-slate-500 font-medium">{cand.role || cand.position || 'Frontend Developer'}</p>
+                          </div>
+                          <span className="bg-purple-600 text-white text-[10px] font-extrabold px-2 py-1 rounded-lg shrink-0">
+                            {cand.score || 95}% Match
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <span className={`block text-[9.5px] mt-1.5 ${msg.sender === 'user' ? 'text-blue-200 text-right' : 'text-slate-400'}`}>
+                    {msg.timestamp}
+                  </span>
+                </div>
+
+                {/* Suggestions Chips */}
+                {msg.suggestions && msg.suggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {msg.suggestions.map((chip, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSendMessage(chip)}
+                        className="text-[10.5px] font-semibold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200/80 px-2.5 py-1 rounded-full transition-all cursor-pointer active:scale-95 text-left"
+                      >
+                        {chip}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {msg.sender === 'user' && (
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5 font-bold text-xs">
+                  U
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Typing Indicator */}
+          {isTyping && (
+            <div className="flex gap-2.5 items-center">
+              <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div className="p-3 bg-white border border-slate-200 rounded-2xl rounded-tl-none text-slate-400 flex items-center gap-1.5 shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="text-[10.5px] text-slate-400 font-medium ml-1">AI is thinking...</span>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Bar */}
+        <div className="p-3 bg-white border-t border-slate-200 shrink-0">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage();
+            }}
+            className="flex items-center gap-2 relative"
+          >
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Ask AI anything (e.g. Recommend candidates, draft JD...)"
+              className="flex-1 pl-4 pr-10 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/80 focus:bg-white transition-all placeholder:text-slate-400"
+            />
+            <button
+              type="submit"
+              disabled={!inputValue.trim()}
+              className="p-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-md transition-all cursor-pointer shrink-0 active:scale-95"
+              title="Send Message"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </form>
+          <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium mt-2 px-1">
+            <span>⚡ Powered by MindMatrix AI Engine</span>
+            <span>Press Enter to send</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
