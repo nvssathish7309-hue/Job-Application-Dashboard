@@ -73,7 +73,7 @@ export default function Navbar() {
         <input
           type="text"
           placeholder="Search candidates, jobs, applications..."
-          className="w-full pl-10 pr-4 py-2 text-xs bg-white/90 border-0 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/80 focus:bg-white transition-all"
+          className="w-full pl-10 pr-4 py-2 text-xs bg-white/90 border-0 rounded-xl text-slate-900 dark:text-blue-600 placeholder:text-slate-500 dark:placeholder:text-blue-500/80 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/80 focus:bg-white transition-all"
         />
       </div>
 
