@@ -273,17 +273,20 @@ export default function NotificationsDropdown() {
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
-          activeUnreadCount > 0
-            ? 'bg-blue-50 text-blue-600 border border-blue-300 shadow-md shadow-blue-500/20 notif-glow-active'
-            : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-transparent'
-        }`}
+        className="relative inline-flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200 cursor-pointer select-none shadow-2xs hover:shadow-md hover:scale-105 active:scale-95 shrink-0"
+        style={{
+          backgroundOrigin: 'border-box',
+          backgroundImage: `linear-gradient(#F0F5FE, #F0F5FE), linear-gradient(135deg, #3b82f6 0%, #8b5cf6 35%, #ec4899 70%, #06b6d4 100%)`,
+          backgroundClip: 'padding-box, border-box',
+          border: '1.8px solid transparent',
+        }}
         title="MindMatrix Notifications"
       >
-        <Bell className={`w-5 h-5 stroke-[2.2] transition-transform ${activeUnreadCount > 0 ? 'animate-bell-ring text-blue-600' : ''}`} />
+        <Bell className={`w-5 h-5 stroke-[2.2] text-indigo-600 transition-transform ${activeUnreadCount > 0 ? 'animate-bell-ring' : ''}`} />
         {activeUnreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-blue-600 text-white font-extrabold text-[10px] flex items-center justify-center border-2 border-white animate-pulse z-10">
+          <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-blue-600 text-white font-extrabold text-[10px] flex items-center justify-center border-2 border-white shadow-xs animate-pulse z-10">
             {activeUnreadCount}
           </span>
         )}
