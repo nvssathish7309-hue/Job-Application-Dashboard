@@ -96,17 +96,23 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* ☀️ / 🌙 Light & Dark Mode Toggle Icon Button */}
+        {/* ☀️ / 🌙 Light & Dark Mode Toggle Icon Button (Styled strictly like Pic 1 always) */}
         <button
           type="button"
           onClick={toggleTheme}
-          className="w-9 h-9 rounded-xl border text-xs font-bold flex items-center justify-center transition-all cursor-pointer select-none shadow-2xs hover:scale-105 active:scale-95 bg-slate-100/80 hover:bg-slate-200/80 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-amber-300"
+          className="relative inline-flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200 cursor-pointer select-none shadow-2xs hover:shadow-md hover:scale-105 active:scale-95 shrink-0"
+          style={{
+            backgroundOrigin: 'border-box',
+            backgroundImage: `linear-gradient(#F0F5FE, #F0F5FE), linear-gradient(135deg, #3b82f6 0%, #8b5cf6 35%, #ec4899 70%, #06b6d4 100%)`,
+            backgroundClip: 'padding-box, border-box',
+            border: '1.8px solid transparent',
+          }}
           title={isDarkMode ? "Switch to Light Mode (White Background)" : "Switch to Dark Mode (Black Background)"}
         >
           {isDarkMode ? (
-            <Sun className="w-4 h-4 text-amber-400" />
+            <Sun className="w-5 h-5 text-indigo-600 animate-spin-slow" />
           ) : (
-            <Moon className="w-4 h-4 text-indigo-600" />
+            <Moon className="w-5 h-5 text-indigo-600" />
           )}
         </button>
 
