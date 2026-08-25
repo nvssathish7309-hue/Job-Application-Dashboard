@@ -704,7 +704,7 @@ export default function Login() {
                 </div>
 
                 <div className="mt-3 pt-2 border-t border-white/10 text-[11px] text-slate-400 font-medium flex items-center justify-between">
-                  <span>🔑 Team members created or updated by Admin/HR can log in anytime using their assigned email &amp; password.</span>
+                  <span>🔑 <strong className="text-purple-300">Sathish@29</strong> is reserved for Super Admin only. Team member passwords are created &amp; assigned by Super Admin.</span>
                 </div>
               </div>
             )}

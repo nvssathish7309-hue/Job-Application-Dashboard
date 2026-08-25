@@ -1,6 +1,6 @@
 [
   {
-    "_id": "6a8d812f78d0dfe94d87481f",
+    "_id": "6a8d822f237ca5ddb23798b6",
     "firstName": "Super",
     "lastName": "Admin",
     "email": "admin@mindmatrix.com",
@@ -9,12 +9,12 @@
     "phone": "9876543210",
     "isActive": true,
     "rawPassword": "Sathish@29",
-    "passwordHash": "$2a$10$yo92Xmcei.ImcPJg8uoiw.2rTV4Y1xexlXUiFZL4Zbj8xIqRqO/vO",
-    "createdAt": "2026-08-25T11:49:03.289Z",
-    "updatedAt": "2026-08-25T11:49:03.430Z"
+    "passwordHash": "$2a$10$Z8PN/k9ZEZidp2R7TUTJiu70HdOLW5a9HL408tFyVlsUeSRNsd7Q.",
+    "createdAt": "2026-08-25T11:53:19.552Z",
+    "updatedAt": "2026-08-25T11:53:19.678Z"
   },
   {
-    "_id": "6a8d812f78d0dfe94d874821",
+    "_id": "6a8d822f237ca5ddb23798b8",
     "firstName": "Tirumal",
     "lastName": "M",
     "email": "hr@mindmatrix.com",
@@ -22,13 +22,13 @@
     "department": "Human Resources",
     "phone": "9876543211",
     "isActive": true,
-    "rawPassword": "Sathish@29",
-    "passwordHash": "$2a$10$0jUeqTz43uR2MBObr1OBnO8gZv5G/KGzOIAK04jCnFmTTOGnZMQIa",
-    "createdAt": "2026-08-25T11:49:03.433Z",
-    "updatedAt": "2026-08-25T11:49:03.575Z"
+    "rawPassword": "HrManager@2026",
+    "passwordHash": "$2a$10$1OJPZZbgKbkRrIqPxKpi5uWQeJm6o4AqqhmHLK0h7.zU.0zlF/0Xa",
+    "createdAt": "2026-08-25T11:53:19.681Z",
+    "updatedAt": "2026-08-25T11:53:19.813Z"
   },
   {
-    "_id": "6a8d8119d23ebf8075e449d2",
+    "_id": "6a8d813f1cf6ac9224c79f16",
     "firstName": "Sarah",
     "lastName": "Jenkins",
     "email": "recruiter@mindmatrix.com",
@@ -36,10 +36,10 @@
     "department": "Talent Acquisition",
     "phone": "9876543212",
     "isActive": true,
-    "rawPassword": "Sathish@29",
-    "passwordHash": "$2a$10$QLaM1BfsOaegmhIFmGRcsuhJ4UVHdL9nzT2ZSo0XHRU/9NABRnXrW",
-    "createdAt": "2026-08-25T11:48:41.202Z",
-    "updatedAt": "2026-08-25T11:48:41.318Z"
+    "rawPassword": "Recruiter@2026",
+    "passwordHash": "$2a$10$f8n6uLWE22qfnOr.c8kqk.QCZ6N1QaH9WaT0tWzkW8UdAHFkPF8Oa",
+    "createdAt": "2026-08-25T11:49:19.007Z",
+    "updatedAt": "2026-08-25T11:49:19.119Z"
   },
   {
     "_id": "6a8d81015cbeb490c389a1b6",
@@ -50,7 +50,7 @@
     "department": "Engineering",
     "phone": "9876543213",
     "isActive": true,
-    "rawPassword": "Sathish@29",
+    "rawPassword": "Interviewer@2026",
     "passwordHash": "$2a$10$8Cmcf1Pq9hZ5TCzoaaDurOVoHTTeHaA0kvXb/bmo621u5iGxmLOJq",
     "createdAt": "2026-08-25T11:48:17.541Z",
     "updatedAt": "2026-08-25T11:48:17.671Z"

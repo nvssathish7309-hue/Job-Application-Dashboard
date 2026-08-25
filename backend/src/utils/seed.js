@@ -42,34 +42,34 @@ const runSeedLogic = async () => {
     firstName: 'Tirumal',
     lastName: 'M',
     email: 'hr@mindmatrix.com',
-    password: 'Sathish@29',
+    password: 'HrManager@2026',
     role: 'HR_MANAGER',
     department: 'Human Resources',
     phone: '9876543211'
   });
-  saveUserToPersistentStore(hrUser, 'Sathish@29');
+  saveUserToPersistentStore(hrUser, 'HrManager@2026');
 
   const recruiterUser = await User.create({
     firstName: 'Sarah',
     lastName: 'Jenkins',
     email: 'recruiter@mindmatrix.com',
-    password: 'Sathish@29',
+    password: 'Recruiter@2026',
     role: 'RECRUITER',
     department: 'Talent Acquisition',
     phone: '9876543212'
   });
-  saveUserToPersistentStore(recruiterUser, 'Sathish@29');
+  saveUserToPersistentStore(recruiterUser, 'Recruiter@2026');
 
   const interviewerUser = await User.create({
     firstName: 'Alex',
     lastName: 'Rivera',
     email: 'interviewer@mindmatrix.com',
-    password: 'Sathish@29',
+    password: 'Interviewer@2026',
     role: 'INTERVIEWER',
     department: 'Engineering',
     phone: '9876543213'
   });
-  saveUserToPersistentStore(interviewerUser, 'Sathish@29');
+  saveUserToPersistentStore(interviewerUser, 'Interviewer@2026');
 
   // Restoring any admin-granted team access members from persistent file storage
   console.log('Restoring admin-granted team members from persistent storage...');

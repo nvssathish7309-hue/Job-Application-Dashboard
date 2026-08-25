@@ -99,7 +99,7 @@ const syncPersistentUsersToDB = async () => {
 
       if (!dbUser) {
         console.log(`Restoring persistent user into MongoDB: ${cleanEmail} (${pUser.role})`);
-        const passwordToUse = pUser.rawPassword || pUser.passwordHash || 'Sathish@29';
+        const passwordToUse = pUser.rawPassword || pUser.passwordHash || 'TeamAccess@2026';
         await User.create({
           firstName: pUser.firstName || 'Team',
           lastName: pUser.lastName || 'Member',
