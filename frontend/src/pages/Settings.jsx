@@ -56,6 +56,18 @@ export default function SettingsPage() {
 
   // Helper to load profile data from logged in user / localStorage per user key
   const loadProfileData = () => {
+    // 1. Check if team member list has updated name for this user
+    let teamMemberMatch = null;
+    try {
+      const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      teamMemberMatch = savedUsers.find(u => 
+        (u._id && (u._id === user?._id || u._id === user?.id)) ||
+        ((u.email || '').toLowerCase() === (user?.email || '').toLowerCase())
+      );
+    } catch (e) {}
+
+    const teamMemberFullName = teamMemberMatch ? `${teamMemberMatch.firstName || ''} ${teamMemberMatch.lastName || ''}`.trim() : '';
+
     let saved = null;
     const userKey1 = `userProfile_${user?._id || user?.id || 'default'}`;
     const userKey2 = `userProfile_${(user?.email || '').toLowerCase()}`;
@@ -68,34 +80,33 @@ export default function SettingsPage() {
       }
     } catch (e) {}
 
-    // Check if team member list has updated name for this user
-    let teamMemberMatch = null;
-    try {
-      const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-      teamMemberMatch = savedUsers.find(u => 
-        (u._id && (u._id === user?._id || u._id === user?.id)) ||
-        ((u.email || '').toLowerCase() === (user?.email || '').toLowerCase())
-      );
-    } catch (e) {}
-
-    const teamMemberFullName = teamMemberMatch ? `${teamMemberMatch.firstName || ''} ${teamMemberMatch.lastName || ''}`.trim() : '';
-
-    const userName = teamMemberFullName || ((user?.firstName && user?.lastName)
+    const defaultUserName = (user?.firstName && user?.lastName)
       ? `${user.firstName} ${user.lastName}`
-      : (user?.name || (user?.email ? user.email.split('@')[0] : 'Staff Member')));
+      : (user?.name || (user?.email ? user.email.split('@')[0] : 'Staff Member'));
 
-    const userTitle = teamMemberMatch?.department || user?.department || (
-      user?.role === 'SUPER_ADMIN' ? 'Super Admin' :
-      user?.role === 'HR_MANAGER' ? 'HR Manager' :
-      user?.role === 'RECRUITER' ? 'Recruiter' :
-      user?.role === 'INTERVIEWER' ? 'Interviewer' : 'Staff Member'
-    );
+    // Admin updates in User Management (teamMemberFullName) take top priority!
+    const activeName = (teamMemberMatch && teamMemberFullName) 
+      ? teamMemberFullName 
+      : (saved?.name || defaultUserName);
+
+    const activePhone = (teamMemberMatch && teamMemberMatch.phone)
+      ? teamMemberMatch.phone
+      : (saved?.phone || user?.phone || '+91 9876543210');
+
+    const activeTitle = (teamMemberMatch && teamMemberMatch.department)
+      ? teamMemberMatch.department
+      : (saved?.title || user?.department || (
+          user?.role === 'SUPER_ADMIN' ? 'Super Admin' :
+          user?.role === 'HR_MANAGER' ? 'HR Manager' :
+          user?.role === 'RECRUITER' ? 'Recruiter' :
+          user?.role === 'INTERVIEWER' ? 'Interviewer' : 'Staff Member'
+        ));
 
     return {
-      name: saved?.name || userName,
-      phone: saved?.phone || teamMemberMatch?.phone || user?.phone || '+91 9876543210',
+      name: activeName,
+      phone: activePhone,
       email: user?.email || saved?.email || 'admin@mindmatrix.com',
-      title: saved?.title || userTitle
+      title: activeTitle
     };
   };
 
