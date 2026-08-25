@@ -163,11 +163,11 @@ export default function Login() {
     }
   };
 
-  const handleDemoLogin = (demoEmail) => {
+  const handleDemoLogin = (demoEmail, demoPassword) => {
     setMode('login');
     setActivePortalTab('recruiter');
     setEmail(demoEmail);
-    setPassword('Sathish@29');
+    setPassword(demoPassword || 'Sathish@29');
     setShowPassword(false);
     setErrorMessage('');
     setIsExistingAccount(false);
@@ -628,7 +628,7 @@ export default function Login() {
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
                     type="button"
-                    onClick={() => handleDemoLogin('admin@mindmatrix.com')}
+                    onClick={() => handleDemoLogin('admin@mindmatrix.com', 'Sathish@29')}
                     className={`p-3 rounded-xl border text-left transition-all cursor-pointer backdrop-blur-sm ${email === 'admin@mindmatrix.com'
                       ? 'bg-purple-500/20 border-purple-500 ring-1 ring-purple-500'
                       : 'bg-white/5 border-white/10 hover:border-purple-500/50 hover:bg-purple-500/10'
@@ -642,7 +642,7 @@ export default function Login() {
 
                   <button
                     type="button"
-                    onClick={() => handleDemoLogin('hr@mindmatrix.com')}
+                    onClick={() => handleDemoLogin('hr@mindmatrix.com', 'HrManager@2026')}
                     className={`p-3 rounded-xl border text-left transition-all cursor-pointer backdrop-blur-sm ${email === 'hr@mindmatrix.com'
                       ? 'bg-blue-500/20 border-blue-500 ring-1 ring-blue-500'
                       : 'bg-white/5 border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10'
@@ -656,7 +656,7 @@ export default function Login() {
 
                   <button
                     type="button"
-                    onClick={() => handleDemoLogin('recruiter@mindmatrix.com')}
+                    onClick={() => handleDemoLogin('recruiter@mindmatrix.com', 'Recruiter@2026')}
                     className={`p-3 rounded-xl border text-left transition-all cursor-pointer backdrop-blur-sm ${email === 'recruiter@mindmatrix.com'
                       ? 'bg-emerald-500/20 border-emerald-500 ring-1 ring-emerald-500'
                       : 'bg-white/5 border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500/10'
@@ -670,7 +670,7 @@ export default function Login() {
 
                   <button
                     type="button"
-                    onClick={() => handleDemoLogin('interviewer@mindmatrix.com')}
+                    onClick={() => handleDemoLogin('interviewer@mindmatrix.com', 'Interviewer@2026')}
                     className={`p-3 rounded-xl border text-left transition-all cursor-pointer backdrop-blur-sm ${email === 'interviewer@mindmatrix.com'
                       ? 'bg-amber-500/20 border-amber-500 ring-1 ring-amber-500'
                       : 'bg-white/5 border-white/10 hover:border-amber-500/50 hover:bg-amber-500/10'
