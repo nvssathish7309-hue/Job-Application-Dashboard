@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, User, Phone, ArrowRight, UserPlus, LogIn, CheckCircle2, ShieldCheck, Zap, Users, Shield, X, Check } from 'lucide-react';
 import MindMatrixLogo, { MindMatrixIcon } from '../components/MindMatrixLogo';
@@ -14,25 +14,12 @@ export default function Login() {
   const [activePortalTab, setActivePortalTab] = useState('recruiter'); // 'recruiter' | 'candidate'
   const [switchKey, setSwitchKey] = useState(0);
 
-  // Form Fields
-  const [email, setEmail] = useState('hr@mindmatrix.com');
-  const [password, setPassword] = useState('Sathish@29');
+  // Form Fields - Blank by default on reload
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
-
-  // Password field ref for auto-focus matching 2nd pic
-  const passwordInputRef = useRef(null);
-
-  useEffect(() => {
-    if (activePortalTab === 'recruiter' && mode === 'login') {
-      setEmail('hr@mindmatrix.com');
-      setPassword('Sathish@29');
-      setTimeout(() => {
-        passwordInputRef.current?.focus();
-      }, 150);
-    }
-  }, []);
 
   // SSO Modal State
   const [ssoModalProvider, setSsoModalProvider] = useState(null); // null | 'google' | 'linkedin'
@@ -71,16 +58,10 @@ export default function Login() {
     setErrorMessage('');
     setSuccessMessage('');
     setIsExistingAccount(false);
+    setEmail('');
+    setPassword('');
     if (portal === 'recruiter') {
       setMode('login'); // Registration is disabled for Team Access
-      setEmail('hr@mindmatrix.com');
-      setPassword('Sathish@29');
-      setTimeout(() => {
-        passwordInputRef.current?.focus();
-      }, 150);
-    } else if (portal === 'candidate') {
-      setEmail('');
-      setPassword('');
     }
   };
 
@@ -562,7 +543,7 @@ export default function Login() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder={activePortalTab === 'recruiter' ? 'hr@mindmatrix.com' : 'candidate@example.com'}
+                        placeholder={activePortalTab === 'recruiter' ? 'teamaccess@mindmatrix.com' : 'candidate@example.com'}
                         className="login-input-bar w-full h-12 bg-[#EEF5FF] border-0 outline-none pl-11 pr-14 py-3 rounded-[14px] text-slate-900 font-semibold text-xs placeholder-slate-400 transition-all shadow-sm box-border appearance-none"
                       />
                     </div>
@@ -587,7 +568,6 @@ export default function Login() {
                     <div className="relative w-full flex items-center">
                       <Lock className="w-4 h-4 absolute left-4 text-slate-500 pointer-events-none z-10" />
                       <input
-                        ref={passwordInputRef}
                         type={showPassword ? 'text' : 'password'}
                         required
                         value={password}
