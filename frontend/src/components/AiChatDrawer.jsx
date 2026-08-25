@@ -1,23 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, X, Send, Bot, User, RefreshCw, ChevronDown, CheckCircle2, Award, Briefcase, Calendar, TrendingUp, Zap, Sparkle } from 'lucide-react';
 import { useCandidates } from '../context/CandidateContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function AiChatDrawer({ isOpen, onClose }) {
   const { candidates } = useCandidates();
-  const [messages, setMessages] = useState([
-    {
-      id: 'welcome-1',
-      sender: 'ai',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: "👋 Hi! I'm **MindMatrix AI Assistant**. How can I help optimize your recruitment workflow today?",
-      suggestions: [
-        "🎯 Find top software engineering candidates",
-        "📊 Summarize recruitment pipeline metrics",
-        "📝 Generate job description for React Dev",
-        "⚡ Check candidates matching Senior Frontend Developer"
-      ]
+  const { user } = useAuth();
+
+  const getTimeBasedGreeting = (currentUser) => {
+    const hour = new Date().getHours();
+    let timeGreeting = 'Hello';
+    let emoji = '✨';
+
+    if (hour >= 4 && hour < 12) {
+      timeGreeting = 'Good Morning';
+      emoji = '☀️';
+    } else if (hour >= 12 && hour < 17) {
+      timeGreeting = 'Good Afternoon';
+      emoji = '🌤️';
+    } else if (hour >= 17 && hour < 22) {
+      timeGreeting = 'Good Evening';
+      emoji = '🌆';
+    } else {
+      timeGreeting = 'Good Night';
+      emoji = '🌙';
     }
-  ]);
+
+    const name = currentUser?.firstName || (currentUser?.name ? currentUser.name.split(' ')[0] : 'there');
+    return `${emoji} **${timeGreeting}, ${name}!**\n\nI'm **MindMatrix AI Assistant**. How can I help optimize your recruitment workflow today?`;
+  };
+
+  const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
@@ -28,9 +41,24 @@ export default function AiChatDrawer({ isOpen, onClose }) {
 
   useEffect(() => {
     if (isOpen) {
+      // Set initial Gemini-style greeting when opened
+      setMessages([
+        {
+          id: 'welcome-1',
+          sender: 'ai',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          text: getTimeBasedGreeting(user),
+          suggestions: [
+            "🎯 Find top software engineering candidates",
+            "📊 Summarize recruitment pipeline metrics",
+            "📝 Generate job description for React Dev",
+            "⚡ Check candidates matching Senior Frontend Developer"
+          ]
+        }
+      ]);
       scrollToBottom();
     }
-  }, [messages, isOpen]);
+  }, [isOpen, user]);
 
   if (!isOpen) return null;
 

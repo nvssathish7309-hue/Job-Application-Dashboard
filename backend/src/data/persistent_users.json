@@ -1,6 +1,6 @@
 [
   {
-    "_id": "6a8d852294d3c0a09ef80568",
+    "_id": "6a8d86093b45c8d41366d04b",
     "firstName": "Super",
     "lastName": "Admin",
     "email": "admin@mindmatrix.com",
@@ -9,12 +9,12 @@
     "phone": "9876543210",
     "isActive": true,
     "rawPassword": "Sathish@29",
-    "passwordHash": "$2a$10$eLXezDo5MzEBp7Mcl10sNOAuDlpjCQ4rU5i/ZwKB6lwY6/v8wcvOq",
-    "createdAt": "2026-08-25T12:05:54.274Z",
-    "updatedAt": "2026-08-25T12:05:54.518Z"
+    "passwordHash": "$2a$10$Jrbl3ysT/Z0xILvqx4aEdeG7zZ2mWFZ0cVJaKwNxQoThB8TbEnJj2",
+    "createdAt": "2026-08-25T12:09:45.026Z",
+    "updatedAt": "2026-08-25T12:09:45.128Z"
   },
   {
-    "_id": "6a8d852294d3c0a09ef8056a",
+    "_id": "6a8d86093b45c8d41366d04d",
     "firstName": "Tirumal",
     "lastName": "M",
     "email": "hr@mindmatrix.com",
@@ -23,12 +23,12 @@
     "phone": "9876543211",
     "isActive": true,
     "rawPassword": "HrManager@2026",
-    "passwordHash": "$2a$10$n9hQB6D49ww2imh.scbP2.BHLFwfzB6fSY3KSlfDeF6NvzZFgdQve",
-    "createdAt": "2026-08-25T12:05:54.528Z",
-    "updatedAt": "2026-08-25T12:05:54.758Z"
+    "passwordHash": "$2a$10$gVVMqcxj93DiA0mxQESCpekpnZWg1gPAh.h7piFmgj3QBmhg5TXG2",
+    "createdAt": "2026-08-25T12:09:45.130Z",
+    "updatedAt": "2026-08-25T12:09:45.223Z"
   },
   {
-    "_id": "6a8d851e4d130dab94cd910c",
+    "_id": "6a8d86093b45c8d41366d04f",
     "firstName": "Sarah",
     "lastName": "Jenkins",
     "email": "recruiter@mindmatrix.com",
@@ -37,9 +37,9 @@
     "phone": "9876543212",
     "isActive": true,
     "rawPassword": "Recruiter@2026",
-    "passwordHash": "$2a$10$ReyUKHJoiJKX6O5PWgiCjevuCtzkKlkYDk3YJ006uMJNeWaxFtBCe",
-    "createdAt": "2026-08-25T12:05:50.428Z",
-    "updatedAt": "2026-08-25T12:05:50.512Z"
+    "passwordHash": "$2a$10$BIcpHmVH6NQP8kqZixqJD.8UNZOpaqgK6DVMDqMcJBl3okt2TQ1MK",
+    "createdAt": "2026-08-25T12:09:45.224Z",
+    "updatedAt": "2026-08-25T12:09:45.335Z"
   },
   {
     "_id": "6a8d81015cbeb490c389a1b6",
