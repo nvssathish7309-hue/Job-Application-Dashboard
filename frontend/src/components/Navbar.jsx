@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, LogOut, Shield } from 'lucide-react';
+import { Search, LogOut, Shield, Sparkles, Zap, Bot } from 'lucide-react';
 import MindMatrixLogo from './MindMatrixLogo';
 import NotificationsDropdown from './NotificationsDropdown';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const [isAiModeActive, setIsAiModeActive] = useState(true);
+  const [showAiToast, setShowAiToast] = useState(false);
+
+  const toggleAiMode = () => {
+    const nextState = !isAiModeActive;
+    setIsAiModeActive(nextState);
+    setShowAiToast(true);
+    setTimeout(() => setShowAiToast(false), 2500);
+  };
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
@@ -42,8 +51,36 @@ export default function Navbar() {
         />
       </div>
 
-      {/* Right: Notifications, User Profile, Role Badge, Logout */}
-      <div className="flex items-center gap-3">
+      {/* Right: AI Mode Toggle, Notifications, User Profile, Role Badge, Logout */}
+      <div className="flex items-center gap-2.5 sm:gap-3">
+
+        {/* ⚡ AI Mode Toggle Button */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={toggleAiMode}
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all cursor-pointer select-none ${
+              isAiModeActive
+                ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 text-white shadow-[0_0_14px_rgba(168,85,247,0.45)] border border-purple-300/40 hover:scale-105 active:scale-95'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 shadow-xs'
+            }`}
+            title={isAiModeActive ? "AI Mode is Active (Auto Matching & Insights)" : "Click to Enable AI Mode"}
+          >
+            <Sparkles className={`w-3.5 h-3.5 ${isAiModeActive ? 'text-amber-300 animate-pulse' : 'text-slate-400'}`} />
+            <span>AI Mode</span>
+            <span className={`w-2 h-2 rounded-full ${isAiModeActive ? 'bg-emerald-400 animate-ping' : 'bg-slate-400'}`} />
+          </button>
+
+          {/* AI Mode Status Toast */}
+          {showAiToast && (
+            <div className="absolute right-0 top-11 w-64 p-2.5 rounded-xl bg-slate-900 text-white border border-purple-500/40 shadow-xl z-50 text-[11px] font-semibold animate-fade-in flex items-center gap-2 backdrop-blur-md">
+              <Bot className="w-4 h-4 text-purple-400 shrink-0" />
+              <span>{isAiModeActive ? '✨ AI Smart Assist Mode Enabled' : '⏸️ AI Assist Mode Paused'}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Bell Notifications Dropdown */}
         <NotificationsDropdown />
 
         {/* User Info */}
