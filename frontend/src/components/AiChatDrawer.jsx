@@ -14,7 +14,7 @@ function RenderFormattedText({ text, isUser }) {
   const lines = text.split('\n');
 
   return (
-    <div className="space-y-1.5 leading-relaxed text-xs text-slate-800 dark:text-slate-200">
+    <div className="space-y-1.5 leading-relaxed text-xs text-slate-900 dark:text-blue-50">
       {lines.map((line, idx) => {
         let trimmed = line.trim();
         if (!trimmed) return <div key={idx} className="h-1" />;
@@ -22,7 +22,7 @@ function RenderFormattedText({ text, isUser }) {
         // Header ###
         if (trimmed.startsWith('### ')) {
           return (
-            <h4 key={idx} className="font-extrabold text-xs sm:text-sm text-purple-900 dark:text-purple-300 mt-2 mb-1">
+            <h4 key={idx} className="font-extrabold text-xs sm:text-sm text-blue-900 dark:text-blue-200 mt-2 mb-1">
               {formatInlineBold(trimmed.replace('### ', ''))}
             </h4>
           );
@@ -33,7 +33,7 @@ function RenderFormattedText({ text, isUser }) {
           const content = trimmed.slice(2);
           return (
             <div key={idx} className="flex items-start gap-2 pl-1 my-0.5">
-              <span className="text-purple-600 dark:text-purple-400 font-bold">•</span>
+              <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
               <span>{formatInlineBold(content)}</span>
             </div>
           );
@@ -46,7 +46,7 @@ function RenderFormattedText({ text, isUser }) {
           const content = numberedMatch[2];
           return (
             <div key={idx} className="flex items-start gap-2 pl-1 my-1">
-              <span className="bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-extrabold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+              <span className="bg-blue-600 text-white dark:bg-blue-500 font-extrabold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 {num}
               </span>
               <span>{formatInlineBold(content)}</span>
@@ -69,10 +69,10 @@ function formatInlineBold(text) {
   const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="font-extrabold text-slate-900 dark:text-white">{part.slice(2, -2)}</strong>;
+      return <strong key={i} className="font-extrabold text-blue-950 dark:text-white">{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith('*') && part.endsWith('*')) {
-      return <em key={i} className="italic text-slate-700 dark:text-slate-300">{part.slice(1, -1)}</em>;
+      return <em key={i} className="italic text-blue-800 dark:text-blue-200">{part.slice(1, -1)}</em>;
     }
     return part;
   });
@@ -322,22 +322,22 @@ export default function AiChatDrawer({ isOpen, onClose }) {
                 <div
                   className={`p-3.5 rounded-2xl shadow-xs transition-all ${
                     msg.sender === 'user'
-                      ? 'bg-blue-600 text-white font-medium rounded-tr-none'
-                      : 'bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-tl-none shadow-sm'
+                      ? 'bg-blue-600 text-white font-medium rounded-tr-none shadow-sm'
+                      : 'bg-blue-50/90 dark:bg-blue-950/80 border border-blue-200/90 dark:border-blue-800/80 text-slate-900 dark:text-blue-50 rounded-tl-none shadow-sm'
                   }`}
                 >
                   <RenderFormattedText text={msg.text} isUser={msg.sender === 'user'} />
 
                   {/* Render Candidates Data Cards if present */}
                   {msg.candidatesData && (
-                    <div className="mt-3 space-y-2 border-t border-slate-100 dark:border-slate-800 pt-2.5">
+                    <div className="mt-3 space-y-2 border-t border-blue-200/80 dark:border-blue-800/80 pt-2.5">
                       {msg.candidatesData.map((cand, idx) => (
-                        <div key={idx} className="p-2.5 rounded-xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/50 flex items-center justify-between gap-2 hover:bg-purple-100/60 dark:hover:bg-purple-900/60 transition-colors">
+                        <div key={idx} className="p-2.5 rounded-xl bg-blue-100/70 dark:bg-blue-900/60 border border-blue-200 dark:border-blue-700/60 flex items-center justify-between gap-2 hover:bg-blue-200/60 dark:hover:bg-blue-800/70 transition-colors">
                           <div>
-                            <p className="font-bold text-slate-900 dark:text-white text-xs">{cand.name || cand.firstName + ' ' + cand.lastName}</p>
-                            <p className="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">{cand.role || cand.position || 'Frontend Developer'}</p>
+                            <p className="font-bold text-blue-950 dark:text-white text-xs">{cand.name || cand.firstName + ' ' + cand.lastName}</p>
+                            <p className="text-[10.5px] text-blue-700 dark:text-blue-300 font-medium">{cand.role || cand.position || 'Frontend Developer'}</p>
                           </div>
-                          <span className="bg-purple-600 text-white text-[10px] font-extrabold px-2 py-1 rounded-lg shrink-0">
+                          <span className="bg-blue-600 text-white text-[10px] font-extrabold px-2 py-1 rounded-lg shrink-0 shadow-xs">
                             {cand.score || 95}% Match
                           </span>
                         </div>
@@ -345,7 +345,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
                     </div>
                   )}
 
-                  <span className={`block text-[9.5px] mt-2 ${msg.sender === 'user' ? 'text-blue-200 text-right' : 'text-slate-400 dark:text-slate-500'}`}>
+                  <span className={`block text-[9.5px] mt-2 ${msg.sender === 'user' ? 'text-blue-200 text-right' : 'text-blue-600/80 dark:text-blue-300/80'}`}>
                     {msg.timestamp}
                   </span>
                 </div>
