@@ -37,13 +37,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
     id: 'welcome-1',
     sender: 'ai',
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    text: getTimeBasedGreeting(currentUser),
-    suggestions: [
-      "🎯 Find top software engineering candidates",
-      "📊 Summarize recruitment pipeline metrics",
-      "📝 Generate job description for React Dev",
-      "⚡ Check candidates matching Senior Frontend Developer"
-    ]
+    text: getTimeBasedGreeting(currentUser)
   });
 
   // Load saved messages for current user or default welcome message
@@ -144,11 +138,6 @@ export default function AiChatDrawer({ isOpen, onClose }) {
           { name: 'Aarav Sharma', role: 'Senior Frontend Developer', score: 98, skills: ['React', 'TypeScript', 'Tailwind'] },
           { name: 'Priya Patel', role: 'Full Stack Engineer', score: 94, skills: ['React', 'Node.js', 'MongoDB'] },
           { name: 'Rohan Mehta', role: 'UI/UX Developer', score: 91, skills: ['React', 'Figma', 'Redux'] }
-        ],
-        suggestions: [
-          "📅 Schedule interviews for top candidates",
-          "⚡ Compare top candidate skill matrices",
-          "📊 Show hiring pipeline summary"
         ]
       };
     }
@@ -158,12 +147,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
         id: `ai-${Date.now()}`,
         sender: 'ai',
         timestamp,
-        text: `📊 **Recruitment Pipeline Intelligence Overview:**\n\n- 🚀 **Total Candidates:** ${candidatesList.length || 24}\n- ⚡ **Shortlisted Candidates:** ${Math.ceil((candidatesList.length || 24) * 0.45)}\n- 📅 **Interviews Scheduled:** 8\n- 🏆 **Offers Issued:** 3\n\n*Overall Pipeline Efficiency:* **92.4%** (Optimal time-to-hire: 14 days)`,
-        suggestions: [
-          "🎯 Find top candidates",
-          "📝 Draft job description for Backend Engineer",
-          "⚡ Show pending interview feedback"
-        ]
+        text: `📊 **Recruitment Pipeline Intelligence Overview:**\n\n- 🚀 **Total Candidates:** ${candidatesList.length || 24}\n- ⚡ **Shortlisted Candidates:** ${Math.ceil((candidatesList.length || 24) * 0.45)}\n- 📅 **Interviews Scheduled:** 8\n- 🏆 **Offers Issued:** 3\n\n*Overall Pipeline Efficiency:* **92.4%** (Optimal time-to-hire: 14 days)`
       };
     }
 
@@ -172,11 +156,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
         id: `ai-${Date.now()}`,
         sender: 'ai',
         timestamp,
-        text: `📝 **Generated Job Description Preview:**\n\n### **Senior React Frontend Developer**\n**Department:** Engineering | **Location:** Hybrid\n\n**Key Responsibilities:**\n- Architect performant & accessible React components using state-of-the-art design systems.\n- Collaborate with product design & backend API teams to deliver seamless web apps.\n- Maintain high unit & integration test coverage (Jest / React Testing Library).\n\n**Requirements:**\n- 3+ years modern JavaScript (ES6+), React.js, and TypeScript.\n- Experience with Tailwind CSS & state management (Redux / Context).\n\n*(You can edit and publish this directly in Create Job page!)*`,
-        suggestions: [
-          "🎯 Search candidates matching this JD",
-          "📊 View active job openings"
-        ]
+        text: `📝 **Generated Job Description Preview:**\n\n### **Senior React Frontend Developer**\n**Department:** Engineering | **Location:** Hybrid\n\n**Key Responsibilities:**\n- Architect performant & accessible React components using state-of-the-art design systems.\n- Collaborate with product design & backend API teams to deliver seamless web apps.\n- Maintain high unit & integration test coverage (Jest / React Testing Library).\n\n**Requirements:**\n- 3+ years modern JavaScript (ES6+), React.js, and TypeScript.\n- Experience with Tailwind CSS & state management (Redux / Context).\n\n*(You can edit and publish this directly in Create Job page!)*`
       };
     }
 
@@ -185,12 +165,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
       id: `ai-${Date.now()}`,
       sender: 'ai',
       timestamp,
-      text: `✨ **AI Insights & Recommendation:**\nI have analyzed your query ("*${query}*"). Here are key actionable recommendations for your recruitment workflow:\n\n1. **Automated Screening:** 8 candidate resumes match your core skill parameters.\n2. **Interview Slot Availability:** Next available slot is tomorrow at 2:00 PM.\n3. **Smart Notification:** Shortlisted candidates will receive automated updates via email.`,
-      suggestions: [
-        "🎯 Find top software engineering candidates",
-        "📊 Summarize recruitment pipeline metrics",
-        "⚡ Check active job openings"
-      ]
+      text: `✨ **AI Insights & Recommendation:**\nI have analyzed your query ("*${query}*"). Here are key actionable recommendations for your recruitment workflow:\n\n1. **Automated Screening:** 8 candidate resumes match your core skill parameters.\n2. **Interview Slot Availability:** Next available slot is tomorrow at 2:00 PM.\n3. **Smart Notification:** Shortlisted candidates will receive automated updates via email.`
     };
   };
 
@@ -293,21 +268,6 @@ export default function AiChatDrawer({ isOpen, onClose }) {
                     {msg.timestamp}
                   </span>
                 </div>
-
-                {/* Suggestions Chips */}
-                {msg.suggestions && msg.suggestions.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {msg.suggestions.map((chip, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleSendMessage(chip)}
-                        className="text-[10.5px] font-semibold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200/80 px-2.5 py-1 rounded-full transition-all cursor-pointer active:scale-95 text-left"
-                      >
-                        {chip}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {msg.sender === 'user' && (
