@@ -431,7 +431,11 @@ export default function Header({ setMobileOpen, searchQuery, setSearchQuery }) {
             <Menu className="w-5 h-5" />
           </button>
 
-          <Link to="/dashboard" className="no-glow flex items-center gap-2">
+          <Link 
+            to="/dashboard" 
+            className="no-glow group hover:opacity-95 transition-opacity outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 active:outline-none border-0 ring-0 select-none flex items-center gap-2"
+            style={{ outline: 'none', boxShadow: 'none', WebkitTapHighlightColor: 'transparent' }}
+          >
             <MindMatrixLogo layout="horizontal" showTagline={true} />
             <span className="btn-moving-light ml-1 px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200 hidden sm:inline-block">
               HR Portal

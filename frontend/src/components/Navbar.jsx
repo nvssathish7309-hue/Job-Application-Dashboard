@@ -60,7 +60,7 @@ export default function Navbar() {
       <div className="flex items-center gap-3">
         <Link 
           to="/dashboard" 
-          className="group hover:opacity-95 transition-opacity focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 active:outline-none border-0 outline-0 ring-0 select-none"
+          className="no-glow group hover:opacity-95 transition-opacity outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 active:outline-none border-0 outline-0 ring-0 select-none"
           style={{ outline: 'none', boxShadow: 'none', WebkitTapHighlightColor: 'transparent' }}
         >
           <MindMatrixLogo layout="horizontal" showTagline={true} />
