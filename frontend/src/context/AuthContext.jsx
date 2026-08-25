@@ -75,10 +75,28 @@ export const AuthProvider = ({ children }) => {
 
   const updateCurrentUser = (updatedData) => {
     setUser(prev => {
-      const newUser = { ...prev, ...updatedData };
+      let fName = updatedData.firstName;
+      let lName = updatedData.lastName;
+
+      if ((!fName || lName === undefined) && updatedData.name) {
+        const parts = updatedData.name.trim().split(/\s+/);
+        fName = parts[0] || '';
+        lName = parts.slice(1).join(' ') || '';
+      }
+
+      const newUser = {
+        ...prev,
+        ...updatedData,
+        ...(fName !== undefined ? { firstName: fName } : {}),
+        ...(lName !== undefined ? { lastName: lName } : {})
+      };
+
       localStorage.setItem('user', JSON.stringify(newUser));
       return newUser;
     });
+
+    window.dispatchEvent(new CustomEvent('userProfileUpdated', { detail: updatedData }));
+    window.dispatchEvent(new CustomEvent('teamMembersUpdated'));
   };
 
   const logout = () => {

@@ -47,31 +47,37 @@ export default function Navbar() {
         <NotificationsDropdown />
 
         {/* User Info */}
-        {user && (
-          <div className="flex items-center gap-3 border-l border-slate-200 pl-3">
-            <div className="btn-moving-light rounded-full w-9 h-9 bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
-              {user.firstName[0]}{user.lastName[0]}
-            </div>
-            
-            <div className="hidden lg:block text-left">
-              <p className="text-xs font-bold text-slate-900 leading-tight">
-                {user.firstName} {user.lastName}
-              </p>
-              <span className={`inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full border mt-0.5 ${getRoleBadgeColor(user.role)}`}>
-                <Shield className="w-2.5 h-2.5" />
-                {user.role.replace('_', ' ')}
-              </span>
-            </div>
+        {user && (() => {
+          const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.name || user.email || 'User';
+          const parts = fullName.split(/\s+/).filter(Boolean);
+          const initials = parts.length === 0 ? 'U' : parts.length === 1 ? parts[0].slice(0, 2).toUpperCase() : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 
-            <button
-              onClick={logout}
-              className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
-              title="Sign Out"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+          return (
+            <div className="flex items-center gap-3 border-l border-slate-200 pl-3">
+              <div className="btn-moving-light rounded-full w-9 h-9 bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
+                {initials}
+              </div>
+              
+              <div className="hidden lg:block text-left">
+                <p className="text-xs font-bold text-slate-900 leading-tight">
+                  {fullName}
+                </p>
+                <span className={`inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full border mt-0.5 ${getRoleBadgeColor(user.role)}`}>
+                  <Shield className="w-2.5 h-2.5" />
+                  {user.role?.replace('_', ' ')}
+                </span>
+              </div>
+
+              <button
+                onClick={logout}
+                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          );
+        })()}
 
       </div>
 
