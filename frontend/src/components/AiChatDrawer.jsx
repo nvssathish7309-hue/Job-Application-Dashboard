@@ -69,10 +69,10 @@ function formatInlineBold(text) {
   const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="font-extrabold text-blue-950 dark:text-white">{part.slice(2, -2)}</strong>;
+      return <strong key={i} className="font-extrabold text-slate-900 dark:text-white">{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith('*') && part.endsWith('*')) {
-      return <em key={i} className="italic text-blue-800 dark:text-blue-200">{part.slice(1, -1)}</em>;
+      return <em key={i} className="italic text-slate-800 dark:text-blue-200">{part.slice(1, -1)}</em>;
     }
     return part;
   });
@@ -257,7 +257,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
       />
 
       {/* Floating AI Chat Window */}
-      <div className="relative w-full max-w-lg bg-white/95 dark:bg-slate-900 backdrop-blur-xl border border-purple-200/90 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col pointer-events-auto h-[620px] max-h-[85vh] animate-slide-up-sm z-50">
+      <div className="relative w-full max-w-lg bg-white border border-purple-200/90 rounded-3xl shadow-2xl overflow-hidden flex flex-col pointer-events-auto h-[620px] max-h-[85vh] animate-slide-up-sm z-50">
         
         {/* Glow Top Accent Header */}
         <div className="bg-gradient-to-r from-purple-700 via-indigo-600 to-cyan-600 text-white p-4 flex items-center justify-between shadow-md relative overflow-hidden shrink-0">
@@ -300,8 +300,8 @@ export default function AiChatDrawer({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Chat Message Stream */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gradient-to-b from-purple-50/20 via-white to-blue-50/20 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 text-slate-800 dark:text-slate-100 text-xs">
+        {/* Chat Message Stream - Clean Light Mode */}
+        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gradient-to-b from-purple-50/40 via-white to-blue-50/40 text-slate-800 text-xs">
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -318,19 +318,19 @@ export default function AiChatDrawer({ isOpen, onClose }) {
                   className={`p-3.5 rounded-2xl shadow-xs transition-all ${
                     msg.sender === 'user'
                       ? 'bg-blue-600 text-white font-medium rounded-tr-none shadow-sm'
-                      : 'bg-blue-50/90 dark:bg-blue-950/80 border border-blue-200/90 dark:border-blue-800/80 text-slate-900 dark:text-blue-50 rounded-tl-none shadow-sm'
+                      : 'bg-blue-50/95 border border-blue-200/90 text-slate-900 rounded-tl-none shadow-sm'
                   }`}
                 >
                   <RenderFormattedText text={msg.text} isUser={msg.sender === 'user'} />
 
                   {/* Render Candidates Data Cards if present */}
                   {msg.candidatesData && (
-                    <div className="mt-3 space-y-2 border-t border-blue-200/80 dark:border-blue-800/80 pt-2.5">
+                    <div className="mt-3 space-y-2 border-t border-blue-200/80 pt-2.5">
                       {msg.candidatesData.map((cand, idx) => (
-                        <div key={idx} className="p-2.5 rounded-xl bg-blue-100/70 dark:bg-blue-900/60 border border-blue-200 dark:border-blue-700/60 flex items-center justify-between gap-2 hover:bg-blue-200/60 dark:hover:bg-blue-800/70 transition-colors">
+                        <div key={idx} className="p-2.5 rounded-xl bg-white border border-blue-200 flex items-center justify-between gap-2 hover:bg-blue-100/50 transition-colors">
                           <div>
-                            <p className="font-bold text-blue-950 dark:text-white text-xs">{cand.name || cand.firstName + ' ' + cand.lastName}</p>
-                            <p className="text-[10.5px] text-blue-700 dark:text-blue-300 font-medium">{cand.role || cand.position || 'Frontend Developer'}</p>
+                            <p className="font-bold text-slate-900 text-xs">{cand.name || cand.firstName + ' ' + cand.lastName}</p>
+                            <p className="text-[10.5px] text-blue-700 font-medium">{cand.role || cand.position || 'Frontend Developer'}</p>
                           </div>
                           <span className="bg-blue-600 text-white text-[10px] font-extrabold px-2 py-1 rounded-lg shrink-0 shadow-xs">
                             {cand.score || 95}% Match
@@ -340,7 +340,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
                     </div>
                   )}
 
-                  <span className={`block text-[9.5px] mt-2 ${msg.sender === 'user' ? 'text-blue-200 text-right' : 'text-blue-600/80 dark:text-blue-300/80'}`}>
+                  <span className={`block text-[9.5px] mt-2 ${msg.sender === 'user' ? 'text-blue-200 text-right' : 'text-blue-600/80'}`}>
                     {msg.timestamp}
                   </span>
                 </div>
@@ -360,11 +360,11 @@ export default function AiChatDrawer({ isOpen, onClose }) {
               <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                 <Bot className="w-4 h-4" />
               </div>
-              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-tl-none text-slate-400 flex items-center gap-1.5 shadow-xs">
+              <div className="p-3 bg-white border border-slate-200 rounded-2xl rounded-tl-none text-slate-400 flex items-center gap-1.5 shadow-xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-                <span className="text-[10.5px] text-slate-400 font-medium ml-1">AI is thinking...</span>
+                <span className="text-[10.5px] text-slate-500 font-medium ml-1">AI is thinking...</span>
               </div>
             </div>
           )}
@@ -372,8 +372,8 @@ export default function AiChatDrawer({ isOpen, onClose }) {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Bar */}
-        <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
+        {/* Input Bar - Clean Light Mode */}
+        <div className="p-3 bg-white border-t border-slate-200 shrink-0">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -386,7 +386,7 @@ export default function AiChatDrawer({ isOpen, onClose }) {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Ask AI anything (e.g. Recommend candidates, draft JD...)"
-              className="flex-1 pl-4 pr-10 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/80 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400"
+              className="flex-1 pl-4 pr-10 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/80 focus:bg-white transition-all placeholder:text-slate-400"
             />
             <button
               type="submit"
