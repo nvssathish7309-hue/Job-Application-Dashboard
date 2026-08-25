@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, User, Phone, ArrowRight, UserPlus, LogIn, CheckCircle2, ShieldCheck, Zap, Users, Shield, X, Check } from 'lucide-react';
 import MindMatrixLogo, { MindMatrixIcon } from '../components/MindMatrixLogo';
@@ -20,6 +20,17 @@ export default function Login() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
+
+  // Clear any browser password manager autofill values on reload
+  useEffect(() => {
+    setEmail('');
+    setPassword('');
+    const timer = setTimeout(() => {
+      setEmail('');
+      setPassword('');
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   // SSO Modal State
   const [ssoModalProvider, setSsoModalProvider] = useState(null); // null | 'google' | 'linkedin'
@@ -478,7 +489,7 @@ export default function Login() {
               )}
 
               {/* Main Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
 
                 {/* Candidate Registration Extra Fields */}
                 {mode === 'register' && (
@@ -490,6 +501,8 @@ export default function Login() {
                           <input
                             type="text"
                             required
+                            autoComplete="off"
+                            name="reg_first_name"
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             placeholder="Jane"
@@ -503,6 +516,8 @@ export default function Login() {
                           <input
                             type="text"
                             required
+                            autoComplete="off"
+                            name="reg_last_name"
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                             placeholder="Doe"
@@ -520,6 +535,8 @@ export default function Login() {
                           <input
                             type="tel"
                             required
+                            autoComplete="off"
+                            name="reg_phone"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                             placeholder="9876543210"
@@ -541,6 +558,8 @@ export default function Login() {
                       <input
                         type="email"
                         required
+                        autoComplete="off"
+                        name="login_email_no_autofill"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder={activePortalTab === 'recruiter' ? 'teamaccess@mindmatrix.com' : 'candidate@example.com'}
@@ -570,6 +589,8 @@ export default function Login() {
                       <input
                         type={showPassword ? 'text' : 'password'}
                         required
+                        autoComplete="new-password"
+                        name="login_password_no_autofill"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
