@@ -374,16 +374,16 @@ export default function AIModePanel({ open, onClose, candidates = [], user = nul
       />
 
       {/* Slide-Over Drawer */}
-      <div className="relative w-full max-w-lg md:max-w-xl bg-white shadow-2xl flex flex-col h-full z-50 animate-slide-left border-l border-slate-200">
+      <div className="relative w-full max-w-sm sm:max-w-md bg-white shadow-2xl flex flex-col h-full z-50 animate-slide-left border-l border-slate-200">
         
         {/* Header with AI Gradient Accent */}
-        <div className="px-5 py-4 bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 text-white flex items-center justify-between shrink-0 shadow-md">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
+        <div className="px-4 py-3 bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 text-white flex items-center justify-between shrink-0 shadow-md">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
               <Sparkles className="w-4 h-4 text-fuchsia-300 animate-pulse" />
             </div>
             <div>
-              <h3 className="font-extrabold text-lg tracking-tight text-white">AI Mode</h3>
+              <h3 className="font-extrabold text-base tracking-tight text-white">AI Mode</h3>
             </div>
           </div>
 
