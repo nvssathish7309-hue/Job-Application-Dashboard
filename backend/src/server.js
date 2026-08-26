@@ -20,6 +20,7 @@ const interviewRoutes = require('./routes/interviewRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const auditRoutes = require('./routes/auditRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 const app = express();
 
@@ -140,6 +141,9 @@ app.use('/audit-logs', auditRoutes);
 
 app.use('/api/reports', reportRoutes);
 app.use('/reports', reportRoutes);
+
+app.use('/api/ai', aiRoutes);
+app.use('/ai', aiRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);

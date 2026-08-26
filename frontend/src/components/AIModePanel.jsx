@@ -324,7 +324,7 @@ export default function AIModePanel({ open, onClose, candidates = [], user = nul
     }
   }, [messages, isTyping, activeTab]);
 
-  const handleSendMessage = (textToSend) => {
+  const handleSendMessage = async (textToSend) => {
     const text = (textToSend || chatInput).trim();
     if (!text) return;
 
@@ -335,9 +335,41 @@ export default function AIModePanel({ open, onClose, candidates = [], user = nul
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     if (!textToSend) setChatInput('');
     setIsTyping(true);
+
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const apiEndpoint = baseUrl.endsWith('/api') ? `${baseUrl}/ai/chat` : `${baseUrl}/api/ai/chat`;
+
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          candidates,
+          history: updatedMessages.map(m => ({ role: m.sender === 'user' ? 'user' : 'ai', text: m.text }))
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.reply) {
+          setMessages(prev => [...prev, {
+            id: (Date.now() + 1).toString(),
+            sender: 'ai',
+            text: data.reply,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }]);
+          setIsTyping(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Real Gemini API endpoint offline/error, switching to built-in AI engine fallback:', err);
+    }
 
     setTimeout(() => {
       const aiReplyText = mockAskAI(text, candidates, user);
@@ -349,7 +381,7 @@ export default function AIModePanel({ open, onClose, candidates = [], user = nul
       };
       setMessages(prev => [...prev, aiMsg]);
       setIsTyping(false);
-    }, 500);
+    }, 400);
   };
 
   const handleClearChat = () => {
