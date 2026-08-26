@@ -4,14 +4,12 @@ import { Search, LogOut, Shield, Sparkles, Zap, Bot, Sun, Moon } from 'lucide-re
 import MindMatrixLogo from './MindMatrixLogo';
 import NotificationsDropdown from './NotificationsDropdown';
 import AiChatDrawer from './AiChatDrawer';
-import AIModePanel from './AIModePanel';
 import { useAuth } from '../context/AuthContext';
 import { useCandidates } from '../context/CandidateContext';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { candidates } = useCandidates();
-  const [isAiModeActive, setIsAiModeActive] = useState(false);
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
   // Theme Management State
@@ -35,10 +33,6 @@ export default function Navbar() {
 
   const toggleTheme = () => {
     setIsDarkMode(prev => !prev);
-  };
-
-  const toggleAiMode = () => {
-    setIsAiModeActive(prev => !prev);
   };
 
   const getRoleBadgeColor = (role) => {
@@ -79,28 +73,8 @@ export default function Navbar() {
         />
       </div>
 
-      {/* Right: AI Mode Toggle, Theme Toggle, Notifications, User Profile, Role Badge, Logout */}
+      {/* Right: Theme Toggle, Notifications, User Profile, Role Badge, Logout */}
       <div className="flex items-center gap-2.5 sm:gap-3">
-
-        {/* ⚡ AI Mode Toggle Button */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={toggleAiMode}
-            className="relative inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer select-none shadow-2xs hover:shadow-md active:scale-95"
-            style={{
-              backgroundOrigin: 'border-box',
-              backgroundImage: `linear-gradient(#F0F5FE, #F0F5FE), linear-gradient(135deg, #3b82f6 0%, #8b5cf6 35%, #ec4899 70%, #06b6d4 100%)`,
-              backgroundClip: 'padding-box, border-box',
-              border: '1.8px solid transparent',
-            }}
-            title="Click to Open AI Recruiter Assistant"
-          >
-            <Sparkles className="w-4 h-4 text-blue-600 animate-pulse" />
-            <span className="font-extrabold tracking-tight" style={{ color: '#1d4ed8' }}>AI Mode</span>
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-blue-200 animate-ping" />
-          </button>
-        </div>
 
         {/* ☀️ / 🌙 Light & Dark Mode Toggle Icon Button (Styled strictly like Pic 1 always) */}
         <button
@@ -159,14 +133,6 @@ export default function Navbar() {
         })()}
 
       </div>
-
-      {/* Slide-over AI Mode Panel */}
-      <AIModePanel
-        open={isAiModeActive}
-        onClose={() => setIsAiModeActive(false)}
-        candidates={candidates}
-        user={user}
-      />
 
       {/* Interactive AI Chat Assistant Drawer */}
       <AiChatDrawer isOpen={isAiChatOpen} onClose={() => setIsAiChatOpen(false)} />

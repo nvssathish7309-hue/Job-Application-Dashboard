@@ -1,6 +1,6 @@
 [
   {
-    "_id": "6a8e592611fe1723aa6c3dcc",
+    "_id": "6a8e5c20c19f153a744b84d5",
     "firstName": "Super",
     "lastName": "Admin",
     "email": "admin@mindmatrix.com",
@@ -9,12 +9,12 @@
     "phone": "9876543210",
     "isActive": true,
     "rawPassword": "Sathish@29",
-    "passwordHash": "$2a$10$GKQlTM2d8dbp47KT0E6onOu8IrId6FYDPyyIv8whiD.aybr2jWnl.",
-    "createdAt": "2026-08-26T03:10:30.178Z",
-    "updatedAt": "2026-08-26T03:10:30.367Z"
+    "passwordHash": "$2a$10$PhEIBxO2nBNSF5wffrauruI.8M5stgGZCTlGpfev53TtI4eiJYEmm",
+    "createdAt": "2026-08-26T03:23:12.953Z",
+    "updatedAt": "2026-08-26T03:23:13.086Z"
   },
   {
-    "_id": "6a8e592611fe1723aa6c3dce",
+    "_id": "6a8e5c21c19f153a744b84dc",
     "firstName": "Tirumal",
     "lastName": "M",
     "email": "hr@mindmatrix.com",
@@ -23,12 +23,12 @@
     "phone": "9876543211",
     "isActive": true,
     "rawPassword": "HrManager@2026",
-    "passwordHash": "$2a$10$n3m1/cFOAQOMa56tKHyOxeI37O5lIqOTw2pcPfz/MowMQDvl0MzB.",
-    "createdAt": "2026-08-26T03:10:30.370Z",
-    "updatedAt": "2026-08-26T03:10:30.510Z"
+    "passwordHash": "$2a$10$Ka7YhjcM3IOuk2KJscM9X.6tSPSgT3a814zxGQM2C58DuWp42zcq.",
+    "createdAt": "2026-08-26T03:23:13.088Z",
+    "updatedAt": "2026-08-26T03:23:13.210Z"
   },
   {
-    "_id": "6a8e590183ccda7d530401e0",
+    "_id": "6a8e5c21c19f153a744b84de",
     "firstName": "Sarah",
     "lastName": "Jenkins",
     "email": "recruiter@mindmatrix.com",
@@ -37,8 +37,22 @@
     "phone": "9876543212",
     "isActive": true,
     "rawPassword": "Recruiter@2026",
-    "passwordHash": "$2a$10$UAwVDv2.3YSSHBEkfF9U8uCNMAV29FY/hAhxIf9POkSHRgDcfp4K2",
-    "createdAt": "2026-08-26T03:09:53.864Z",
-    "updatedAt": "2026-08-26T03:09:53.976Z"
+    "passwordHash": "$2a$10$mT.EUPLe5Kr59z31Gz6El.b4J15IM/lF/yi7HOHdujethMBhTYznq",
+    "createdAt": "2026-08-26T03:23:13.212Z",
+    "updatedAt": "2026-08-26T03:23:13.314Z"
+  },
+  {
+    "_id": "6a8e5c1473ec91e278a9cd4f",
+    "firstName": "Alex",
+    "lastName": "Rivera",
+    "email": "interviewer@mindmatrix.com",
+    "role": "INTERVIEWER",
+    "department": "Engineering",
+    "phone": "9876543213",
+    "isActive": true,
+    "rawPassword": "Interviewer@2026",
+    "passwordHash": "$2a$10$aJCOwbA7a6Wq/2PCHY1pd.75mBpK56XTLjIuCyhD5p962zuu5KaJK",
+    "createdAt": "2026-08-26T03:23:00.716Z",
+    "updatedAt": "2026-08-26T03:23:00.802Z"
   }
 ]
