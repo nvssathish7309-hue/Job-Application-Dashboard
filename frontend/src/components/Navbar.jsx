@@ -4,11 +4,14 @@ import { Search, LogOut, Shield, Sparkles, Zap, Bot, Sun, Moon } from 'lucide-re
 import MindMatrixLogo from './MindMatrixLogo';
 import NotificationsDropdown from './NotificationsDropdown';
 import AiChatDrawer from './AiChatDrawer';
+import AIModePanel from './AIModePanel';
 import { useAuth } from '../context/AuthContext';
+import { useCandidates } from '../context/CandidateContext';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const [isAiModeActive, setIsAiModeActive] = useState(true);
+  const { candidates } = useCandidates();
+  const [isAiModeActive, setIsAiModeActive] = useState(false);
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
   // Theme Management State
@@ -35,8 +38,7 @@ export default function Navbar() {
   };
 
   const toggleAiMode = () => {
-    setIsAiModeActive(true);
-    setIsAiChatOpen(true);
+    setIsAiModeActive(prev => !prev);
   };
 
   const getRoleBadgeColor = (role) => {
@@ -52,14 +54,14 @@ export default function Navbar() {
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between shadow-2xs relative">
-      
+
       {/* Animated Spinning Glow Border Line */}
       <div className="spinning-glow-line" />
-      
+
       {/* Left: Brand Logo & Title */}
       <div className="flex items-center gap-3">
-        <Link 
-          to="/dashboard" 
+        <Link
+          to="/dashboard"
           className="no-glow group hover:opacity-95 transition-opacity outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 active:outline-none border-0 outline-0 ring-0 select-none"
           style={{ outline: 'none', boxShadow: 'none', WebkitTapHighlightColor: 'transparent' }}
         >
@@ -134,7 +136,7 @@ export default function Navbar() {
               <div className="btn-moving-light rounded-full w-9 h-9 bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
                 {initials}
               </div>
-              
+
               <div className="hidden lg:block text-left">
                 <p className="text-xs font-bold text-slate-900 leading-tight">
                   {fullName}
@@ -157,6 +159,13 @@ export default function Navbar() {
         })()}
 
       </div>
+
+      {/* Slide-over AI Mode Panel */}
+      <AIModePanel
+        open={isAiModeActive}
+        onClose={() => setIsAiModeActive(false)}
+        candidates={candidates}
+      />
 
       {/* Interactive AI Chat Assistant Drawer */}
       <AiChatDrawer isOpen={isAiChatOpen} onClose={() => setIsAiChatOpen(false)} />

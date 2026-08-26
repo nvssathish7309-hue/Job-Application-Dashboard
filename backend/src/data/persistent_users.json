@@ -1,6 +1,6 @@
 [
   {
-    "_id": "6a8d86b9dc246c4eb58abf7e",
+    "_id": "6a8e5315b26a1b65325527fa",
     "firstName": "Super",
     "lastName": "Admin",
     "email": "admin@mindmatrix.com",
@@ -9,12 +9,12 @@
     "phone": "9876543210",
     "isActive": true,
     "rawPassword": "Sathish@29",
-    "passwordHash": "$2a$10$YKFbKcnqwlqWCwfRQrrE/OJwQpna9lBBq0ua2NTx0B1Se6dBS3eCi",
-    "createdAt": "2026-08-25T12:12:41.689Z",
-    "updatedAt": "2026-08-25T12:12:41.771Z"
+    "passwordHash": "$2a$10$HF3qoKNTptSBckLen/zwfuOskoddLwcEKl87TAre33m4FM/voXBm6",
+    "createdAt": "2026-08-26T02:44:37.923Z",
+    "updatedAt": "2026-08-26T02:44:38.060Z"
   },
   {
-    "_id": "6a8d86b9dc246c4eb58abf80",
+    "_id": "6a8e5316b26a1b6532552800",
     "firstName": "Tirumal",
     "lastName": "M",
     "email": "hr@mindmatrix.com",
@@ -23,12 +23,12 @@
     "phone": "9876543211",
     "isActive": true,
     "rawPassword": "HrManager@2026",
-    "passwordHash": "$2a$10$h.Xes5qpEl9LJ0.25oojweGIFaTkA128kCVauN/7Dcbmv9YE7xhsy",
-    "createdAt": "2026-08-25T12:12:41.773Z",
-    "updatedAt": "2026-08-25T12:12:41.847Z"
+    "passwordHash": "$2a$10$w.ohmBsd5InNylUIclKB8u6JpKlrJxcefoIs.DHsXzi8jW83ROUbm",
+    "createdAt": "2026-08-26T02:44:38.063Z",
+    "updatedAt": "2026-08-26T02:44:38.181Z"
   },
   {
-    "_id": "6a8d869de04ecc58d048e003",
+    "_id": "6a8e5316b26a1b6532552802",
     "firstName": "Sarah",
     "lastName": "Jenkins",
     "email": "recruiter@mindmatrix.com",
@@ -37,12 +37,12 @@
     "phone": "9876543212",
     "isActive": true,
     "rawPassword": "Recruiter@2026",
-    "passwordHash": "$2a$10$XrAbADtjIww.ODtZlO0eAui6a4MzJCVeGeBhQ3GnRPEVe6j9Fh7d2",
-    "createdAt": "2026-08-25T12:12:13.202Z",
-    "updatedAt": "2026-08-25T12:12:13.285Z"
+    "passwordHash": "$2a$10$ERPv63neNJwbuY9Buj8s4.T4YlRCjwy3NJ1b/e3wyfecK8WGg21NS",
+    "createdAt": "2026-08-26T02:44:38.183Z",
+    "updatedAt": "2026-08-26T02:44:38.359Z"
   },
   {
-    "_id": "6a8d81015cbeb490c389a1b6",
+    "_id": "6a8e530068d4f5db11d2cc2f",
     "firstName": "Alex",
     "lastName": "Rivera",
     "email": "interviewer@mindmatrix.com",
@@ -51,8 +51,8 @@
     "phone": "9876543213",
     "isActive": true,
     "rawPassword": "Interviewer@2026",
-    "passwordHash": "$2a$10$8Cmcf1Pq9hZ5TCzoaaDurOVoHTTeHaA0kvXb/bmo621u5iGxmLOJq",
-    "createdAt": "2026-08-25T11:48:17.541Z",
-    "updatedAt": "2026-08-25T11:48:17.671Z"
+    "passwordHash": "$2a$10$YfahNZhxpwJgOUwK65fYQ.2GUr3f/IP1KZ7F.PkmExMu93D5q0b9q",
+    "createdAt": "2026-08-26T02:44:16.935Z",
+    "updatedAt": "2026-08-26T02:44:17.092Z"
   }
 ]
