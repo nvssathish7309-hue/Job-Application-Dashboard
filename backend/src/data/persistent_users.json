@@ -1,6 +1,6 @@
 [
   {
-    "_id": "6a8e54894eaf0b9a4529c3f5",
+    "_id": "6a8e559802cdc29abbbb956c",
     "firstName": "Super",
     "lastName": "Admin",
     "email": "admin@mindmatrix.com",
@@ -9,12 +9,12 @@
     "phone": "9876543210",
     "isActive": true,
     "rawPassword": "Sathish@29",
-    "passwordHash": "$2a$10$4DTaIBvzbZwTqgEirhd1y.Ko5sdVHlMe4XwBiWVtr3zgMkiSHaPx.",
-    "createdAt": "2026-08-26T02:50:49.386Z",
-    "updatedAt": "2026-08-26T02:50:49.569Z"
+    "passwordHash": "$2a$10$GkdC3kEcVQnbRzEPWBCYu.unefzW5IGK9pxwAf2f2k2eZNPYbEq3u",
+    "createdAt": "2026-08-26T02:55:20.584Z",
+    "updatedAt": "2026-08-26T02:55:20.788Z"
   },
   {
-    "_id": "6a8e54894eaf0b9a4529c3fb",
+    "_id": "6a8e559802cdc29abbbb9572",
     "firstName": "Tirumal",
     "lastName": "M",
     "email": "hr@mindmatrix.com",
@@ -23,12 +23,12 @@
     "phone": "9876543211",
     "isActive": true,
     "rawPassword": "HrManager@2026",
-    "passwordHash": "$2a$10$v3bvtaJACUlApv2UEFD9UeB0iAyAi83x1vPg91W6i5FF4/9PxM5.2",
-    "createdAt": "2026-08-26T02:50:49.572Z",
-    "updatedAt": "2026-08-26T02:50:49.685Z"
+    "passwordHash": "$2a$10$7pmpp04IjP84Mbkf1MH4COE/OiWA.Z6xzPCWGft8sB7wQzttIoPRy",
+    "createdAt": "2026-08-26T02:55:20.792Z",
+    "updatedAt": "2026-08-26T02:55:20.968Z"
   },
   {
-    "_id": "6a8e548192b5f63c62d47e43",
+    "_id": "6a8e553e131486fcbafdbf8c",
     "firstName": "Sarah",
     "lastName": "Jenkins",
     "email": "recruiter@mindmatrix.com",
@@ -37,22 +37,8 @@
     "phone": "9876543212",
     "isActive": true,
     "rawPassword": "Recruiter@2026",
-    "passwordHash": "$2a$10$VlJ16pCoffTY/LrK3VrkjO1aG/oLLV7powOubBlOIuHT7ExZ5giky",
-    "createdAt": "2026-08-26T02:50:41.962Z",
-    "updatedAt": "2026-08-26T02:50:42.107Z"
-  },
-  {
-    "_id": "6a8e530068d4f5db11d2cc2f",
-    "firstName": "Alex",
-    "lastName": "Rivera",
-    "email": "interviewer@mindmatrix.com",
-    "role": "INTERVIEWER",
-    "department": "Engineering",
-    "phone": "9876543213",
-    "isActive": true,
-    "rawPassword": "Interviewer@2026",
-    "passwordHash": "$2a$10$YfahNZhxpwJgOUwK65fYQ.2GUr3f/IP1KZ7F.PkmExMu93D5q0b9q",
-    "createdAt": "2026-08-26T02:44:16.935Z",
-    "updatedAt": "2026-08-26T02:44:17.092Z"
+    "passwordHash": "$2a$10$fMWeuwCD/jgQOxbUcyO5R.tiU76EQmFRsuLCl1AtNrlTAiglwCuoC",
+    "createdAt": "2026-08-26T02:53:50.544Z",
+    "updatedAt": "2026-08-26T02:53:50.688Z"
   }
 ]

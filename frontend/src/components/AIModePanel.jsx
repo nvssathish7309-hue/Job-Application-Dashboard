@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   Sparkles, X, MessageSquare, Search, BarChart3, Send, Bot, User, 
   CheckCircle2, Clock, Users, ArrowRight, Lightbulb, Filter, Award, 
-  TrendingUp, Briefcase, Zap, CheckCircle, XCircle
+  TrendingUp, Briefcase, Zap, CheckCircle, XCircle, Trash2
 } from 'lucide-react';
 
 // Safe candidate field accessors matching Hirely candidate data shape
@@ -352,6 +352,17 @@ export default function AIModePanel({ open, onClose, candidates = [], user = nul
     }, 500);
   };
 
+  const handleClearChat = () => {
+    setMessages([
+      {
+        id: 'welcome-' + Date.now(),
+        sender: 'ai',
+        text: `Welcome, **${userName}**! 👋 I am your **Hirely AI Assistant**.\n\nType **"HII"** or ask any question about your candidate pipeline to get started!`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    ]);
+  };
+
   if (!open) return null;
 
   return (
@@ -368,17 +379,11 @@ export default function AIModePanel({ open, onClose, candidates = [], user = nul
         {/* Header with AI Gradient Accent */}
         <div className="px-5 py-4 bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 text-white flex items-center justify-between shrink-0 shadow-md">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
-              <Sparkles className="w-5 h-5 text-fuchsia-300 animate-pulse" />
+            <div className="w-9 h-9 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
+              <Sparkles className="w-4 h-4 text-fuchsia-300 animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-base tracking-tight text-white">AI Mode Assistant</h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 text-slate-950 shadow-xs">
-                  Active
-                </span>
-              </div>
-              <p className="text-xs text-blue-200/90 font-medium">Smart candidate pipeline intelligence</p>
+              <h3 className="font-extrabold text-lg tracking-tight text-white">AI Mode</h3>
             </div>
           </div>
 
@@ -392,42 +397,56 @@ export default function AIModePanel({ open, onClose, candidates = [], user = nul
         </div>
 
         {/* Tab Selection Bar */}
-        <div className="flex items-center border-b border-slate-200 bg-slate-50/80 px-4 pt-2 gap-2 shrink-0">
-          <button
-            onClick={() => setActiveTab('chat')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-xs font-bold transition-all border-b-2 cursor-pointer ${
-              activeTab === 'chat'
-                ? 'border-blue-600 text-blue-600 bg-white shadow-2xs'
-                : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
-            }`}
-          >
-            <MessageSquare className="w-4 h-4" />
-            <span>Chat</span>
-          </button>
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/80 px-4 pt-2 shrink-0">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab('chat')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-xs font-bold transition-all border-b-2 cursor-pointer ${
+                activeTab === 'chat'
+                  ? 'border-blue-600 text-blue-600 bg-white shadow-2xs'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>Chat</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('search')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-xs font-bold transition-all border-b-2 cursor-pointer ${
-              activeTab === 'search'
-                ? 'border-purple-600 text-purple-600 bg-white shadow-2xs'
-                : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
-            }`}
-          >
-            <Search className="w-4 h-4" />
-            <span>Smart Search</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('search')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-xs font-bold transition-all border-b-2 cursor-pointer ${
+                activeTab === 'search'
+                  ? 'border-purple-600 text-purple-600 bg-white shadow-2xs'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
+              }`}
+            >
+              <Search className="w-4 h-4" />
+              <span>Smart Search</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('insights')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-xs font-bold transition-all border-b-2 cursor-pointer ${
-              activeTab === 'insights'
-                ? 'border-fuchsia-600 text-fuchsia-600 bg-white shadow-2xs'
-                : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span>Insights</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('insights')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-xs font-bold transition-all border-b-2 cursor-pointer ${
+                activeTab === 'insights'
+                  ? 'border-fuchsia-600 text-fuchsia-600 bg-white shadow-2xs'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span>Insights</span>
+            </button>
+          </div>
+
+          {/* Clear Chat Button (when in Chat tab) */}
+          {activeTab === 'chat' && (
+            <button
+              onClick={handleClearChat}
+              className="flex items-center gap-1.5 px-2.5 py-1 mb-1 rounded-lg text-xs font-bold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+              title="Clear Chat History"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Clear</span>
+            </button>
+          )}
         </div>
 
         {/* Panel Body Content */}
