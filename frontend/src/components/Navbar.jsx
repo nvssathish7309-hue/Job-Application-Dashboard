@@ -165,6 +165,7 @@ export default function Navbar() {
         open={isAiModeActive}
         onClose={() => setIsAiModeActive(false)}
         candidates={candidates}
+        user={user}
       />
 
       {/* Interactive AI Chat Assistant Drawer */}

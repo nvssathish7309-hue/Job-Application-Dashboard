@@ -45,10 +45,30 @@ export function getStatusBadgeStyle(status) {
 }
 
 // AI Engine: Smart Answer Generator for Chat
-export function mockAskAI(query, candidates = []) {
+export function mockAskAI(query, candidates = [], user = null) {
   if (!query || !query.trim()) return "Please ask a question about your candidate pipeline.";
   
   const q = query.toLowerCase().trim();
+
+  const userName = (() => {
+    if (!user) return 'Recruiter';
+    const full = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    if (full) return full;
+    if (user.name) return user.name;
+    if (user.email) return user.email.split('@')[0];
+    return 'Recruiter';
+  })();
+
+  // User Greeting Query (HII / HLO / HELLO / HEY / etc.)
+  const isGreeting = /^(h[ii]+|hlo+|hello+|hey+|hola|good\s*(morning|afternoon|evening)|greetings|hi\s*there)/i.test(q);
+  if (isGreeting || q === 'hi' || q === 'hii' || q === 'hlo' || q === 'hello' || q === 'hey') {
+    const shortlistedCount = candidates.filter(c => getCandidateStatus(c).toLowerCase().includes('shortlist')).length;
+    const interviewCount = candidates.filter(c => getCandidateStatus(c).toLowerCase().includes('interview')).length;
+
+    return `Welcome, **${userName}**! 👋\n\nHow can I help you manage your candidate pipeline today?\n\n` +
+      `You currently have **${candidates.length}** candidates in your pipeline (${shortlistedCount} shortlisted, ${interviewCount} in interview rounds).\n\n` +
+      `Feel free to click any suggestion below or ask me about skills, candidate stages, or pipeline insights!`;
+  }
 
   // Summary / Count query
   if (q.includes('summary') || q.includes('overview') || q.includes('how many') || q.includes('total') || q.includes('count')) {
@@ -59,7 +79,7 @@ export function mockAskAI(query, candidates = []) {
     const rejected = candidates.filter(c => getCandidateStatus(c).toLowerCase().includes('reject')).length;
     const applied = total - (shortlisted + interview + selected + rejected);
 
-    return `Here is your candidate pipeline summary:\n\n` +
+    return `Here is your candidate pipeline summary, **${userName}**:\n\n` +
       `• **Total Candidates**: ${total}\n` +
       `• **Shortlisted**: ${shortlisted}\n` +
       `• **Interview Scheduled**: ${interview}\n` +
@@ -220,21 +240,75 @@ export function buildInsights(candidates = []) {
   };
 }
 
-export default function AIModePanel({ open, onClose, candidates = [] }) {
+export default function AIModePanel({ open, onClose, candidates = [], user = null }) {
   const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'search' | 'insights'
+
+  const userName = useMemo(() => {
+    if (!user) return 'Recruiter';
+    const full = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    if (full) return full;
+    if (user.name) return user.name;
+    if (user.email) return user.email.split('@')[0];
+    return 'Recruiter';
+  }, [user]);
 
   // Chat State
   const [chatInput, setChatInput] = useState('');
-  const [messages, setMessages] = useState([
-    {
-      id: 'welcome',
-      sender: 'ai',
-      text: `Hello! I am your **Hirely AI Assistant**. Ask me anything about your candidate pipeline, search candidates naturally, or view auto-generated insights.`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const chatBottomRef = useRef(null);
+
+  // Initialize/Update Welcome Message with Personalized User Greeting
+  useEffect(() => {
+    if (open && messages.length === 0) {
+      setMessages([
+        {
+          id: 'welcome',
+          sender: 'ai',
+          text: `Welcome, **${userName}**! 👋 I am your **Hirely AI Assistant**.\n\nType **"HII"** or ask any question about your candidate pipeline to get started!`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+    }
+  }, [open, userName, messages.length]);
+
+  // Dynamic Suggested Prompts according to user role and conversation state
+  const suggestedPrompts = useMemo(() => {
+    const hasUserMessaged = messages.some(m => m.sender === 'user');
+    
+    if (!hasUserMessaged) {
+      return [
+        "HII 👋",
+        "Pipeline summary",
+        "Recommend top candidates",
+        "Who knows React?"
+      ];
+    }
+
+    const role = user?.role || 'RECRUITER';
+    if (role === 'SUPER_ADMIN' || role === 'HR_MANAGER') {
+      return [
+        "Pipeline summary",
+        "Who is in Interview round?",
+        "Recommend top candidates",
+        "Show selected candidates"
+      ];
+    }
+    if (role === 'INTERVIEWER') {
+      return [
+        "Who is in Interview round?",
+        "Who knows Python?",
+        "Shortlisted candidates",
+        "Pipeline summary"
+      ];
+    }
+    return [
+      "Pipeline summary",
+      "Who knows React?",
+      "Shortlisted candidates",
+      "Recommend top candidates"
+    ];
+  }, [user, messages]);
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -266,7 +340,7 @@ export default function AIModePanel({ open, onClose, candidates = [] }) {
     setIsTyping(true);
 
     setTimeout(() => {
-      const aiReplyText = mockAskAI(text, candidates);
+      const aiReplyText = mockAskAI(text, candidates, user);
       const aiMsg = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
@@ -417,15 +491,10 @@ export default function AIModePanel({ open, onClose, candidates = [] }) {
               <div className="space-y-1.5 pt-2">
                 <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider px-1">Suggested Prompts</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {[
-                    "Pipeline summary",
-                    "Who knows React?",
-                    "Shortlisted candidates",
-                    "Recommend top candidates"
-                  ].map((prompt, idx) => (
+                  {suggestedPrompts.map((prompt, idx) => (
                     <button
                       key={idx}
-                      onClick={() => handleSendMessage(prompt)}
+                      onClick={() => handleSendMessage(prompt.replace(' 👋', ''))}
                       className="px-2.5 py-1 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-700 hover:text-blue-700 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-2xs"
                     >
                       ✨ {prompt}
